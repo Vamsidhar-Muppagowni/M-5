@@ -1,0 +1,444 @@
+Commit 0: Optimize database query by Siddhartha-kosuri on 2025-12-29T11:30:44.000Z
+Commit 1: Initial commit by Vamsidhar-Muppagowni on 2025-12-29T14:08:09.000Z
+Commit 2: Update translation keys by rohithabhinav22 on 2025-12-29T12:45:19.000Z
+Commit 3: Fix footer alignment by Vamsidhar-Muppagowni on 2025-12-29T05:04:02.000Z
+Commit 4: Add unit tests by sinmaster69 on 2025-12-29T11:19:56.000Z
+Commit 5: Initial commit by Vamsidhar-Muppagowni on 2025-12-30T06:32:42.000Z
+Commit 6: Add new feature by rohithabhinav22 on 2025-12-30T11:13:58.000Z
+Commit 7: Optimize database query by sinmaster69 on 2025-12-30T11:40:22.000Z
+Commit 8: Refactor API routes by Siddhartha-kosuri on 2025-12-30T07:55:59.000Z
+Commit 9: Update README by Siddhartha-kosuri on 2026-01-01T08:18:14.000Z
+Commit 10: Refactor dashboard by sinmaster69 on 2026-01-02T11:30:54.000Z
+Commit 11: Add ML integration by rohithabhinav22 on 2026-01-02T05:27:09.000Z
+Commit 12: Fix typo by sinmaster69 on 2026-01-03T08:54:22.000Z
+Commit 13: Update styles by sinmaster69 on 2026-01-03T14:16:08.000Z
+Commit 14: Add new feature by sinmaster69 on 2026-01-04T14:47:08.000Z
+Commit 15: Add error handling by rohithabhinav22 on 2026-01-04T03:41:01.000Z
+Commit 16: Refactor dashboard by Siddhartha-kosuri on 2026-01-04T14:52:22.000Z
+Commit 17: Clean up code by Vamsidhar-Muppagowni on 2026-01-05T08:29:52.000Z
+Commit 18: Fix footer alignment by Vamsidhar-Muppagowni on 2026-01-05T15:47:36.000Z
+Commit 19: Update dependencies by Siddhartha-kosuri on 2026-01-05T05:30:56.000Z
+Commit 20: Add error handling by sinmaster69 on 2026-01-07T12:08:14.000Z
+Commit 21: Update styles by Vamsidhar-Muppagowni on 2026-01-07T15:28:28.000Z
+Commit 22: Update seed data by rohithabhinav22 on 2026-01-07T08:13:19.000Z
+Commit 23: Fix payment gateway issue by sinmaster69 on 2026-01-08T16:43:58.000Z
+Commit 24: Refactor auth middleware by rohithabhinav22 on 2026-01-08T17:27:14.000Z
+Commit 25: Add new feature by Vamsidhar-Muppagowni on 2026-01-08T15:04:10.000Z
+Commit 26: Update documentation by rohithabhinav22 on 2026-01-08T07:34:51.000Z
+Commit 27: Update seed data by Siddhartha-kosuri on 2026-01-08T14:14:25.000Z
+Commit 28: Update documentation by Vamsidhar-Muppagowni on 2026-01-09T04:22:35.000Z
+Commit 29: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-09T10:35:44.000Z
+Commit 30: Update styles by sinmaster69 on 2026-01-09T06:13:45.000Z
+Commit 31: Fix footer alignment by Siddhartha-kosuri on 2026-01-09T08:08:13.000Z
+Commit 32: Add error handling by rohithabhinav22 on 2026-01-09T07:20:14.000Z
+Commit 33: Update README by sinmaster69 on 2026-01-10T05:13:02.000Z
+Commit 34: Add unit tests by rohithabhinav22 on 2026-01-11T06:20:56.000Z
+Commit 35: Optimize database query by Vamsidhar-Muppagowni on 2026-01-11T05:34:34.000Z
+Commit 36: Add ML integration by rohithabhinav22 on 2026-01-12T03:33:33.000Z
+Commit 37: Fix bug in login by rohithabhinav22 on 2026-01-15T07:17:04.000Z
+Commit 38: Fix payment gateway issue by Siddhartha-kosuri on 2026-01-15T12:00:10.000Z
+Commit 39: Update styles by Vamsidhar-Muppagowni on 2026-01-15T11:32:12.000Z
+Commit 40: Fix typo by Vamsidhar-Muppagowni on 2026-01-15T15:26:51.000Z
+Commit 41: Fix bug in login by Vamsidhar-Muppagowni on 2026-01-16T10:10:55.000Z
+Commit 42: Add new feature by Vamsidhar-Muppagowni on 2026-01-16T11:12:34.000Z
+Commit 43: Update dependencies by sinmaster69 on 2026-01-16T03:34:00.000Z
+Commit 44: Refactor API routes by sinmaster69 on 2026-01-16T08:58:31.000Z
+Commit 45: Add error handling by Siddhartha-kosuri on 2026-01-16T06:03:53.000Z
+Commit 46: Add error handling by Siddhartha-kosuri on 2026-01-17T08:51:56.000Z
+Commit 47: Update documentation by Vamsidhar-Muppagowni on 2026-01-17T17:24:08.000Z
+Commit 48: Initial commit by sinmaster69 on 2026-01-18T05:19:40.000Z
+Commit 49: Fix typo by sinmaster69 on 2026-01-19T14:20:55.000Z
+Commit 50: Update README by rohithabhinav22 on 2026-01-19T12:54:00.000Z
+Commit 51: Add new feature by rohithabhinav22 on 2026-01-19T13:18:20.000Z
+Commit 52: Refactor auth middleware by rohithabhinav22 on 2026-01-19T16:41:10.000Z
+Commit 53: Initial commit by rohithabhinav22 on 2026-01-19T17:19:14.000Z
+Commit 54: Optimize database query by Siddhartha-kosuri on 2026-01-20T17:18:43.000Z
+Commit 55: Update seed data by rohithabhinav22 on 2026-01-20T13:40:33.000Z
+Commit 56: Update translation keys by Vamsidhar-Muppagowni on 2026-01-21T11:21:26.000Z
+Commit 57: Add new feature by Vamsidhar-Muppagowni on 2026-01-21T12:38:58.000Z
+Commit 58: Update documentation by Vamsidhar-Muppagowni on 2026-01-21T06:22:59.000Z
+Commit 59: Initial commit by sinmaster69 on 2026-01-22T07:47:04.000Z
+Commit 60: Fix bidding logic by rohithabhinav22 on 2026-01-22T05:49:35.000Z
+Commit 61: Refactor auth middleware by rohithabhinav22 on 2026-01-22T08:21:27.000Z
+Commit 62: Merge branch 'feature-login' by sinmaster69 on 2026-01-23T03:37:07.000Z
+Commit 63: Add crop listing validation by Vamsidhar-Muppagowni on 2026-01-23T11:02:16.000Z
+Commit 64: Initial commit by Siddhartha-kosuri on 2026-01-26T05:51:04.000Z
+Commit 65: Add unit tests by Vamsidhar-Muppagowni on 2026-01-26T16:33:16.000Z
+Commit 66: Update styles by Vamsidhar-Muppagowni on 2026-01-26T12:57:51.000Z
+Commit 67: Update README by Vamsidhar-Muppagowni on 2026-01-26T16:08:07.000Z
+Commit 68: Add unit tests by Siddhartha-kosuri on 2026-01-26T13:42:14.000Z
+Commit 69: Fix footer alignment by Vamsidhar-Muppagowni on 2026-01-27T06:06:23.000Z
+Commit 70: Merge branch 'feature-login' by sinmaster69 on 2026-01-27T07:27:04.000Z
+Commit 71: Fix crash on startup by rohithabhinav22 on 2026-01-27T05:13:19.000Z
+Commit 72: Add error handling by rohithabhinav22 on 2026-01-28T08:43:48.000Z
+Commit 73: Update seed data by Vamsidhar-Muppagowni on 2026-01-28T09:40:55.000Z
+Commit 74: Fix bug in login by Vamsidhar-Muppagowni on 2026-01-29T07:23:10.000Z
+Commit 75: Clean up code by rohithabhinav22 on 2026-01-29T16:18:16.000Z
+Commit 76: Update styles by sinmaster69 on 2026-01-30T17:17:43.000Z
+Commit 77: Fix crash on startup by Vamsidhar-Muppagowni on 2026-01-30T09:07:53.000Z
+Commit 78: Add ML integration by rohithabhinav22 on 2026-01-30T09:14:04.000Z
+Commit 79: Add new feature by Siddhartha-kosuri on 2026-01-30T10:52:40.000Z
+Commit 80: Refactor dashboard by Siddhartha-kosuri on 2026-01-30T05:18:37.000Z
+Commit 81: Add error handling by Siddhartha-kosuri on 2026-01-31T15:54:52.000Z
+Commit 82: Add unit tests by rohithabhinav22 on 2026-01-31T04:48:40.000Z
+Commit 83: Fix typo by Vamsidhar-Muppagowni on 2026-02-02T15:33:43.000Z
+Commit 84: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-02-02T04:59:43.000Z
+Commit 85: Fix typo by Vamsidhar-Muppagowni on 2026-02-02T11:00:06.000Z
+Commit 86: Fix typo by sinmaster69 on 2026-02-02T11:31:38.000Z
+Commit 87: Fix footer alignment by Siddhartha-kosuri on 2026-02-04T05:27:31.000Z
+Commit 88: Fix bug in login by rohithabhinav22 on 2026-02-04T14:23:19.000Z
+Commit 89: Update translation keys by Siddhartha-kosuri on 2026-02-05T05:40:03.000Z
+Commit 90: Update documentation by rohithabhinav22 on 2026-02-05T08:04:46.000Z
+Commit 91: Add ML integration by sinmaster69 on 2026-02-07T05:22:32.000Z
+Commit 92: Fix bidding logic by Vamsidhar-Muppagowni on 2026-02-07T09:40:41.000Z
+Commit 93: Update README by Vamsidhar-Muppagowni on 2026-02-08T16:21:11.000Z
+Commit 94: Update translation keys by rohithabhinav22 on 2026-02-09T14:57:54.000Z
+Commit 95: Update seed data by Vamsidhar-Muppagowni on 2026-02-09T13:51:04.000Z
+Commit 96: Clean up code by Siddhartha-kosuri on 2026-02-10T05:16:48.000Z
+Commit 97: Update translation keys by Vamsidhar-Muppagowni on 2026-02-11T06:13:29.000Z
+Commit 98: Fix crash on startup by rohithabhinav22 on 2026-02-11T11:16:20.000Z
+Commit 99: Update translation keys by sinmaster69 on 2026-02-11T05:38:23.000Z
+Commit 100: Refactor API routes by Vamsidhar-Muppagowni on 2026-02-11T10:22:39.000Z
+Commit 101: Optimize database query by rohithabhinav22 on 2026-02-12T08:43:45.000Z
+Commit 102: Update seed data by Vamsidhar-Muppagowni on 2026-02-12T12:16:52.000Z
+Commit 103: Fix bidding logic by Vamsidhar-Muppagowni on 2026-02-12T12:37:10.000Z
+Commit 104: Add ML integration by rohithabhinav22 on 2026-02-12T05:28:03.000Z
+Commit 105: Refactor dashboard by sinmaster69 on 2026-02-13T09:45:20.000Z
+Commit 106: Refactor auth middleware by Vamsidhar-Muppagowni on 2026-02-13T14:50:53.000Z
+Commit 107: Update seed data by Vamsidhar-Muppagowni on 2026-02-13T08:42:12.000Z
+Commit 108: Refactor auth middleware by sinmaster69 on 2026-02-13T11:47:22.000Z
+Commit 109: Fix bidding logic by Siddhartha-kosuri on 2026-02-13T11:14:02.000Z
+Commit 110: Fix bidding logic by rohithabhinav22 on 2026-02-18T17:20:48.000Z
+Commit 111: Merge branch 'feature-login' by Siddhartha-kosuri on 2026-02-18T17:13:05.000Z
+Commit 112: Fix payment gateway issue by rohithabhinav22 on 2026-02-19T09:32:53.000Z
+Commit 113: Fix bidding logic by rohithabhinav22 on 2026-02-19T14:36:19.000Z
+Commit 114: Refactor API routes by rohithabhinav22 on 2026-02-19T14:35:35.000Z
+Commit 0: Fix crash on startup by sinmaster69 on 2025-12-29T13:12:24.000Z
+Commit 1: Update README by Vamsidhar-Muppagowni on 2025-12-29T06:09:14.000Z
+Commit 2: Update README by Siddhartha-kosuri on 2025-12-29T08:26:58.000Z
+Commit 3: Update styles by Vamsidhar-Muppagowni on 2025-12-30T11:13:48.000Z
+Commit 4: Add error handling by sinmaster69 on 2025-12-30T11:22:28.000Z
+Commit 5: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2025-12-30T11:58:40.000Z
+Commit 6: Initial commit by Vamsidhar-Muppagowni on 2025-12-31T06:53:23.000Z
+Commit 7: Add unit tests by sinmaster69 on 2025-12-31T09:41:49.000Z
+Commit 8: Fix payment gateway issue by Vamsidhar-Muppagowni on 2025-12-31T09:46:30.000Z
+Commit 9: Add crop listing validation by Vamsidhar-Muppagowni on 2025-12-31T07:43:45.000Z
+Commit 10: Update styles by rohithabhinav22 on 2026-01-01T05:26:07.000Z
+Commit 11: Refactor dashboard by Vamsidhar-Muppagowni on 2026-01-01T15:49:10.000Z
+Commit 12: Refactor auth middleware by sinmaster69 on 2026-01-01T11:40:01.000Z
+Commit 13: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-01T07:40:03.000Z
+Commit 14: Update translation keys by rohithabhinav22 on 2026-01-01T07:07:31.000Z
+Commit 15: Update styles by sinmaster69 on 2026-01-02T05:29:07.000Z
+Commit 16: Add unit tests by rohithabhinav22 on 2026-01-02T05:17:31.000Z
+Commit 17: Update translation keys by Vamsidhar-Muppagowni on 2026-01-03T05:39:29.000Z
+Commit 18: Fix typo by sinmaster69 on 2026-01-03T09:10:34.000Z
+Commit 19: Update README by sinmaster69 on 2026-01-03T11:06:21.000Z
+Commit 20: Refactor API routes by sinmaster69 on 2026-01-04T10:23:40.000Z
+Commit 21: Clean up code by rohithabhinav22 on 2026-01-05T06:41:32.000Z
+Commit 22: Merge branch 'feature-login' by rohithabhinav22 on 2026-01-05T11:05:40.000Z
+Commit 23: Add new feature by rohithabhinav22 on 2026-01-06T14:22:44.000Z
+Commit 24: Update README by Vamsidhar-Muppagowni on 2026-01-06T04:03:46.000Z
+Commit 25: Clean up code by sinmaster69 on 2026-01-07T08:35:19.000Z
+Commit 26: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-07T08:54:04.000Z
+Commit 27: Refactor auth middleware by Vamsidhar-Muppagowni on 2026-01-07T10:39:12.000Z
+Commit 28: Refactor dashboard by sinmaster69 on 2026-01-07T15:23:56.000Z
+Commit 29: Clean up code by Vamsidhar-Muppagowni on 2026-01-07T11:47:54.000Z
+Commit 30: Fix payment gateway issue by rohithabhinav22 on 2026-01-08T10:50:28.000Z
+Commit 31: Add error handling by Siddhartha-kosuri on 2026-01-08T04:00:30.000Z
+Commit 32: Fix bug in login by sinmaster69 on 2026-01-09T13:03:16.000Z
+Commit 33: Optimize database query by sinmaster69 on 2026-01-09T04:22:47.000Z
+Commit 34: Refactor auth middleware by Siddhartha-kosuri on 2026-01-09T13:09:20.000Z
+Commit 35: Fix typo by Siddhartha-kosuri on 2026-01-09T11:03:50.000Z
+Commit 36: Update seed data by rohithabhinav22 on 2026-01-09T09:56:26.000Z
+Commit 37: Refactor dashboard by Siddhartha-kosuri on 2026-01-10T14:32:00.000Z
+Commit 38: Initial commit by rohithabhinav22 on 2026-01-10T09:19:07.000Z
+Commit 39: Update profile screen by Siddhartha-kosuri on 2026-01-10T11:50:33.000Z
+Commit 40: Update seed data by sinmaster69 on 2026-01-10T12:18:30.000Z
+Commit 41: Add crop listing validation by Vamsidhar-Muppagowni on 2026-01-10T14:10:33.000Z
+Commit 42: Fix footer alignment by sinmaster69 on 2026-01-12T14:01:28.000Z
+Commit 43: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-12T10:14:24.000Z
+Commit 44: Refactor API routes by Vamsidhar-Muppagowni on 2026-01-15T05:38:10.000Z
+Commit 45: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-15T10:19:38.000Z
+Commit 46: Add error handling by Vamsidhar-Muppagowni on 2026-01-15T06:25:11.000Z
+Commit 47: Refactor dashboard by sinmaster69 on 2026-01-15T12:14:21.000Z
+Commit 48: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-01-16T05:43:56.000Z
+Commit 49: Update dependencies by sinmaster69 on 2026-01-16T09:34:41.000Z
+Commit 50: Fix typo by sinmaster69 on 2026-01-17T06:27:59.000Z
+Commit 51: Update seed data by Vamsidhar-Muppagowni on 2026-01-17T07:52:10.000Z
+Commit 52: Fix payment gateway issue by Vamsidhar-Muppagowni on 2026-01-17T11:47:36.000Z
+Commit 53: Fix crash on startup by Vamsidhar-Muppagowni on 2026-01-19T16:36:53.000Z
+Commit 54: Add ML integration by Siddhartha-kosuri on 2026-01-19T12:46:18.000Z
+Commit 55: Update seed data by Vamsidhar-Muppagowni on 2026-01-20T11:55:11.000Z
+Commit 56: Clean up code by Vamsidhar-Muppagowni on 2026-01-20T14:50:16.000Z
+Commit 57: Add unit tests by Vamsidhar-Muppagowni on 2026-01-21T12:52:18.000Z
+Commit 58: Add error handling by Siddhartha-kosuri on 2026-01-21T16:16:00.000Z
+Commit 59: Add new feature by sinmaster69 on 2026-01-22T06:07:56.000Z
+Commit 60: Add ML integration by sinmaster69 on 2026-01-22T14:03:52.000Z
+Commit 61: Add ML integration by rohithabhinav22 on 2026-01-22T16:06:52.000Z
+Commit 62: Refactor API routes by rohithabhinav22 on 2026-01-22T10:25:43.000Z
+Commit 63: Refactor auth middleware by Siddhartha-kosuri on 2026-01-23T03:43:57.000Z
+Commit 64: Fix layout on mobile by Vamsidhar-Muppagowni on 2026-01-23T14:27:40.000Z
+Commit 65: Fix crash on startup by Vamsidhar-Muppagowni on 2026-01-23T10:54:26.000Z
+Commit 66: Fix payment gateway issue by rohithabhinav22 on 2026-01-23T16:34:01.000Z
+Commit 67: Optimize database query by rohithabhinav22 on 2026-01-23T12:27:26.000Z
+Commit 68: Clean up code by Vamsidhar-Muppagowni on 2026-01-24T14:11:16.000Z
+Commit 69: Update styles by Vamsidhar-Muppagowni on 2026-01-24T11:21:03.000Z
+Commit 70: Refactor API routes by Vamsidhar-Muppagowni on 2026-01-24T11:35:34.000Z
+Commit 71: Fix payment gateway issue by Siddhartha-kosuri on 2026-01-27T11:00:31.000Z
+Commit 72: Add new feature by rohithabhinav22 on 2026-01-27T06:39:29.000Z
+Commit 73: Fix typo by sinmaster69 on 2026-01-27T16:54:26.000Z
+Commit 74: Fix crash on startup by sinmaster69 on 2026-01-27T11:44:23.000Z
+Commit 75: Update profile screen by Siddhartha-kosuri on 2026-01-29T16:29:28.000Z
+Commit 76: Add ML integration by Vamsidhar-Muppagowni on 2026-01-30T14:04:36.000Z
+Commit 77: Fix bidding logic by rohithabhinav22 on 2026-01-31T11:04:38.000Z
+Commit 78: Update styles by Siddhartha-kosuri on 2026-01-31T13:37:01.000Z
+Commit 79: Add unit tests by Siddhartha-kosuri on 2026-01-31T13:54:45.000Z
+Commit 80: Update dependencies by Siddhartha-kosuri on 2026-01-31T03:43:35.000Z
+Commit 81: Update translation keys by Siddhartha-kosuri on 2026-01-31T14:13:57.000Z
+Commit 82: Clean up code by Vamsidhar-Muppagowni on 2026-02-01T08:17:12.000Z
+Commit 83: Fix bidding logic by rohithabhinav22 on 2026-02-01T13:18:30.000Z
+Commit 84: Fix crash on startup by Siddhartha-kosuri on 2026-02-01T11:03:47.000Z
+Commit 85: Optimize database query by sinmaster69 on 2026-02-01T11:32:35.000Z
+Commit 86: Optimize database query by sinmaster69 on 2026-02-02T14:53:52.000Z
+Commit 87: Update translation keys by Vamsidhar-Muppagowni on 2026-02-02T12:21:43.000Z
+Commit 88: Fix payment gateway issue by Siddhartha-kosuri on 2026-02-02T09:29:30.000Z
+Commit 89: Fix bug in login by sinmaster69 on 2026-02-02T09:16:52.000Z
+Commit 90: Add unit tests by Vamsidhar-Muppagowni on 2026-02-03T12:09:35.000Z
+Commit 91: Fix typo by rohithabhinav22 on 2026-02-03T12:16:01.000Z
+Commit 92: Update dependencies by sinmaster69 on 2026-02-03T16:03:04.000Z
+Commit 93: Fix layout on mobile by Siddhartha-kosuri on 2026-02-03T15:41:52.000Z
+Commit 94: Fix bidding logic by Siddhartha-kosuri on 2026-02-03T15:19:23.000Z
+Commit 95: Add ML integration by sinmaster69 on 2026-02-08T10:08:07.000Z
+Commit 96: Add ML integration by Vamsidhar-Muppagowni on 2026-02-08T11:55:05.000Z
+Commit 97: Update dependencies by sinmaster69 on 2026-02-08T11:08:44.000Z
+Commit 98: Initial commit by Vamsidhar-Muppagowni on 2026-02-08T13:58:54.000Z
+Commit 99: Fix bidding logic by Vamsidhar-Muppagowni on 2026-02-09T17:27:40.000Z
+Commit 100: Fix footer alignment by sinmaster69 on 2026-02-09T08:03:12.000Z
+Commit 101: Add crop listing validation by sinmaster69 on 2026-02-09T05:13:35.000Z
+Commit 102: Refactor API routes by Vamsidhar-Muppagowni on 2026-02-09T10:38:46.000Z
+Commit 103: Add new feature by Vamsidhar-Muppagowni on 2026-02-09T06:57:51.000Z
+Commit 104: Refactor dashboard by Vamsidhar-Muppagowni on 2026-02-10T11:47:14.000Z
+Commit 105: Update translation keys by Vamsidhar-Muppagowni on 2026-02-10T16:25:36.000Z
+Commit 106: Add error handling by rohithabhinav22 on 2026-02-10T10:00:55.000Z
+Commit 107: Update translation keys by rohithabhinav22 on 2026-02-10T11:56:37.000Z
+Commit 108: Add crop listing validation by sinmaster69 on 2026-02-10T17:04:07.000Z
+Commit 109: Initial commit by Vamsidhar-Muppagowni on 2026-02-12T11:41:50.000Z
+Commit 110: Fix typo by Siddhartha-kosuri on 2026-02-13T16:19:32.000Z
+Commit 111: Add error handling by Vamsidhar-Muppagowni on 2026-02-14T09:56:59.000Z
+Commit 112: Refactor dashboard by rohithabhinav22 on 2026-02-14T14:46:00.000Z
+Commit 113: Fix footer alignment by sinmaster69 on 2026-02-14T06:04:05.000Z
+Commit 114: Add error handling by sinmaster69 on 2026-02-15T13:04:02.000Z
+Commit 115: Add crop listing validation by Vamsidhar-Muppagowni on 2026-02-15T12:54:37.000Z
+Commit 116: Fix bidding logic by sinmaster69 on 2026-02-15T08:45:58.000Z
+Commit 117: Fix typo by sinmaster69 on 2026-02-15T04:05:21.000Z
+Commit 118: Fix payment gateway issue by Vamsidhar-Muppagowni on 2026-02-15T09:04:55.000Z
+Commit 119: Update documentation by Siddhartha-kosuri on 2026-02-16T09:12:28.000Z
+Commit 120: Add new feature by Siddhartha-kosuri on 2026-02-17T05:17:11.000Z
+Commit 121: Update documentation by sinmaster69 on 2026-02-17T03:30:22.000Z
+Commit 122: Fix bidding logic by rohithabhinav22 on 2026-02-19T10:27:50.000Z
+Commit 123: Fix footer alignment by sinmaster69 on 2026-02-19T15:22:34.000Z
+Commit 124: Clean up code by rohithabhinav22 on 2026-02-19T09:36:01.000Z
+Commit 125: Initial commit by Vamsidhar-Muppagowni on 2026-02-19T10:31:00.000Z
+Commit 0: Clean up code by Siddhartha-kosuri on 2025-12-29T09:41:45.000Z
+Commit 1: Add unit tests by sinmaster69 on 2025-12-29T06:13:07.000Z
+Commit 2: Refactor dashboard by sinmaster69 on 2025-12-29T04:10:51.000Z
+Commit 3: Add error handling by Vamsidhar-Muppagowni on 2025-12-29T12:53:55.000Z
+Commit 4: Fix footer alignment by Vamsidhar-Muppagowni on 2025-12-30T15:23:58.000Z
+Commit 5: Add error handling by rohithabhinav22 on 2025-12-31T09:34:27.000Z
+Commit 6: Fix payment gateway issue by Vamsidhar-Muppagowni on 2025-12-31T15:44:05.000Z
+Commit 7: Clean up code by Siddhartha-kosuri on 2025-12-31T11:11:54.000Z
+Commit 8: Fix crash on startup by Vamsidhar-Muppagowni on 2026-01-02T13:54:25.000Z
+Commit 9: Merge branch 'feature-login' by sinmaster69 on 2026-01-02T14:50:35.000Z
+Commit 10: Add ML integration by sinmaster69 on 2026-01-02T12:58:59.000Z
+Commit 11: Add crop listing validation by Siddhartha-kosuri on 2026-01-03T15:19:41.000Z
+Commit 12: Optimize database query by rohithabhinav22 on 2026-01-04T06:52:49.000Z
+Commit 13: Add new feature by Vamsidhar-Muppagowni on 2026-01-06T12:05:55.000Z
+Commit 14: Optimize database query by Vamsidhar-Muppagowni on 2026-01-06T04:58:21.000Z
+Commit 15: Fix typo by Vamsidhar-Muppagowni on 2026-01-06T06:31:27.000Z
+Commit 16: Add new feature by sinmaster69 on 2026-01-07T07:59:29.000Z
+Commit 17: Update seed data by Vamsidhar-Muppagowni on 2026-01-07T04:49:55.000Z
+Commit 18: Update README by sinmaster69 on 2026-01-07T05:12:46.000Z
+Commit 19: Optimize database query by Siddhartha-kosuri on 2026-01-07T03:32:22.000Z
+Commit 20: Initial commit by Siddhartha-kosuri on 2026-01-08T04:31:12.000Z
+Commit 21: Fix layout on mobile by Siddhartha-kosuri on 2026-01-08T13:03:23.000Z
+Commit 22: Initial commit by sinmaster69 on 2026-01-08T09:54:16.000Z
+Commit 23: Add error handling by rohithabhinav22 on 2026-01-08T15:29:09.000Z
+Commit 24: Update seed data by Vamsidhar-Muppagowni on 2026-01-09T07:16:05.000Z
+Commit 25: Add error handling by sinmaster69 on 2026-01-09T08:57:42.000Z
+Commit 26: Fix bidding logic by Siddhartha-kosuri on 2026-01-09T17:29:45.000Z
+Commit 27: Fix footer alignment by Vamsidhar-Muppagowni on 2026-01-10T08:48:49.000Z
+Commit 28: Add unit tests by Vamsidhar-Muppagowni on 2026-01-12T05:22:11.000Z
+Commit 29: Update README by sinmaster69 on 2026-01-14T05:01:52.000Z
+Commit 30: Add ML integration by rohithabhinav22 on 2026-01-14T16:40:14.000Z
+Commit 31: Update documentation by Siddhartha-kosuri on 2026-01-14T05:58:16.000Z
+Commit 32: Refactor dashboard by Vamsidhar-Muppagowni on 2026-01-14T04:00:47.000Z
+Commit 33: Update translation keys by Siddhartha-kosuri on 2026-01-14T11:42:13.000Z
+Commit 34: Optimize database query by Siddhartha-kosuri on 2026-01-16T09:38:51.000Z
+Commit 35: Add new feature by Siddhartha-kosuri on 2026-01-16T06:50:19.000Z
+Commit 36: Update styles by Siddhartha-kosuri on 2026-01-16T12:43:44.000Z
+Commit 37: Initial commit by sinmaster69 on 2026-01-18T15:05:47.000Z
+Commit 38: Refactor API routes by Vamsidhar-Muppagowni on 2026-01-18T17:28:33.000Z
+Commit 39: Add error handling by sinmaster69 on 2026-01-20T13:13:04.000Z
+Commit 40: Add unit tests by Vamsidhar-Muppagowni on 2026-01-20T10:31:38.000Z
+Commit 41: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-01-21T03:54:26.000Z
+Commit 42: Update README by rohithabhinav22 on 2026-01-21T16:47:43.000Z
+Commit 43: Update dependencies by sinmaster69 on 2026-01-22T16:47:58.000Z
+Commit 44: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-22T08:06:25.000Z
+Commit 45: Update README by Vamsidhar-Muppagowni on 2026-01-22T06:48:15.000Z
+Commit 46: Fix layout on mobile by Vamsidhar-Muppagowni on 2026-01-23T12:57:42.000Z
+Commit 47: Refactor dashboard by sinmaster69 on 2026-01-23T17:14:05.000Z
+Commit 48: Add crop listing validation by sinmaster69 on 2026-01-23T16:25:48.000Z
+Commit 49: Update README by rohithabhinav22 on 2026-01-23T06:28:04.000Z
+Commit 50: Fix typo by Siddhartha-kosuri on 2026-01-23T11:55:40.000Z
+Commit 51: Initial commit by Vamsidhar-Muppagowni on 2026-01-24T07:09:42.000Z
+Commit 52: Update styles by Vamsidhar-Muppagowni on 2026-01-24T09:24:26.000Z
+Commit 53: Clean up code by Siddhartha-kosuri on 2026-01-24T06:30:56.000Z
+Commit 54: Add crop listing validation by Siddhartha-kosuri on 2026-01-24T11:38:43.000Z
+Commit 55: Update documentation by Vamsidhar-Muppagowni on 2026-01-24T04:00:28.000Z
+Commit 56: Add crop listing validation by Vamsidhar-Muppagowni on 2026-01-26T17:04:08.000Z
+Commit 57: Fix footer alignment by Vamsidhar-Muppagowni on 2026-01-26T15:06:07.000Z
+Commit 58: Update translation keys by Siddhartha-kosuri on 2026-01-26T15:50:45.000Z
+Commit 59: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-01-26T05:24:15.000Z
+Commit 60: Update profile screen by Vamsidhar-Muppagowni on 2026-01-26T14:12:40.000Z
+Commit 61: Update README by Vamsidhar-Muppagowni on 2026-01-27T16:54:07.000Z
+Commit 62: Update styles by Siddhartha-kosuri on 2026-01-27T10:33:51.000Z
+Commit 63: Merge branch 'feature-login' by rohithabhinav22 on 2026-01-29T14:32:42.000Z
+Commit 64: Update seed data by Vamsidhar-Muppagowni on 2026-01-29T15:43:26.000Z
+Commit 65: Optimize database query by Vamsidhar-Muppagowni on 2026-02-01T06:20:18.000Z
+Commit 66: Add error handling by sinmaster69 on 2026-02-01T08:44:18.000Z
+Commit 67: Add new feature by Vamsidhar-Muppagowni on 2026-02-01T17:16:43.000Z
+Commit 68: Update documentation by Vamsidhar-Muppagowni on 2026-02-01T05:13:41.000Z
+Commit 69: Add error handling by sinmaster69 on 2026-02-01T07:02:47.000Z
+Commit 70: Initial commit by Siddhartha-kosuri on 2026-02-02T06:44:04.000Z
+Commit 71: Refactor dashboard by Vamsidhar-Muppagowni on 2026-02-02T10:28:51.000Z
+Commit 72: Update seed data by Vamsidhar-Muppagowni on 2026-02-02T03:32:24.000Z
+Commit 73: Refactor API routes by sinmaster69 on 2026-02-02T14:42:46.000Z
+Commit 74: Fix bidding logic by Siddhartha-kosuri on 2026-02-02T10:36:28.000Z
+Commit 75: Refactor auth middleware by Vamsidhar-Muppagowni on 2026-02-03T07:04:07.000Z
+Commit 76: Fix crash on startup by Siddhartha-kosuri on 2026-02-04T08:44:43.000Z
+Commit 77: Add new feature by rohithabhinav22 on 2026-02-04T10:31:07.000Z
+Commit 78: Fix payment gateway issue by rohithabhinav22 on 2026-02-04T09:26:27.000Z
+Commit 79: Update dependencies by Vamsidhar-Muppagowni on 2026-02-05T16:17:02.000Z
+Commit 80: Update seed data by Vamsidhar-Muppagowni on 2026-02-05T06:43:26.000Z
+Commit 81: Add new feature by Siddhartha-kosuri on 2026-02-06T03:57:59.000Z
+Commit 82: Add unit tests by sinmaster69 on 2026-02-06T09:51:01.000Z
+Commit 83: Fix layout on mobile by Siddhartha-kosuri on 2026-02-06T06:55:14.000Z
+Commit 84: Update README by rohithabhinav22 on 2026-02-06T16:00:56.000Z
+Commit 85: Add ML integration by sinmaster69 on 2026-02-06T11:48:31.000Z
+Commit 86: Fix footer alignment by Vamsidhar-Muppagowni on 2026-02-07T05:11:48.000Z
+Commit 87: Add error handling by Siddhartha-kosuri on 2026-02-10T15:36:46.000Z
+Commit 88: Fix payment gateway issue by Vamsidhar-Muppagowni on 2026-02-10T12:40:49.000Z
+Commit 89: Fix bug in login by sinmaster69 on 2026-02-10T07:39:21.000Z
+Commit 90: Fix layout on mobile by sinmaster69 on 2026-02-10T11:54:55.000Z
+Commit 91: Optimize database query by sinmaster69 on 2026-02-14T13:55:11.000Z
+Commit 92: Update dependencies by sinmaster69 on 2026-02-14T13:13:17.000Z
+Commit 93: Refactor dashboard by Vamsidhar-Muppagowni on 2026-02-14T07:12:12.000Z
+Commit 94: Add unit tests by sinmaster69 on 2026-02-14T09:37:58.000Z
+Commit 95: Initial commit by Vamsidhar-Muppagowni on 2026-02-14T08:46:13.000Z
+Commit 96: Merge branch 'feature-login' by rohithabhinav22 on 2026-02-16T04:06:36.000Z
+Commit 97: Fix crash on startup by sinmaster69 on 2026-02-16T07:15:54.000Z
+Commit 98: Update README by rohithabhinav22 on 2026-02-16T12:35:54.000Z
+Commit 99: Add error handling by sinmaster69 on 2026-02-16T06:09:46.000Z
+Commit 100: Fix typo by sinmaster69 on 2026-02-16T09:23:51.000Z
+Commit 101: Optimize database query by Siddhartha-kosuri on 2026-02-17T06:02:53.000Z
+Commit 102: Refactor dashboard by Vamsidhar-Muppagowni on 2026-02-17T13:04:35.000Z
+Commit 103: Add unit tests by sinmaster69 on 2026-02-17T08:03:51.000Z
+Commit 104: Update dependencies by Siddhartha-kosuri on 2026-02-17T16:07:09.000Z
+Commit 105: Update seed data by sinmaster69 on 2026-02-17T17:05:30.000Z
+Commit 106: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-02-18T16:34:06.000Z
+Commit 107: Fix payment gateway issue by sinmaster69 on 2026-02-18T09:52:44.000Z
+Commit 108: Update translation keys by Vamsidhar-Muppagowni on 2026-02-18T07:01:28.000Z
+Commit 109: Update profile screen by Vamsidhar-Muppagowni on 2026-02-19T10:32:02.000Z
+Commit 110: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-02-19T04:07:46.000Z
+Commit 111: Add crop listing validation by Vamsidhar-Muppagowni on 2026-02-19T03:59:36.000Z
+Commit 112: Update README by Vamsidhar-Muppagowni on 2026-02-19T16:20:32.000Z
+Commit 0: Update styles by sinmaster69 on 2025-12-29T05:13:31.000Z
+Commit 1: Fix payment gateway issue by Vamsidhar-Muppagowni on 2025-12-29T17:09:59.000Z
+Commit 2: Add error handling by rohithabhinav22 on 2025-12-29T14:20:06.000Z
+Commit 3: Add initial design documentation (draft) by Vamsidhar-Muppagowni on 2025-12-29T09:42:28.000Z
+Commit 4: Refactor auth middleware by Vamsidhar-Muppagowni on 2025-12-31T04:47:12.000Z
+Commit 5: Merge branch 'feature-login' by Siddhartha-kosuri on 2025-12-31T05:44:32.000Z
+Commit 6: Update profile screen by sinmaster69 on 2025-12-31T06:26:17.000Z
+Commit 7: Initial commit by Vamsidhar-Muppagowni on 2025-12-31T09:00:46.000Z
+Commit 8: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-01-01T16:48:48.000Z
+Commit 9: Add crop listing validation by Vamsidhar-Muppagowni on 2026-01-02T08:31:00.000Z
+Commit 10: Clean up code by sinmaster69 on 2026-01-02T12:27:34.000Z
+Commit 11: Initial commit by rohithabhinav22 on 2026-01-02T05:19:48.000Z
+Commit 12: Add error handling by Siddhartha-kosuri on 2026-01-02T16:27:41.000Z
+Commit 13: Fix typo by rohithabhinav22 on 2026-01-07T13:26:19.000Z
+Commit 14: Optimize database query by Siddhartha-kosuri on 2026-01-07T04:13:58.000Z
+Commit 15: Fix bidding logic by Siddhartha-kosuri on 2026-01-08T12:12:33.000Z
+Commit 16: Fix crash on startup by sinmaster69 on 2026-01-09T09:25:28.000Z
+Commit 17: Fix payment gateway issue by Vamsidhar-Muppagowni on 2026-01-09T10:30:52.000Z
+Commit 18: Add new feature by rohithabhinav22 on 2026-01-12T06:06:08.000Z
+Commit 19: Update styles by sinmaster69 on 2026-01-12T10:36:26.000Z
+Commit 20: Update dependencies by Siddhartha-kosuri on 2026-01-12T05:13:20.000Z
+Commit 21: Refactor auth middleware by sinmaster69 on 2026-01-13T09:33:02.000Z
+Commit 22: Update README by sinmaster69 on 2026-01-14T08:04:23.000Z
+Commit 23: Fix crash on startup by Vamsidhar-Muppagowni on 2026-01-14T06:42:31.000Z
+Commit 24: Add error handling by Vamsidhar-Muppagowni on 2026-01-14T11:21:44.000Z
+Commit 25: Merge branch 'feature-login' by sinmaster69 on 2026-01-14T06:02:52.000Z
+Commit 26: Update profile screen by Vamsidhar-Muppagowni on 2026-01-15T17:24:06.000Z
+Commit 27: Fix layout on mobile by Siddhartha-kosuri on 2026-01-15T15:48:47.000Z
+Commit 28: Fix bidding logic by Vamsidhar-Muppagowni on 2026-01-16T10:41:55.000Z
+Commit 29: Add error handling by Vamsidhar-Muppagowni on 2026-01-16T05:10:44.000Z
+Commit 30: Add error handling by Vamsidhar-Muppagowni on 2026-01-19T15:19:29.000Z
+Commit 31: Update styles by Vamsidhar-Muppagowni on 2026-01-19T05:42:05.000Z
+Commit 32: Add unit tests by Vamsidhar-Muppagowni on 2026-01-19T11:08:15.000Z
+Commit 33: Add crop listing validation by sinmaster69 on 2026-01-19T06:43:43.000Z
+Commit 34: Update seed data by Vamsidhar-Muppagowni on 2026-01-20T09:34:35.000Z
+Commit 35: Optimize database query by rohithabhinav22 on 2026-01-21T13:24:48.000Z
+Commit 36: Update styles by Siddhartha-kosuri on 2026-01-21T15:29:54.000Z
+Commit 37: Add unit tests by rohithabhinav22 on 2026-01-23T15:11:46.000Z
+Commit 38: Optimize database query by Vamsidhar-Muppagowni on 2026-01-23T09:12:14.000Z
+Commit 39: Update styles by sinmaster69 on 2026-01-26T10:28:04.000Z
+Commit 40: Refactor: Cleanup design docs by sinmaster69 on 2026-01-26T12:31:21.000Z
+Commit 41: Add new feature by sinmaster69 on 2026-01-26T05:09:30.000Z
+Commit 42: Add crop listing validation by rohithabhinav22 on 2026-01-26T15:46:35.000Z
+Commit 43: Merge branch 'feature-login' by rohithabhinav22 on 2026-01-27T08:50:25.000Z
+Commit 44: Initial commit by Vamsidhar-Muppagowni on 2026-01-27T06:11:07.000Z
+Commit 45: Add unit tests by Vamsidhar-Muppagowni on 2026-01-27T11:51:57.000Z
+Commit 46: Refactor API routes by rohithabhinav22 on 2026-01-30T08:14:13.000Z
+Commit 47: Add unit tests by Vamsidhar-Muppagowni on 2026-01-30T11:50:28.000Z
+Commit 48: Initial commit by rohithabhinav22 on 2026-01-30T16:37:06.000Z
+Commit 49: Update dependencies by Vamsidhar-Muppagowni on 2026-02-02T11:13:38.000Z
+Commit 50: Update translation keys by Vamsidhar-Muppagowni on 2026-02-02T13:43:24.000Z
+Commit 51: Merge branch 'feature-login' by sinmaster69 on 2026-02-03T14:58:37.000Z
+Commit 52: Refactor dashboard by sinmaster69 on 2026-02-05T08:17:31.000Z
+Commit 53: Initial commit by Vamsidhar-Muppagowni on 2026-02-05T13:50:58.000Z
+Commit 54: Fix footer alignment by rohithabhinav22 on 2026-02-06T12:47:21.000Z
+Commit 55: Refactor API routes by rohithabhinav22 on 2026-02-06T17:06:44.000Z
+Commit 56: Initial commit by sinmaster69 on 2026-02-07T06:23:11.000Z
+Commit 57: Update seed data by sinmaster69 on 2026-02-07T04:26:48.000Z
+Commit 58: Refactor API routes by Vamsidhar-Muppagowni on 2026-02-07T05:27:11.000Z
+Commit 59: Fix bidding logic by rohithabhinav22 on 2026-02-07T14:15:16.000Z
+Commit 60: Update translation keys by sinmaster69 on 2026-02-08T06:07:52.000Z
+Commit 61: Add crop listing validation by Vamsidhar-Muppagowni on 2026-02-09T06:26:23.000Z
+Commit 62: Update translation keys by Siddhartha-kosuri on 2026-02-09T08:30:59.000Z
+Commit 63: Refactor dashboard by Vamsidhar-Muppagowni on 2026-02-09T07:14:38.000Z
+Commit 64: Add error handling by Siddhartha-kosuri on 2026-02-09T06:58:08.000Z
+Commit 65: Fix bug in login by Vamsidhar-Muppagowni on 2026-02-10T08:29:02.000Z
+Commit 66: Add unit tests by Vamsidhar-Muppagowni on 2026-02-10T03:49:30.000Z
+Commit 67: Refactor auth middleware by Siddhartha-kosuri on 2026-02-10T07:14:34.000Z
+Commit 68: Add new feature by rohithabhinav22 on 2026-02-11T07:05:59.000Z
+Commit 69: Update documentation by sinmaster69 on 2026-02-11T05:18:38.000Z
+Commit 70: Update profile screen by Vamsidhar-Muppagowni on 2026-02-11T13:23:10.000Z
+Commit 71: Merge branch 'feature-login' by sinmaster69 on 2026-02-11T10:57:55.000Z
+Commit 72: Fix typo by Vamsidhar-Muppagowni on 2026-02-12T12:29:44.000Z
+Commit 73: Fix bug in login by sinmaster69 on 2026-02-12T10:03:03.000Z
+Commit 74: Fix footer alignment by rohithabhinav22 on 2026-02-12T13:46:55.000Z
+Commit 75: Refactor auth middleware by sinmaster69 on 2026-02-13T05:37:49.000Z
+Commit 76: Merge branch 'feature-login' by Vamsidhar-Muppagowni on 2026-02-13T14:36:55.000Z
+Commit 77: Fix layout on mobile by sinmaster69 on 2026-02-14T05:39:12.000Z
+Commit 78: Add error handling by Vamsidhar-Muppagowni on 2026-02-14T09:13:19.000Z
+Commit 79: Remove deprecated design documentation by Siddhartha-kosuri on 2026-02-15T11:46:12.000Z
+Commit 80: Update documentation by rohithabhinav22 on 2026-02-15T13:17:27.000Z
+Commit 81: Add crop listing validation by rohithabhinav22 on 2026-02-16T04:59:28.000Z
+Commit 82: Merge branch 'feature-login' by Siddhartha-kosuri on 2026-02-16T09:19:47.000Z
+Commit 83: Add new feature by Vamsidhar-Muppagowni on 2026-02-17T17:28:01.000Z
+Commit 84: Clean up code by Vamsidhar-Muppagowni on 2026-02-17T07:31:11.000Z
+Commit 85: Fix footer alignment by Siddhartha-kosuri on 2026-02-18T11:36:56.000Z
+Commit 86: Clean up code by Vamsidhar-Muppagowni on 2026-02-18T16:36:41.000Z
+Commit 87: Update dependencies by Vamsidhar-Muppagowni on 2026-02-19T17:08:35.000Z
+Commit 88: Add ML integration by Siddhartha-kosuri on 2026-02-19T04:21:07.000Z
+Commit 0: Refactor auth middleware by Vamsidhar-Muppagowni on 2025-12-30T12:39:00.000Z
