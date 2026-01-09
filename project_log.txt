@@ -454,3 +454,4 @@ Commit 9: Clean up code by sinmaster69 on 2026-01-06T14:41:00.000Z
 Commit 10: Clean up code by rohithabhinav22 on 2026-01-06T16:58:00.000Z
 Commit 11: Fix typo by sinmaster69 on 2026-01-06T13:35:00.000Z
 Commit 12: Seed database with initial crop data by Siddhartha-kosuri on 2026-01-09T15:03:00.000Z
+Commit 13: Add error handling by rohithabhinav22 on 2026-01-09T11:55:00.000Z
