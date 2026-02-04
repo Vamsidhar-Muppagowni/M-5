@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
+    ScrollView,
+    useWindowDimensions
+} from 'react-native';
 import { useDispatch } from 'react-redux';
 import { register } from '../../store/slices/authSlice';
-import { Picker } from '@react-native-picker/picker';
 import { useTranslation } from 'react-i18next';
+import CustomButton from '../../components/CustomButton';
+import StyledInput from '../../components/StyledInput';
 
 const RegisterScreen = ({ navigation }) => {
     const { t } = useTranslation();
+    const { width } = useWindowDimensions();
+    const isDesktop = width >= 768;
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         password: '',
-        email: '',
+        email: '', // Note: Backend validatos might need to be checked if email is actually used
         user_type: 'farmer'
     });
     const dispatch = useDispatch();
@@ -23,7 +35,10 @@ const RegisterScreen = ({ navigation }) => {
                 return;
             }
 
+            setLoading(true);
             const resultAction = await dispatch(register(formData));
+            setLoading(false);
+
             if (register.fulfilled.match(resultAction)) {
                 Alert.alert('Success', t('success_otp'));
                 navigation.navigate('OTPVerification', { phone: formData.phone });
@@ -32,110 +47,199 @@ const RegisterScreen = ({ navigation }) => {
             }
         } catch (err) {
             console.error(err);
+            setLoading(false);
+            Alert.alert('Error', 'An unexpected error occurred');
         }
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container}>
-            <Text style={styles.title}>{t('register')}</Text>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+            <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+                <View style={[styles.formCard, isDesktop && styles.formCardDesktop]}>
+                    <View style={styles.headerContainer}>
+                        <View style={styles.logoPlaceholder}>
+                            <Text style={styles.logoIcon}>🌱</Text>
+                        </View>
+                        <Text style={styles.title}>{t('register')}</Text>
+                        <Text style={styles.subtitle}>Join our community of farmers and buyers</Text>
+                    </View>
 
-            <TextInput
-                style={styles.input}
-                placeholder={t('name_placeholder')}
-                value={formData.name}
-                onChangeText={(text) => setFormData({ ...formData, name: text })}
-            />
+                    <Text style={styles.label}>I am a...</Text>
+                    <View style={styles.roleSelector}>
+                        {['farmer', 'buyer'].map((type) => (
+                            <TouchableOpacity
+                                key={type}
+                                style={[styles.roleButton, formData.user_type === type && styles.roleButtonActive]}
+                                onPress={() => setFormData({ ...formData, user_type: type })}
+                            >
+                                <Text style={[styles.roleText, formData.user_type === type && styles.roleTextActive]}>
+                                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
 
-            <TextInput
-                style={styles.input}
-                placeholder={t('phone_placeholder')}
-                value={formData.phone}
-                onChangeText={(text) => setFormData({ ...formData, phone: text })}
-                keyboardType="phone-pad"
-            />
+                    <StyledInput
+                        label={t('name_placeholder') || 'Full Name'}
+                        placeholder="Enter your full name"
+                        value={formData.name}
+                        onChangeText={(text) => setFormData({ ...formData, name: text })}
+                        icon="👤"
+                    />
 
-            <TextInput
-                style={styles.input}
-                placeholder={t('email_placeholder')}
-                value={formData.email}
-                onChangeText={(text) => setFormData({ ...formData, email: text })}
-                keyboardType="email-address"
-            />
+                    <StyledInput
+                        label={t('phone_placeholder') || 'Phone Number'}
+                        placeholder="Enter your phone number"
+                        value={formData.phone}
+                        onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                        keyboardType="phone-pad"
+                        icon="📞"
+                    />
 
-            <TextInput
-                style={styles.input}
-                placeholder={t('password_placeholder')}
-                value={formData.password}
-                onChangeText={(text) => setFormData({ ...formData, password: text })}
-                secureTextEntry
-            />
+                    {/* Including Email even if optional/unused by backend just to match UI if needed */}
+                    <StyledInput
+                        label={t('email_placeholder') || 'Email Address (Optional)'}
+                        placeholder="name@example.com"
+                        value={formData.email}
+                        onChangeText={(text) => setFormData({ ...formData, email: text })}
+                        keyboardType="email-address"
+                        icon="✉️"
+                    />
 
-            <View style={styles.pickerContainer}>
-                <Picker
-                    selectedValue={formData.user_type}
-                    onValueChange={(itemValue) => setFormData({ ...formData, user_type: itemValue })}
-                >
-                    <Picker.Item label={t('farmer_type')} value="farmer" />
-                    <Picker.Item label={t('buyer_type')} value="buyer" />
-                </Picker>
+                    <StyledInput
+                        label={t('password_placeholder') || 'Password'}
+                        placeholder="Create a password"
+                        value={formData.password}
+                        onChangeText={(text) => setFormData({ ...formData, password: text })}
+                        secureTextEntry
+                        icon="🔒"
+                    />
+
+                    <CustomButton
+                        title={t('register_button')}
+                        onPress={handleRegister}
+                        loading={loading}
+                        style={{ marginTop: 16 }}
+                    />
+
+                    <View style={styles.loginContainer}>
+                        <Text style={styles.loginText}>{t('have_account') || 'Already have an account?'} </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                            <Text style={styles.loginLink}>Login Here</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
             </View>
-
-            <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                <Text style={styles.buttonText}>{t('register_button')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.link}>{t('have_account')}</Text>
-            </TouchableOpacity>
         </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flexGrow: 1,
-        padding: 20,
+        flex: 1,
+        backgroundColor: '#f8f9fa',
         justifyContent: 'center',
-        backgroundColor: '#fff'
+        padding: 20
+    },
+    containerDesktop: {
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+    formCard: {
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 24,
+        width: '100%',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    formCardDesktop: {
+        maxWidth: 500,
+        padding: 40,
+        shadowOpacity: 0.15,
+        shadowRadius: 16,
+        elevation: 10,
+    },
+    headerContainer: {
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    logoPlaceholder: {
+        width: 56,
+        height: 56,
+        borderRadius: 16,
+        backgroundColor: '#dcfce7',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    logoIcon: {
+        fontSize: 28,
     },
     title: {
         fontSize: 28,
-        fontWeight: 'bold',
-        marginBottom: 30,
+        fontWeight: '800',
+        color: '#1a1a1a',
+        marginBottom: 8,
         textAlign: 'center',
-        color: '#2e7d32'
     },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        padding: 15,
-        borderRadius: 8,
-        marginBottom: 15,
-        fontSize: 16
+    subtitle: {
+        fontSize: 16,
+        color: '#6b7280',
+        textAlign: 'center',
     },
-    pickerContainer: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        marginBottom: 15
+    label: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#374151',
+        marginBottom: 8,
     },
-    button: {
-        backgroundColor: '#2e7d32',
-        padding: 15,
+    roleSelector: {
+        flexDirection: 'row',
+        backgroundColor: '#f3f4f6',
         borderRadius: 8,
+        padding: 4,
+        marginBottom: 24,
+    },
+    roleButton: {
+        flex: 1,
+        paddingVertical: 10,
         alignItems: 'center',
-        marginTop: 10
+        borderRadius: 6,
     },
-    buttonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold'
+    roleButtonActive: {
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+        elevation: 2,
     },
-    link: {
-        marginTop: 20,
-        textAlign: 'center',
-        color: '#2e7d32',
-        fontSize: 16
+    roleText: {
+        fontSize: 14,
+        color: '#6b7280',
+        fontWeight: '500',
+    },
+    roleTextActive: {
+        color: '#166534',
+        fontWeight: '700',
+    },
+    loginContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 24,
+    },
+    loginText: {
+        color: '#6b7280',
+        fontSize: 14,
+    },
+    loginLink: {
+        color: '#166534',
+        fontWeight: 'bold',
+        fontSize: 14,
     }
 });
 
