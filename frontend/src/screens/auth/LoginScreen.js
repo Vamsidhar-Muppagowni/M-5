@@ -3,28 +3,26 @@ import {
     View,
     Text,
     StyleSheet,
-    TextInput,
     TouchableOpacity,
     Alert,
-    Image,
-    Platform,
     useWindowDimensions,
     ScrollView
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/slices/authSlice';
 import { useTranslation } from 'react-i18next';
-// You might need to install vector icons if not available, or use text/images
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; 
+import CustomButton from '../../components/CustomButton';
+import StyledInput from '../../components/StyledInput';
 
 const LoginScreen = ({ navigation }) => {
     const { t } = useTranslation();
     const [role, setRole] = useState('farmer'); // 'farmer', 'buyer', 'admin'
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
     const { width } = useWindowDimensions();
-    const isDesktop = width >= 768; // Simple breakpoint for desktop/tablet
+    const isDesktop = width >= 768;
 
     const handleLogin = async () => {
         try {
@@ -33,13 +31,12 @@ const LoginScreen = ({ navigation }) => {
                 return;
             }
 
-            // Optional: You might want to pass role to the backend if it supports checking user type
+            setLoading(true);
             const resultAction = await dispatch(login({ phone, password }));
+            setLoading(false);
+
             if (login.fulfilled.match(resultAction)) {
                 const user = resultAction.payload.user;
-
-                // Simple check to ensure they are logging into the correct interface if needed
-                // For now, we trust the backend response or just redirect based on the user type
                 if (user.user_type === 'farmer') {
                     navigation.replace('FarmerTabs');
                 } else {
@@ -50,6 +47,7 @@ const LoginScreen = ({ navigation }) => {
             }
         } catch (err) {
             console.error(err);
+            setLoading(false);
             Alert.alert('Error', 'An unexpected error occurred');
         }
     };
@@ -60,7 +58,6 @@ const LoginScreen = ({ navigation }) => {
                 {/* Left Side - Promotional/Welcome Content */}
                 <View style={[styles.leftSide, isDesktop ? styles.leftSideDesktop : styles.leftSideMobile]}>
                     <View style={styles.brandContainer}>
-                        {/* Placeholder for Logo - You can replace with actual Image component */}
                         <View style={styles.logoPlaceholder}>
                             <Text style={styles.logoIcon}>🌱</Text>
                         </View>
@@ -101,40 +98,38 @@ const LoginScreen = ({ navigation }) => {
                             ))}
                         </View>
 
-                        <Text style={styles.label}>{t('phone_placeholder') || 'Phone Number'}</Text>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.inputIcon}>📞</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter your phone number"
-                                value={phone}
-                                onChangeText={setPhone}
-                                keyboardType="phone-pad"
-                                placeholderTextColor="#999"
-                            />
-                        </View>
+                        <StyledInput
+                            label={t('phone_placeholder') || 'Phone Number'}
+                            icon="📞"
+                            placeholder="Enter your phone number"
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="phone-pad"
+                        />
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={styles.label}>{t('password_placeholder') || 'Password'}</Text>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>
+                                {t('password_placeholder') || 'Password'}
+                            </Text>
                             <TouchableOpacity>
                                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
                             </TouchableOpacity>
                         </View>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.inputIcon}>🔒</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="........"
-                                value={password}
-                                onChangeText={setPassword}
-                                secureTextEntry
-                                placeholderTextColor="#999"
-                            />
-                        </View>
 
-                        <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
-                            <Text style={styles.signInButtonText}>Sign In →</Text>
-                        </TouchableOpacity>
+                        <StyledInput
+                            icon="🔒"
+                            placeholder="........"
+                            value={password}
+                            onChangeText={setPassword}
+                            secureTextEntry
+                        />
+
+                        <CustomButton
+                            title="Sign In →"
+                            onPress={handleLogin}
+                            loading={loading}
+                            style={{ marginTop: 24, marginBottom: 24 }}
+                        />
 
                         <View style={styles.registerContainer}>
                             <Text style={styles.registerText}>Don't have an account? </Text>
@@ -152,7 +147,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa', // Light background
+        backgroundColor: '#f8f9fa',
     },
     containerDesktop: {
         flexDirection: 'row',
@@ -184,7 +179,7 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 12,
-        backgroundColor: '#dcfce7', // Light green
+        backgroundColor: '#dcfce7',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
@@ -199,7 +194,7 @@ const styles = StyleSheet.create({
     },
     welcomeTitle: {
         fontSize: 32,
-        fontWeight: '800', // Extra bold
+        fontWeight: '800',
         color: '#1a1a1a',
         marginBottom: 16,
     },
@@ -215,7 +210,7 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     badge: {
-        backgroundColor: '#dcfce7', // Light green bg
+        backgroundColor: '#dcfce7',
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
@@ -223,7 +218,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
     },
     badgeText: {
-        color: '#166534', // Dark green text
+        color: '#166534',
         fontSize: 14,
         fontWeight: '600',
     },
@@ -271,7 +266,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#f3f4f6',
         borderRadius: 8,
         padding: 4,
-        marginBottom: 8,
+        marginBottom: 16,
     },
     roleButton: {
         flex: 1,
@@ -293,47 +288,13 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     roleTextActive: {
-        color: '#166534', // Green
+        color: '#166534',
         fontWeight: '700',
-    },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#e5e7eb',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        backgroundColor: '#fff',
-        marginBottom: 8,
-    },
-    inputIcon: {
-        fontSize: 18,
-        marginRight: 8,
-        color: '#9ca3af',
-    },
-    input: {
-        flex: 1,
-        paddingVertical: 12,
-        fontSize: 16,
-        color: '#1a1a1a',
     },
     forgotPassword: {
         fontSize: 12,
         color: '#166534',
         fontWeight: '600',
-    },
-    signInButton: {
-        backgroundColor: '#166534', // Dark green
-        borderRadius: 8,
-        paddingVertical: 14,
-        alignItems: 'center',
-        marginTop: 24,
-        marginBottom: 24,
-    },
-    signInButtonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontWeight: 'bold',
     },
     registerContainer: {
         flexDirection: 'row',
