@@ -21,6 +21,7 @@ import RegisterScreen from './src/screens/auth/RegisterScreen';
 import OTPVerificationScreen from './src/screens/auth/OTPVerificationScreen';
 import FarmerDashboard from './src/screens/farmer/FarmerDashboard';
 import BuyerDashboard from './src/screens/buyer/BuyerDashboard';
+import MyBidsScreen from './src/screens/buyer/MyBidsScreen';
 import CropListingScreen from './src/screens/farmer/CropListingScreen';
 import MyCropsScreen from './src/screens/farmer/MyCropsScreen';
 import MarketScreen from './src/screens/market/MarketScreen';
@@ -108,10 +109,12 @@ const BuyerTabs = () => {
             screenOptions={({ route }) => ({
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
-                    if (route.name === 'Browse') {
+                    if (route.name === 'Dashboard') {
+                        iconName = focused ? 'home' : 'home-outline';
+                    } else if (route.name === 'Browse') {
                         iconName = focused ? 'search' : 'search-outline';
                     } else if (route.name === 'MyBids') {
-                        iconName = focused ? 'pricetag' : 'pricetag-outline';
+                        iconName = focused ? 'list' : 'list-outline';
                     } else if (route.name === 'Prices') {
                         iconName = focused ? 'trending-up' : 'trending-up-outline';
                     } else if (route.name === 'Profile') {
@@ -120,9 +123,23 @@ const BuyerTabs = () => {
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
                 tabBarActiveTintColor: '#2e7d32',
-                tabBarInactiveTintColor: 'gray'
+                tabBarInactiveTintColor: 'gray',
+                tabBarStyle: {
+                    paddingBottom: 5,
+                    paddingTop: 5,
+                    height: 60
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    marginBottom: 5
+                }
             })}
         >
+            <Tab.Screen
+                name="Dashboard"
+                component={BuyerDashboard}
+                options={{ headerShown: false, tabBarLabel: 'Home' }}
+            />
             <Tab.Screen
                 name="Browse"
                 component={MarketScreen}
@@ -130,7 +147,7 @@ const BuyerTabs = () => {
             />
             <Tab.Screen
                 name="MyBids"
-                component={BuyerDashboard}
+                component={MyBidsScreen}
                 options={{ headerShown: false, tabBarLabel: t('my_bids_tab') }}
             />
             <Tab.Screen
