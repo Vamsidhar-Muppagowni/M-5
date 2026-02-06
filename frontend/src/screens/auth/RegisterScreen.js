@@ -19,6 +19,7 @@ const RegisterScreen = ({ navigation }) => {
     const { width } = useWindowDimensions();
     const isDesktop = width >= 768;
     const [loading, setLoading] = useState(false);
+    const [secretKey, setSecretKey] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
@@ -33,6 +34,14 @@ const RegisterScreen = ({ navigation }) => {
             if (!formData.name || !formData.phone || !formData.password) {
                 Alert.alert('Error', t('error_fill_fields'));
                 return;
+            }
+
+            // Security Check for Admin
+            if (formData.user_type === 'admin') {
+                if (secretKey !== 'ADMIN2026') {
+                    Alert.alert('Security Alert', 'Invalid Admin Secret Key. Access Denied.');
+                    return;
+                }
             }
 
             setLoading(true);
@@ -66,7 +75,7 @@ const RegisterScreen = ({ navigation }) => {
 
                     <Text style={styles.label}>I am a...</Text>
                     <View style={styles.roleSelector}>
-                        {['farmer', 'buyer'].map((type) => (
+                        {['farmer', 'buyer', 'admin'].map((type) => (
                             <TouchableOpacity
                                 key={type}
                                 style={[styles.roleButton, formData.user_type === type && styles.roleButtonActive]}
@@ -78,6 +87,17 @@ const RegisterScreen = ({ navigation }) => {
                             </TouchableOpacity>
                         ))}
                     </View>
+
+                    {formData.user_type === 'admin' && (
+                        <StyledInput
+                            label="Admin Secret Key"
+                            placeholder="Enter 8-digit secure key"
+                            value={secretKey}
+                            onChangeText={setSecretKey}
+                            icon="shield-checkmark"
+                            secureTextEntry={true}
+                        />
+                    )}
 
                     <StyledInput
                         label={t('name_placeholder') || 'Full Name'}

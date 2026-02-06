@@ -21,6 +21,7 @@ import RegisterScreen from './src/screens/auth/RegisterScreen';
 import OTPVerificationScreen from './src/screens/auth/OTPVerificationScreen';
 import FarmerDashboard from './src/screens/farmer/FarmerDashboard';
 import BuyerDashboard from './src/screens/buyer/BuyerDashboard';
+import AdminDashboard from './src/screens/admin/AdminDashboard';
 import MyBidsScreen from './src/screens/buyer/MyBidsScreen';
 import CropListingScreen from './src/screens/farmer/CropListingScreen';
 import MyCropsScreen from './src/screens/farmer/MyCropsScreen';
@@ -164,6 +165,54 @@ const BuyerTabs = () => {
     );
 };
 
+// Admin Tab Navigator
+const AdminTabs = () => {
+    const { t } = useTranslation();
+    return (
+        <Tab.Navigator
+            screenOptions={({ route }) => ({
+                tabBarIcon: ({ focused, color, size }) => {
+                    let iconName;
+                    if (route.name === 'Dashboard') {
+                        iconName = focused ? 'home' : 'home-outline';
+                    } else if (route.name === 'Market') {
+                        iconName = focused ? 'cart' : 'cart-outline';
+                    } else if (route.name === 'Prices') {
+                        iconName = focused ? 'trending-up' : 'trending-up-outline';
+                    } else if (route.name === 'Schemes') {
+                        iconName = focused ? 'document-text' : 'document-text-outline';
+                    } else if (route.name === 'Profile') {
+                        iconName = focused ? 'person' : 'person-outline';
+                    }
+                    return <Ionicons name={iconName} size={size} color={color} />;
+                },
+                tabBarActiveTintColor: '#2e7d32',
+                tabBarInactiveTintColor: 'gray',
+                tabBarStyle: {
+                    paddingBottom: 5,
+                    paddingTop: 5,
+                    height: 60
+                },
+                tabBarLabelStyle: {
+                    fontSize: 12,
+                    marginBottom: 5
+                }
+            })}
+        >
+            <Tab.Screen
+                name="Dashboard"
+                component={AdminDashboard}
+                options={{ headerShown: false, tabBarLabel: 'Admin Home' }}
+            />
+            <Tab.Screen
+                name="Profile"
+                component={ProfileScreen}
+                options={{ headerShown: false, tabBarLabel: t('profile_tab') }}
+            />
+        </Tab.Navigator>
+    );
+};
+
 export default function App() {
     console.log("App Component Rendering...");
 
@@ -242,6 +291,13 @@ export default function App() {
                             <Stack.Screen
                                 name="BuyerTabs"
                                 component={BuyerTabs}
+                                options={{ headerShown: false }}
+                            />
+
+                            {/* Admin Stack */}
+                            <Stack.Screen
+                                name="AdminTabs"
+                                component={AdminTabs}
                                 options={{ headerShown: false }}
                             />
 

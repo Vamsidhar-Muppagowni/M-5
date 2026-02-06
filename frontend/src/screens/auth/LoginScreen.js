@@ -39,6 +39,8 @@ const LoginScreen = ({ navigation }) => {
                 const user = resultAction.payload.user;
                 if (user.user_type === 'farmer') {
                     navigation.replace('FarmerTabs');
+                } else if (user.user_type === 'admin') {
+                    navigation.replace('AdminTabs');
                 } else {
                     navigation.replace('BuyerTabs');
                 }

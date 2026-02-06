@@ -8,7 +8,7 @@ router.post('/register', [
     body('phone').matches(/^\+?[1-9]\d{1,14}$/).withMessage('Invalid phone number'),
     body('name').notEmpty().withMessage('Name is required'),
     body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
-    body('user_type').isIn(['farmer', 'buyer']).withMessage('Invalid user type')
+    body('user_type').isIn(['farmer', 'buyer', 'admin']).withMessage('Invalid user type')
 ], authController.register);
 
 // Verify OTP
