@@ -35,11 +35,14 @@ router.post('/bids/respond', [
     body('action').isIn(['accept', 'reject', 'counter']).withMessage('Invalid action')
 ], marketController.respondToBid);
 
-// Get price history
+// Get price history for chart
 router.get('/prices/history', [
-    query('crop').notEmpty().withMessage('Crop name is required'),
+    query('crop').optional().isString(),
     query('days').optional().isInt({ min: 1, max: 365 })
 ], marketController.getPriceHistory);
+
+// Get recent market updates (prices)
+router.get('/prices/recent', marketController.getRecentPrices);
 
 // Get farmer's crops
 router.get('/my-crops', marketController.getCrops);
