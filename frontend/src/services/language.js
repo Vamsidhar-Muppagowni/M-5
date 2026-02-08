@@ -1,5 +1,7 @@
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import {
+    initReactI18next
+} from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Localization from 'expo-localization';
 import axios from 'axios';
@@ -66,7 +68,9 @@ const en = {
 
 // Only English is hardcoded
 const resources = {
-    en: { translation: en }
+    en: {
+        translation: en
+    }
 };
 
 // Google Translate Helper (Unofficial Free Endpoint)
@@ -132,8 +136,13 @@ export const initI18n = async () => {
             resources,
             lng: 'en', // Always start with English until we load dynamic
             fallbackLng: 'en',
-            interpolation: { escapeValue: false },
-            compatibilityJSON: 'v3'
+            interpolation: {
+                escapeValue: false
+            },
+            compatibilityJSON: 'v3',
+            react: {
+                useSuspense: false
+            }
         });
 
     // If default is not English, load it dynamically

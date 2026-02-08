@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Platform, ToastAndroid } from 'react-native';
-import { useDispatch } from 'react-redux';
 import { Picker } from '@react-native-picker/picker';
 import { marketAPI } from '../../services/api';
 
@@ -13,30 +12,32 @@ const CropListingScreen = ({ navigation }) => {
         quality_grade: 'A',
         min_price: '',
         description: '',
-        location: { district: '' } // Simplified for now
+        location: {
+            district: ''
+        }
     });
     const [loading, setLoading] = useState(false);
 
-    // ... imports
-
     const handleSubmit = async () => {
         if (!formData.name || !formData.quantity || !formData.min_price) {
-            Alert.alert('Error', 'Please fill required fields');
+            Alert.alert('Error', 'Please fill required fields (Name, Quantity, Price)');
             return;
         }
 
         setLoading(true);
 
         try {
-            // Add interaction feedback
             console.log("Submitting crop...", formData);
 
-            // Create a race condition with timeout
-            const submitPromise = marketAPI.listCrop({
+            const payload = {
                 ...formData,
                 quantity: parseFloat(formData.quantity),
-                min_price: parseFloat(formData.min_price)
-            });
+                min_price: parseFloat(formData.min_price),
+                // Ensure location is valid
+                location: formData.location || { district: 'Unknown' }
+            };
+
+            const submitPromise = marketAPI.listCrop(payload);
 
             const timeoutPromise = new Promise((_, reject) =>
                 setTimeout(() => reject(new Error('Request timed out')), 15000)
@@ -44,22 +45,24 @@ const CropListingScreen = ({ navigation }) => {
 
             await Promise.race([submitPromise, timeoutPromise]);
 
-            // Success Feedback
             if (Platform.OS === 'android') {
                 ToastAndroid.show('Crop Listed Successfully!', ToastAndroid.LONG);
             }
 
-            Alert.alert('Success', 'Your crop has been listed in the market.', [
-                {
+            Alert.alert(
+                'Success',
+                'Your crop has been listed in the market.',
+                [{
                     text: 'OK',
-                    onPress: () => navigation.goBack()
-                }
-            ]);
+                    onPress: () => {
+                        navigation.goBack();
+                    }
+                }]
+            );
 
         } catch (error) {
             console.error("Submission Error:", error);
-            const errorMessage = error.response?.data?.error || error.message || 'Failed to list crop';
-
+            const errorMessage = error.response?.data?.error || error.message || 'Failed to list crop. Please try again.';
             Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);

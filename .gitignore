@@ -49,3 +49,23 @@ ml-service/*.pyc
 ml-service/venv/
 ml-service/.venv/
 ml-service/.pytest_cache/
+# Environment files
+.env
+backend/.env
+
+# Database
+*.sqlite
+backend/database.sqlite
+
+# OTP / temp files
+otp.txt
+backend/otp.txt
+
+# Expo / React Native cache
+.expo/
+frontend/.expo/
+
+# Node
+node_modules/
+frontend/node_modules/
+backend/node_modules/

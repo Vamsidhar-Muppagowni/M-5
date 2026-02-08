@@ -24,8 +24,10 @@ class SMSService {
             // Format phone number
             const formattedPhone = this.formatPhoneNumber(to);
 
-            // For Indian numbers, use Indian SMS gateway
-            if (formattedPhone.startsWith('+91')) {
+            // For Indian numbers, use Indian SMS gateway ONLY if configured
+            if (formattedPhone.startsWith('+91') &&
+                this.smsGatewayAuth &&
+                this.smsGatewayAuth !== 'your_msg91_auth_key') {
                 return await this.sendViaIndianGateway(formattedPhone, message, language);
             }
 
@@ -37,7 +39,10 @@ class SMSService {
             // In development (or if undefined), just log the message if SMS fails
             if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
                 console.log(`[MOCK SMS] To: ${to}, Message: ${message}`);
-                return { success: true, mock: true };
+                return {
+                    success: true,
+                    mock: true
+                };
             }
             throw error;
         }
@@ -46,7 +51,10 @@ class SMSService {
     async sendViaTwilio(to, message) {
         if (!this.twilioClient) {
             console.log(`[MOCK TWILIO SMS] To: ${to}, Message: ${message}`);
-            return { success: true, mock: true };
+            return {
+                success: true,
+                mock: true
+            };
         }
         return await this.twilioClient.messages.create({
             body: message,
@@ -59,7 +67,9 @@ class SMSService {
         // Mock implementation if no API key is present
         if (!this.smsGatewayAuth || this.smsGatewayAuth === 'your_msg91_auth_key') {
             console.log(`[MOCK INDIAN SMS] To: ${phone}, Message: ${message}`);
-            return { success: true };
+            return {
+                success: true
+            };
         }
 
         const response = await axios.post(this.smsGatewayApi, {
@@ -107,9 +117,17 @@ class SMSService {
         for (const recipient of recipients) {
             try {
                 const result = await this.sendSMS(recipient, message, language);
-                results.push({ recipient, success: true, result });
+                results.push({
+                    recipient,
+                    success: true,
+                    result
+                });
             } catch (error) {
-                results.push({ recipient, success: false, error: error.message });
+                results.push({
+                    recipient,
+                    success: false,
+                    error: error.message
+                });
             }
         }
         return results;
