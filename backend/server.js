@@ -4,7 +4,6 @@ const helmet = require('helmet');
 const dotenv = require('dotenv');
 const { createServer } = require('http');
 const { Server } = require('socket.io');
-const rateLimit = require('express-rate-limit'); // Changed from rate-limiter-flexible for simplicity in setup
 const fs = require('fs');
 
 // Load environment variables
@@ -44,12 +43,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting
-const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100
-});
-app.use('/api/', limiter);
+// Rate limiting disabled for demo
 
 app.use('/uploads', express.static('uploads'));
 
@@ -61,7 +55,7 @@ app.use('/uploads', express.static('uploads'));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/farmer', authMiddleware.authMiddleware, require('./routes/farmer'));
 app.use('/api/buyer', authMiddleware.authMiddleware, require('./routes/buyer'));
-app.use('/api/market', authMiddleware.authMiddleware, require('./routes/market'));
+app.use('/api/market', require('./routes/market'));
 app.use('/api/ml', authMiddleware.authMiddleware, require('./routes/ml'));
 app.use('/api/government', authMiddleware.authMiddleware, require('./routes/government'));
 app.use('/api/logistics', authMiddleware.authMiddleware, require('./routes/logistics'));

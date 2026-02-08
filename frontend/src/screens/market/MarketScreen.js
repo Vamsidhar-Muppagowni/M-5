@@ -6,14 +6,20 @@ import { Ionicons } from '@expo/vector-icons';
 
 const MarketScreen = ({ navigation }) => {
     const dispatch = useDispatch();
-    const { crops, isLoading } = useSelector(state => state.market);
+    const { crops, isLoading, pagination } = useSelector(state => state.market);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
-    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         loadCrops();
     }, [page]);
+
+    // Safety check: Reset page if out of bounds
+    useEffect(() => {
+        if (!isLoading && pagination?.totalPages > 0 && page > pagination.totalPages) {
+            setPage(1);
+        }
+    }, [pagination, page, isLoading]);
 
     const loadCrops = () => {
         dispatch(fetchCrops({ page, search }));
@@ -24,31 +30,44 @@ const MarketScreen = ({ navigation }) => {
         loadCrops();
     };
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity
-            style={styles.card}
-            onPress={() => navigation.navigate('CropDetails', { id: item.id })}
-        >
-            <View style={styles.cardHeader}>
-                <Text style={styles.cropName}>{item.name}</Text>
-                <Text style={styles.price}>₹{item.current_price}/{item.unit}</Text>
-            </View>
+    const renderItem = ({ item }) => {
+        if (!item) return null;
 
-            <View style={styles.cardBody}>
-                <Text style={styles.detailText}>Quantity: {item.quantity}{item.unit}</Text>
-                <Text style={styles.detailText}>Quality: Grade {item.quality_grade}</Text>
-                <Text style={styles.detailText}>Location: {item.location?.district || 'N/A'}</Text>
-                <Text style={styles.detailText}>By: {item.farmer?.name}</Text>
-            </View>
-
-            <View style={styles.cardFooter}>
-                <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>{item.status}</Text>
+        return (
+            <TouchableOpacity
+                style={styles.card}
+                onPress={() => navigation.navigate('CropDetails', { id: item.id })}
+            >
+                <View style={styles.cardHeader}>
+                    <Text style={styles.cropName}>{item?.name || 'Unknown Crop'}</Text>
+                    <Text style={styles.price}>₹{item?.current_price}/{item?.unit}</Text>
                 </View>
-                <Text style={styles.timeText}>Just now</Text>
+
+                <View style={styles.cardBody}>
+                    <Text style={styles.detailText}>Quantity: {item?.quantity}{item?.unit}</Text>
+                    <Text style={styles.detailText}>Quality: Grade {item?.quality_grade}</Text>
+                    <Text style={styles.detailText}>Location: {item?.location?.district || 'N/A'}</Text>
+                    <Text style={styles.detailText}>By: {item?.farmer?.name || 'Unknown'}</Text>
+                </View>
+
+                <View style={styles.cardFooter}>
+                    <View style={styles.statusBadge}>
+                        <Text style={styles.statusText}>{item?.status}</Text>
+                    </View>
+                    <Text style={styles.timeText}>Just now</Text>
+                </View>
+            </TouchableOpacity>
+        );
+    };
+
+    const renderEmpty = () => {
+        if (isLoading) return null; // Loader handles it
+        return (
+            <View style={{ padding: 20, alignItems: 'center' }}>
+                <Text style={{ fontSize: 16, color: '#666' }}>No crops found</Text>
             </View>
-        </TouchableOpacity>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -65,18 +84,23 @@ const MarketScreen = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {isLoading && page === 1 ? (
+            {isLoading && page === 1 && !crops?.length ? (
                 <ActivityIndicator size="large" color="#2e7d32" style={styles.loader} />
             ) : (
                 <FlatList
-                    data={crops}
-                    keyExtractor={(item) => item.id}
+                    data={crops || []}
+                    keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
                     refreshing={isLoading}
                     onRefresh={onRefresh}
-                    onEndReached={() => setPage(p => p + 1)}
+                    onEndReached={() => {
+                        if (pagination && page < pagination.totalPages) {
+                            setPage(p => p + 1);
+                        }
+                    }}
                     onEndReachedThreshold={0.5}
+                    ListEmptyComponent={renderEmpty}
                 />
             )}
         </View>
