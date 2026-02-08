@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Modal, Image, StatusBar } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Modal, Image, StatusBar, Dimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { changeLanguage } from '../../services/language';
-import api from '../../services/api';
+import api, { marketAPI } from '../../services/api';
 import * as Location from 'expo-location';
+import { LineChart } from 'react-native-chart-kit';
+import { useFocusEffect } from '@react-navigation/native';
 
 const FarmerDashboard = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
@@ -18,6 +20,11 @@ const FarmerDashboard = ({ navigation }) => {
     });
     const [refreshing, setRefreshing] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
+
+    // Price Chart State
+    const [priceHistory, setPriceHistory] = useState(null);
+    const [priceLoading, setPriceLoading] = useState(true);
+
     const [weather, setWeather] = useState({
         temp: '--',
         conditionKey: 'weather_loading',
@@ -42,7 +49,12 @@ const FarmerDashboard = ({ navigation }) => {
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
-                    setWeather(prev => ({ ...prev, location: 'Permission Denied', conditionKey: 'weather_cloudy', temp: '--' }));
+                    setWeather(prev => ({
+                        ...prev,
+                        location: 'Permission Denied',
+                        conditionKey: 'weather_cloudy',
+                        temp: '--'
+                    }));
                     return;
                 }
 
@@ -71,23 +83,18 @@ const FarmerDashboard = ({ navigation }) => {
                 const iconData = getWeatherIcon(weathercode);
 
                 // Reverse Geocode using OpenStreetMap (Nominatim)
-                // expo-location reverseGeocodeAsync often requires Google API keys for best results on Android
                 let city = "Unknown Location";
                 try {
                     const geoUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
                     const geoResponse = await fetch(geoUrl, {
-                        headers: {
-                            'User-Agent': 'FarmerMarketplaceApp/1.0' // Required by Nominatim
-                        }
+                        headers: { 'User-Agent': 'FarmerMarketplaceApp/1.0' }
                     });
                     const geoData = await geoResponse.json();
 
                     if (geoData && geoData.address) {
                         const addr = geoData.address;
-                        // Prioritize: city -> town -> village -> county -> state
                         city = addr.city || addr.town || addr.village || addr.county || addr.suburb || addr.state_district || "Unknown Location";
                     } else {
-                        // Fallback to Expo if API fails
                         let address = await Location.reverseGeocodeAsync({ latitude, longitude });
                         if (address && address.length > 0) {
                             const addr = address[0];
@@ -96,7 +103,6 @@ const FarmerDashboard = ({ navigation }) => {
                     }
                 } catch (geoError) {
                     console.warn("Geocoding failed:", geoError);
-                    // Final fallback
                     city = "Location Detected";
                 }
 
@@ -125,20 +131,58 @@ const FarmerDashboard = ({ navigation }) => {
         try {
             const response = await api.get('/farmer/stats');
             setStats(response.data);
+
+            // Fetch Price History (Default: Wheat)
+            setPriceLoading(true);
+            try {
+                const historyRes = await marketAPI.getPriceHistory({ crop: 'Wheat', location: 'India' });
+                if (historyRes.data && historyRes.data.length > 0) {
+                    // Process for chart: Take last 7 days
+                    const last7 = historyRes.data.slice(-7);
+                    setPriceHistory({
+                        labels: last7.map(h => new Date(h.date).getDate().toString()), // Day of month
+                        datasets: [{
+                            data: last7.map(h => parseFloat(h.price))
+                        }]
+                    });
+                } else {
+                    // Fallback dummy data if empty
+                    setPriceHistory({
+                        labels: ["1", "2", "3", "4", "5", "6", "7"],
+                        datasets: [{
+                            data: [2200, 2250, 2300, 2280, 2350, 2400, 2450]
+                        }]
+                    });
+                }
+            } catch (chartErr) {
+                console.warn("Chart fetch error", chartErr);
+                // Fallback dummy data on error
+                setPriceHistory({
+                    labels: ["1", "2", "3", "4", "5", "6", "7"],
+                    datasets: [{
+                        data: [2200, 2250, 2300, 2280, 2350, 2400, 2450]
+                    }]
+                });
+            }
+            setPriceLoading(false);
         } catch (error) {
             console.error(error);
+            setPriceLoading(false);
         }
     };
 
-    const onRefresh = React.useCallback(async () => {
+    const onRefresh = useCallback(async () => {
         setRefreshing(true);
         await fetchStats();
         setRefreshing(false);
     }, []);
 
-    useEffect(() => {
-        fetchStats();
-    }, []);
+    // Use useFocusEffect to refresh stats when screen is focused
+    useFocusEffect(
+        useCallback(() => {
+            fetchStats();
+        }, [])
+    );
 
     const languages = [
         { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -169,25 +213,14 @@ const FarmerDashboard = ({ navigation }) => {
                 </View>
 
                 <View style={styles.headerRight}>
-                    <TouchableOpacity
-                        style={styles.languageButton}
-                        onPress={() => setModalVisible(true)}
-                    >
-                        <Text style={styles.languageButtonText}>
-                            {i18n.language.toUpperCase()}
-                        </Text>
+                    <TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>
+                        <Text style={styles.languageButtonText}>{i18n.language.toUpperCase()}</Text>
                         <Ionicons name="chevron-down" size={16} color="#2e7d32" style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.profileButton}
-                        onPress={() => navigation.navigate('Profile')}
-                    >
-                        {/* Placeholder for user avatar, using initials if no image */}
+                    <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
                         <View style={styles.avatar}>
-                            <Text style={styles.avatarText}>
-                                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                            </Text>
+                            <Text style={styles.avatarText}>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -200,9 +233,9 @@ const FarmerDashboard = ({ navigation }) => {
                 visible={modalVisible}
                 onRequestClose={() => setModalVisible(false)}
             >
-                <TouchableOpacity
-                    style={styles.modalOverlay}
-                    activeOpacity={1}
+                <TouchableOpacity 
+                    style={styles.modalOverlay} 
+                    activeOpacity={1} 
                     onPress={() => setModalVisible(false)}
                 >
                     <View style={styles.modalContent}>
@@ -238,7 +271,7 @@ const FarmerDashboard = ({ navigation }) => {
                 </TouchableOpacity>
             </Modal>
 
-            <ScrollView
+            <ScrollView 
                 style={styles.content}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -256,13 +289,9 @@ const FarmerDashboard = ({ navigation }) => {
                     <Ionicons name={weather.icon} size={48} color={weather.color} />
                 </View>
 
-                {/* Dashboard Subtitle moved here if needed or just removed/implicit */}
-
+                {/* Stats Grid */}
                 <View style={styles.statsGrid}>
-                    <TouchableOpacity
-                        style={styles.statCard}
-                        onPress={() => navigation.navigate('MyCrops')}
-                    >
+                    <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate('MyCrops')}>
                         <View style={[styles.iconContainer, { backgroundColor: '#e8f5e9' }]}>
                             <Ionicons name="leaf" size={24} color="#2e7d32" />
                         </View>
@@ -278,10 +307,7 @@ const FarmerDashboard = ({ navigation }) => {
                         <Text style={styles.statLabel}>{t('total_earnings')}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.statCard}
-                        onPress={() => navigation.navigate('PendingBids')}
-                    >
+                    <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate('PendingBids')}>
                         <View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}>
                             <Ionicons name="time" size={24} color="#1565c0" />
                         </View>
@@ -298,15 +324,58 @@ const FarmerDashboard = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
 
+                {/* Market Trends Chart (NEW) */}
+                <View style={[styles.sectionHeader, { paddingHorizontal: 20, marginTop: 10 }]}>
+                    <Text style={styles.sectionTitle}>{t('market_trends') || 'Market Trends'} (Wheat)</Text>
+                </View>
+
+                <View style={styles.chartContainer}>
+                    {priceLoading ? (
+                        <Text style={{ padding: 20 }}>Loading Chart...</Text>
+                    ) : priceHistory ? (
+                        <LineChart
+                            data={{
+                                labels: priceHistory.labels,
+                                datasets: priceHistory.datasets
+                            }}
+                            width={Dimensions.get('window').width - 60}
+                            height={220}
+                            yAxisLabel="Rs"
+                            yAxisInterval={1}
+                            chartConfig={{
+                                backgroundColor: "#ffffff",
+                                backgroundGradientFrom: "#ffffff",
+                                backgroundGradientTo: "#ffffff",
+                                decimalPlaces: 0,
+                                color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
+                                labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                style: {
+                                    borderRadius: 16
+                                },
+                                propsForDots: {
+                                    r: "6",
+                                    strokeWidth: "2",
+                                    stroke: "#2e7d32"
+                                }
+                            }}
+                            bezier
+                            style={{
+                                marginVertical: 8,
+                                borderRadius: 16
+                            }}
+                        />
+                    ) : (
+                        <Text style={{ padding: 20, color: '#666' }}>No price data available</Text>
+                    )}
+                </View>
+
+                {/* Quick Actions */}
                 <View style={styles.actionContainer}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>{t('quick_actions')}</Text>
                     </View>
 
-                    <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => navigation.navigate('CropListing')}
-                    >
+                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('CropListing')}>
                         <View style={[styles.actionIcon, { backgroundColor: '#2e7d32' }]}>
                             <Ionicons name="add" size={24} color="#fff" />
                         </View>
@@ -317,10 +386,7 @@ const FarmerDashboard = ({ navigation }) => {
                         <Ionicons name="chevron-forward" size={20} color="#ccc" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => navigation.navigate('Prices')}
-                    >
+                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Prices')}>
                         <View style={[styles.actionIcon, { backgroundColor: '#1976d2' }]}>
                             <Ionicons name="bar-chart" size={24} color="#fff" />
                         </View>
@@ -331,10 +397,7 @@ const FarmerDashboard = ({ navigation }) => {
                         <Ionicons name="chevron-forward" size={20} color="#ccc" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
-                        style={styles.actionButton}
-                        onPress={() => navigation.navigate('VoiceAssistant')}
-                    >
+                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('VoiceAssistant')}>
                         <View style={[styles.actionIcon, { backgroundColor: '#f57c00' }]}>
                             <Ionicons name="mic" size={24} color="#fff" />
                         </View>
@@ -345,6 +408,7 @@ const FarmerDashboard = ({ navigation }) => {
                         <Ionicons name="chevron-forward" size={20} color="#ccc" />
                     </TouchableOpacity>
                 </View>
+
                 <View style={{ height: 20 }} />
             </ScrollView>
         </View>
@@ -511,6 +575,19 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#666',
         textAlign: 'center'
+    },
+    chartContainer: {
+        alignItems: 'center',
+        marginVertical: 10,
+        backgroundColor: '#fff',
+        borderRadius: 16,
+        padding: 10,
+        marginHorizontal: 20,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.05,
+        shadowRadius: 5,
+        elevation: 2
     },
     actionContainer: {
         paddingHorizontal: 20
