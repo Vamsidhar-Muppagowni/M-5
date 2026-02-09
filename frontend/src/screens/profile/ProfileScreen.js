@@ -6,6 +6,8 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { logout } from '../../store/slices/authSlice';
 import { changeLanguage } from '../../services/language';
+import { theme } from '../../styles/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const ProfileScreen = ({ navigation }) => {
     const dispatch = useDispatch();
@@ -63,7 +65,10 @@ const ProfileScreen = ({ navigation }) => {
     return (
         <ScrollView style={styles.container}>
             {/* Header / Profile Card */}
-            <View style={styles.header}>
+            <LinearGradient
+                colors={[theme.colors.primary, theme.colors.primaryDark]}
+                style={styles.header}
+            >
                 <View style={styles.avatarContainer}>
                     <Text style={styles.avatarText}>
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
@@ -72,7 +77,7 @@ const ProfileScreen = ({ navigation }) => {
                 <Text style={styles.name}>{user.name}</Text>
                 <Text style={styles.role}>{user.type ? user.type.toUpperCase() : 'FARMER'}</Text>
                 <Text style={styles.phone}>{user.phone}</Text>
-            </View>
+            </LinearGradient>
 
             {/* Settings Options */}
             <View style={styles.section}>
@@ -80,14 +85,14 @@ const ProfileScreen = ({ navigation }) => {
 
                 <TouchableOpacity style={styles.option} onPress={() => setModalVisible(true)}>
                     <View style={styles.optionLeft}>
-                        <View style={[styles.iconBox, { backgroundColor: '#e3f2fd' }]}>
-                            <Ionicons name="language" size={22} color="#1565c0" />
+                        <View style={[styles.iconBox, { backgroundColor: theme.colors.p20 }]}>
+                            <Ionicons name="language" size={22} color={theme.colors.primary} />
                         </View>
                         <Text style={styles.optionText}>{t('change_language')}</Text>
                     </View>
                     <View style={styles.optionRight}>
                         <Text style={styles.valueText}>{i18n.language.toUpperCase()}</Text>
-                        <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </View>
                 </TouchableOpacity>
 
@@ -98,7 +103,7 @@ const ProfileScreen = ({ navigation }) => {
                         </View>
                         <Text style={styles.optionText}>{t('edit_profile')}</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                    <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.option}>
@@ -108,13 +113,13 @@ const ProfileScreen = ({ navigation }) => {
                         </View>
                         <Text style={styles.optionText}>{t('help_support')}</Text>
                     </View>
-                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                    <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                 </TouchableOpacity>
             </View>
 
             {/* Logout Button */}
             <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-                <Ionicons name="log-out-outline" size={20} color="#d32f2f" />
+                <Ionicons name="log-out-outline" size={20} color={theme.colors.error} />
                 <Text style={styles.logoutText}>{t('logout')}</Text>
             </TouchableOpacity>
 
@@ -133,15 +138,15 @@ const ProfileScreen = ({ navigation }) => {
                     <View style={[styles.modalContent, { width: '85%', padding: 25 }]}>
                         <View style={{ alignItems: 'center', marginBottom: 20 }}>
                             <View style={{
-                                width: 60, height: 60, borderRadius: 30, backgroundColor: '#ffebee',
+                                width: 60, height: 60, borderRadius: 30, backgroundColor: theme.colors.error + '20',
                                 justifyContent: 'center', alignItems: 'center', marginBottom: 15
                             }}>
-                                <Ionicons name="log-out" size={30} color="#d32f2f" />
+                                <Ionicons name="log-out" size={30} color={theme.colors.error} />
                             </View>
-                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 10 }}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: theme.colors.text.primary, marginBottom: 10 }}>
                                 {t('logout') || 'Logout'}
                             </Text>
-                            <Text style={{ fontSize: 14, color: '#666', textAlign: 'center' }}>
+                            <Text style={{ fontSize: 14, color: theme.colors.text.secondary, textAlign: 'center' }}>
                                 {t('logout_confirm') || 'Are you sure you want to logout?'}
                             </Text>
                         </View>
@@ -150,17 +155,17 @@ const ProfileScreen = ({ navigation }) => {
                             <TouchableOpacity
                                 style={{
                                     flex: 1, paddingVertical: 12, marginRight: 10, borderRadius: 10,
-                                    borderWidth: 1, borderColor: '#ddd', alignItems: 'center'
+                                    borderWidth: 1, borderColor: theme.colors.border, alignItems: 'center'
                                 }}
                                 onPress={() => setLogoutModalVisible(false)}
                             >
-                                <Text style={{ color: '#666', fontWeight: '600' }}>Cancel</Text>
+                                <Text style={{ color: theme.colors.text.secondary, fontWeight: '600' }}>Cancel</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={{
                                     flex: 1, paddingVertical: 12, marginLeft: 10, borderRadius: 10,
-                                    backgroundColor: '#d32f2f', alignItems: 'center'
+                                    backgroundColor: theme.colors.error, alignItems: 'center'
                                 }}
                                 onPress={performLogout}
                             >
@@ -187,7 +192,7 @@ const ProfileScreen = ({ navigation }) => {
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Select Language</Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Ionicons name="close" size={24} color="#666" />
+                                <Ionicons name="close" size={24} color={theme.colors.text.secondary} />
                             </TouchableOpacity>
                         </View>
 
@@ -208,7 +213,7 @@ const ProfileScreen = ({ navigation }) => {
                                     {lang.label}
                                 </Text>
                                 {i18n.language === lang.code && (
-                                    <Ionicons name="checkmark-circle" size={24} color="#2e7d32" />
+                                    <Ionicons name="checkmark-circle" size={24} color={theme.colors.primary} />
                                 )}
                             </TouchableOpacity>
                         ))}
@@ -222,7 +227,7 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa'
+        backgroundColor: theme.colors.background
     },
     center: {
         flex: 1,
@@ -232,26 +237,22 @@ const styles = StyleSheet.create({
     header: {
         alignItems: 'center',
         padding: 30,
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.primary,
         borderBottomLeftRadius: 30,
         borderBottomRightRadius: 30,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 5,
+        ...theme.shadows.medium,
         marginBottom: 20
     },
     avatarContainer: {
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: '#2e7d32',
+        backgroundColor: 'rgba(255,255,255,0.2)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 15,
         borderWidth: 4,
-        borderColor: '#e8f5e9'
+        borderColor: 'rgba(255,255,255,0.3)'
     },
     avatarText: {
         fontSize: 40,
@@ -261,36 +262,32 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#fff',
         marginBottom: 5
     },
     role: {
         fontSize: 14,
-        color: '#2e7d32',
+        color: 'rgba(255,255,255,0.9)',
         fontWeight: 'bold',
         letterSpacing: 1,
         marginBottom: 5
     },
     phone: {
         fontSize: 14,
-        color: '#666'
+        color: 'rgba(255,255,255,0.8)'
     },
     section: {
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.surface,
         marginHorizontal: 20,
         borderRadius: 16,
         padding: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2,
+        ...theme.shadows.small,
         marginBottom: 20
     },
     sectionTitle: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#888',
+        color: theme.colors.text.secondary,
         marginLeft: 15,
         marginTop: 15,
         marginBottom: 10
@@ -302,7 +299,7 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         paddingHorizontal: 15,
         borderBottomWidth: 1,
-        borderBottomColor: '#f9f9f9'
+        borderBottomColor: theme.colors.background
     },
     optionLeft: {
         flexDirection: 'row',
@@ -318,7 +315,7 @@ const styles = StyleSheet.create({
     },
     optionText: {
         fontSize: 16,
-        color: '#333'
+        color: theme.colors.text.primary
     },
     optionRight: {
         flexDirection: 'row',
@@ -326,7 +323,7 @@ const styles = StyleSheet.create({
     },
     valueText: {
         fontSize: 14,
-        color: '#888',
+        color: theme.colors.text.secondary,
         marginRight: 8
     },
     logoutButton: {
@@ -343,9 +340,8 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#d32f2f'
+        color: theme.colors.error
     },
-    // Modal Styles (Copied from Dashboard for consistency)
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
@@ -354,14 +350,10 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: '85%',
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.surface,
         borderRadius: 20,
         padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 10
+        ...theme.shadows.large
     },
     modalHeader: {
         flexDirection: 'row',
@@ -372,17 +364,17 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#333'
+        color: theme.colors.text.primary
     },
     languageOption: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 15,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0'
+        borderBottomColor: theme.colors.border
     },
     languageOptionActive: {
-        backgroundColor: '#f0f9f0',
+        backgroundColor: theme.colors.p20,
         borderRadius: 10,
         paddingHorizontal: 10,
         borderBottomWidth: 0
@@ -393,12 +385,12 @@ const styles = StyleSheet.create({
     },
     languageLabel: {
         fontSize: 16,
-        color: '#333',
+        color: theme.colors.text.primary,
         flex: 1
     },
     languageLabelActive: {
         fontWeight: 'bold',
-        color: '#2e7d32'
+        color: theme.colors.primary
     }
 });
 

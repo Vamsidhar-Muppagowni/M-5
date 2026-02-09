@@ -6,13 +6,16 @@ import {
     TouchableOpacity,
     Alert,
     useWindowDimensions,
-    ScrollView
+    ScrollView,
+    Image
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/slices/authSlice';
 import { useTranslation } from 'react-i18next';
+import { LinearGradient } from 'expo-linear-gradient';
 import CustomButton from '../../components/CustomButton';
 import StyledInput from '../../components/StyledInput';
+import { theme } from '../../styles/theme';
 
 const LoginScreen = ({ navigation }) => {
     const { t } = useTranslation();
@@ -55,101 +58,114 @@ const LoginScreen = ({ navigation }) => {
     };
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-            <View style={[styles.container, isDesktop && styles.containerDesktop]}>
-                {/* Left Side - Promotional/Welcome Content */}
-                <View style={[styles.leftSide, isDesktop ? styles.leftSideDesktop : styles.leftSideMobile]}>
-                    <View style={styles.brandContainer}>
-                        <View style={styles.logoPlaceholder}>
-                            <Text style={styles.logoIcon}>🌱</Text>
+        <LinearGradient
+            colors={[theme.colors.background, theme.colors.surface]}
+            style={{ flex: 1 }}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={[styles.container, isDesktop && styles.containerDesktop]}>
+                    {/* Left Side - Promotional/Welcome Content */}
+                    <View style={[styles.leftSide, isDesktop ? styles.leftSideDesktop : styles.leftSideMobile]}>
+                        <View style={styles.brandContainer}>
+                            <LinearGradient
+                                colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
+                                style={styles.logoPlaceholder}
+                            >
+                                <Text style={styles.logoIcon}>🌱</Text>
+                            </LinearGradient>
+                            <Text style={styles.brandName}>Farmer Marketplace</Text>
                         </View>
-                        <Text style={styles.brandName}>Farmer Marketplace</Text>
+
+                        <Text style={styles.welcomeTitle}>
+                            Welcome Back, {role.charAt(0).toUpperCase() + role.slice(1)}!
+                        </Text>
+                        <Text style={styles.welcomeSubtitle}>
+                            Access your dashboard, check crop prices, and manage your farm efficiently.
+                        </Text>
+
+                        <View style={styles.badgeContainer}>
+                            <View style={styles.badge}><Text style={styles.badgeText}>Real-time Prices</Text></View>
+                            <View style={styles.badge}><Text style={styles.badgeText}>Government Schemes</Text></View>
+                            <View style={styles.badge}><Text style={styles.badgeText}>Secure Payments</Text></View>
+                        </View>
                     </View>
 
-                    <Text style={styles.welcomeTitle}>
-                        Welcome Back, {role.charAt(0).toUpperCase() + role.slice(1)}!
-                    </Text>
-                    <Text style={styles.welcomeSubtitle}>
-                        Access your dashboard, check crop prices, and manage your farm efficiently.
-                    </Text>
+                    {/* Right Side - Login Form */}
+                    <View style={[styles.rightSide, isDesktop ? styles.rightSideDesktop : styles.rightSideMobile]}>
+                        <View style={styles.formCard}>
+                            <Text style={styles.loginHeader}>Login</Text>
 
-                    <View style={styles.badgeContainer}>
-                        <View style={styles.badge}><Text style={styles.badgeText}>Real-time Prices</Text></View>
-                        <View style={styles.badge}><Text style={styles.badgeText}>Government Schemes</Text></View>
-                        <View style={styles.badge}><Text style={styles.badgeText}>Secure Payments</Text></View>
-                    </View>
-                </View>
+                            <Text style={styles.label}>Select Role</Text>
+                            <View style={styles.roleSelector}>
+                                {['farmer', 'buyer', 'admin'].map((r) => (
+                                    <TouchableOpacity
+                                        key={r}
+                                        style={[
+                                            styles.roleButton,
+                                            role === r && styles.roleButtonActive
+                                        ]}
+                                        onPress={() => setRole(r)}
+                                    >
+                                        <Text style={[
+                                            styles.roleText,
+                                            role === r && styles.roleTextActive
+                                        ]}>
+                                            {r.charAt(0).toUpperCase() + r.slice(1)}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
 
-                {/* Right Side - Login Form */}
-                <View style={[styles.rightSide, isDesktop ? styles.rightSideDesktop : styles.rightSideMobile]}>
-                    <View style={styles.formCard}>
-                        <Text style={styles.loginHeader}>Login</Text>
+                            <StyledInput
+                                label={t('phone_placeholder') || 'Phone Number'}
+                                icon="📞"
+                                placeholder="Enter your phone number"
+                                value={phone}
+                                onChangeText={setPhone}
+                                keyboardType="phone-pad"
+                            />
 
-                        <Text style={styles.label}>Select Role</Text>
-                        <View style={styles.roleSelector}>
-                            {['farmer', 'buyer', 'admin'].map((r) => (
-                                <TouchableOpacity
-                                    key={r}
-                                    style={[styles.roleButton, role === r && styles.roleButtonActive]}
-                                    onPress={() => setRole(r)}
-                                >
-                                    <Text style={[styles.roleText, role === r && styles.roleTextActive]}>
-                                        {r.charAt(0).toUpperCase() + r.slice(1)}
-                                    </Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.colors.text.primary }}>
+                                    {t('password_placeholder') || 'Password'}
+                                </Text>
+                                <TouchableOpacity>
+                                    <Text style={styles.forgotPassword}>Forgot Password?</Text>
                                 </TouchableOpacity>
-                            ))}
-                        </View>
+                            </View>
 
-                        <StyledInput
-                            label={t('phone_placeholder') || 'Phone Number'}
-                            icon="📞"
-                            placeholder="Enter your phone number"
-                            value={phone}
-                            onChangeText={setPhone}
-                            keyboardType="phone-pad"
-                        />
+                            <StyledInput
+                                icon="🔒"
+                                placeholder="........"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry
+                            />
 
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                            <Text style={{ fontSize: 14, fontWeight: '600', color: '#374151' }}>
-                                {t('password_placeholder') || 'Password'}
-                            </Text>
-                            <TouchableOpacity>
-                                <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                            </TouchableOpacity>
-                        </View>
+                            <CustomButton
+                                title="Sign In →"
+                                onPress={handleLogin}
+                                loading={loading}
+                                style={{ marginTop: 24, marginBottom: 24 }}
+                            />
 
-                        <StyledInput
-                            icon="🔒"
-                            placeholder="........"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
-
-                        <CustomButton
-                            title="Sign In →"
-                            onPress={handleLogin}
-                            loading={loading}
-                            style={{ marginTop: 24, marginBottom: 24 }}
-                        />
-
-                        <View style={styles.registerContainer}>
-                            <Text style={styles.registerText}>Don't have an account? </Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                                <Text style={styles.registerLink}>Register New Farm</Text>
-                            </TouchableOpacity>
+                            <View style={styles.registerContainer}>
+                                <Text style={styles.registerText}>Don't have an account? </Text>
+                                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                                    <Text style={styles.registerLink}>Register New Farm</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>
-            </View>
-        </ScrollView>
+            </ScrollView>
+        </LinearGradient>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa',
     },
     containerDesktop: {
         flexDirection: 'row',
@@ -181,10 +197,10 @@ const styles = StyleSheet.create({
         width: 48,
         height: 48,
         borderRadius: 12,
-        backgroundColor: '#dcfce7',
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12,
+        ...theme.shadows.small,
     },
     logoIcon: {
         fontSize: 24,
@@ -192,17 +208,17 @@ const styles = StyleSheet.create({
     brandName: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#1a1a1a',
+        color: theme.colors.text.primary,
     },
     welcomeTitle: {
         fontSize: 32,
         fontWeight: '800',
-        color: '#1a1a1a',
+        color: theme.colors.text.primary,
         marginBottom: 16,
     },
     welcomeSubtitle: {
         fontSize: 16,
-        color: '#666',
+        color: theme.colors.text.secondary,
         lineHeight: 24,
         marginBottom: 32,
     },
@@ -212,15 +228,17 @@ const styles = StyleSheet.create({
         gap: 12,
     },
     badge: {
-        backgroundColor: '#dcfce7',
+        backgroundColor: theme.colors.background,
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
         marginBottom: 8,
         marginRight: 8,
+        borderWidth: 1,
+        borderColor: theme.colors.primary,
     },
     badgeText: {
-        color: '#166534',
+        color: theme.colors.primary,
         fontSize: 14,
         fontWeight: '600',
     },
@@ -239,34 +257,30 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     formCard: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.l,
         padding: 32,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        elevation: 5,
+        ...theme.shadows.medium,
         width: '100%',
         maxWidth: 450,
     },
     loginHeader: {
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: theme.typography.h2.fontSize,
+        fontWeight: theme.typography.h2.fontWeight,
         marginBottom: 24,
-        color: '#1a1a1a',
+        color: theme.colors.text.primary,
     },
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#374151',
+        color: theme.colors.text.primary,
         marginBottom: 8,
         marginTop: 16,
     },
     roleSelector: {
         flexDirection: 'row',
-        backgroundColor: '#f3f4f6',
-        borderRadius: 8,
+        backgroundColor: theme.colors.background,
+        borderRadius: theme.borderRadius.m,
         padding: 4,
         marginBottom: 16,
     },
@@ -274,28 +288,24 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingVertical: 10,
         alignItems: 'center',
-        borderRadius: 6,
+        borderRadius: theme.borderRadius.s,
     },
     roleButtonActive: {
-        backgroundColor: '#fff',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        backgroundColor: theme.colors.surface,
+        ...theme.shadows.small,
     },
     roleText: {
         fontSize: 14,
-        color: '#6b7280',
+        color: theme.colors.text.secondary,
         fontWeight: '500',
     },
     roleTextActive: {
-        color: '#166534',
+        color: theme.colors.primary,
         fontWeight: '700',
     },
     forgotPassword: {
         fontSize: 12,
-        color: '#166534',
+        color: theme.colors.primary,
         fontWeight: '600',
     },
     registerContainer: {
@@ -303,11 +313,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     registerText: {
-        color: '#6b7280',
+        color: theme.colors.text.secondary,
         fontSize: 14,
     },
     registerLink: {
-        color: '#166534',
+        color: theme.colors.primary,
         fontWeight: 'bold',
         fontSize: 14,
     },

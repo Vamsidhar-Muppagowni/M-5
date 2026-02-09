@@ -1,5 +1,6 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { theme } from '../styles/theme';
 
 const CustomButton = ({
     onPress,
@@ -44,7 +45,7 @@ const CustomButton = ({
             activeOpacity={0.8}
         >
             {loading ? (
-                <ActivityIndicator color={variant === 'outline' ? '#2e7d32' : '#fff'} />
+                <ActivityIndicator color={variant === 'outline' ? theme.colors.primary : '#fff'} />
             ) : (
                 <Text style={[styles.text, getTextStyle()]}>{title}</Text>
             )}
@@ -56,34 +57,35 @@ const styles = StyleSheet.create({
     button: {
         paddingVertical: 14,
         paddingHorizontal: 24,
-        borderRadius: 8,
+        borderRadius: theme.borderRadius.m,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 120,
+        ...theme.shadows.small,
     },
     primaryButton: {
-        backgroundColor: '#166534', // Dark green
+        backgroundColor: theme.colors.primary,
     },
     primaryText: {
         color: '#ffffff',
     },
     secondaryButton: {
-        backgroundColor: '#dcfce7', // Light green
+        backgroundColor: theme.colors.secondary,
     },
     secondaryText: {
-        color: '#166534',
+        color: '#ffffff',
     },
     outlineButton: {
         backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: '#166534',
+        borderColor: theme.colors.primary,
     },
     outlineText: {
-        color: '#166534',
+        color: theme.colors.primary,
     },
     disabledButton: {
         opacity: 0.6,
-        backgroundColor: '#9ca3af',
+        backgroundColor: theme.colors.text.disabled,
     },
     text: {
         fontSize: 16,

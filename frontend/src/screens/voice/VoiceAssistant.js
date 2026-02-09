@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, ActivityIndicator, Animated, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { mlAPI } from '../../services/api';
+import { theme } from '../../styles/theme';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const VoiceAssistant = ({ navigation }) => {
     const [messages, setMessages] = useState([
@@ -10,17 +12,23 @@ const VoiceAssistant = ({ navigation }) => {
     const [isListening, setIsListening] = useState(false);
     const [inputText, setInputText] = useState('');
     const scaleAnim = useRef(new Animated.Value(1)).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+
+    useEffect(() => {
+        if (isListening) {
+            Animated.loop(
+                Animated.sequence([
+                    Animated.timing(pulseAnim, { toValue: 1.2, duration: 1000, useNativeDriver: true }),
+                    Animated.timing(pulseAnim, { toValue: 1, duration: 1000, useNativeDriver: true })
+                ])
+            ).start();
+        } else {
+            pulseAnim.setValue(1);
+        }
+    }, [isListening]);
 
     const startListening = () => {
         setIsListening(true);
-        // Animate button
-        Animated.loop(
-            Animated.sequence([
-                Animated.timing(scaleAnim, { toValue: 1.2, duration: 500, useNativeDriver: true }),
-                Animated.timing(scaleAnim, { toValue: 1, duration: 500, useNativeDriver: true })
-            ])
-        ).start();
-
         // Simulate voice input delay
         setTimeout(() => {
             stopListening("What is the market price of cotton?");
@@ -29,9 +37,9 @@ const VoiceAssistant = ({ navigation }) => {
 
     const stopListening = (recognizedText) => {
         setIsListening(false);
-        scaleAnim.stopAnimation();
-        scaleAnim.setValue(1);
-        handleSend(recognizedText);
+        if (recognizedText) {
+            handleSend(recognizedText);
+        }
     };
 
     const handleSend = (text) => {
@@ -58,6 +66,12 @@ const VoiceAssistant = ({ navigation }) => {
                 styles.messageText,
                 item.sender === 'user' ? styles.userText : styles.systemText
             ]}>{item.text}</Text>
+            <Text style={[
+                styles.timeText,
+                item.sender === 'user' ? styles.userTimeText : styles.systemTimeText
+            ]}>
+                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </Text>
         </View>
     );
 
@@ -65,9 +79,10 @@ const VoiceAssistant = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color="#333" />
+                    <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
                 <Text style={styles.title}>Voice Assistant</Text>
+                <View style={{ width: 24 }} />
             </View>
 
             <FlatList
@@ -75,27 +90,53 @@ const VoiceAssistant = ({ navigation }) => {
                 keyExtractor={item => item.id}
                 renderItem={renderMessage}
                 contentContainerStyle={styles.chatContainer}
+                showsVerticalScrollIndicator={false}
             />
 
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Type or speak..."
-                    value={inputText}
-                    onChangeText={setInputText}
-                    onSubmitEditing={() => handleSend(inputText)}
-                />
-                <TouchableOpacity onPress={isListening ? () => stopListening(null) : startListening}>
-                    <Animated.View style={[styles.micButton, { transform: [{ scale: scaleAnim }] }]}>
-                        <Text style={styles.micText}>{isListening ? '🛑' : '🎤'}</Text>
-                    </Animated.View>
-                </TouchableOpacity>
-            </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+            >
+                <View style={styles.inputContainer}>
+                    <TouchableOpacity
+                        onPress={isListening ? () => stopListening(null) : startListening}
+                        style={styles.micButtonWrapper}
+                    >
+                        {isListening && (
+                            <Animated.View style={[styles.pulseRing, { transform: [{ scale: pulseAnim }] }]} />
+                        )}
+                        <LinearGradient
+                            colors={isListening ? [theme.colors.error, '#ff5252'] : [theme.colors.primary, theme.colors.secondary]}
+                            style={styles.micButton}
+                        >
+                            <Ionicons name={isListening ? "mic-off" : "mic"} size={24} color="#fff" />
+                        </LinearGradient>
+                    </TouchableOpacity>
+
+                    <View style={styles.inputWrapper}>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Type or speak..."
+                            value={inputText}
+                            onChangeText={setInputText}
+                            onSubmitEditing={() => handleSend(inputText)}
+                            placeholderTextColor={theme.colors.text.disabled}
+                        />
+                        <TouchableOpacity onPress={() => handleSend(inputText)} disabled={!inputText.trim()}>
+                            <Ionicons
+                                name="send"
+                                size={24}
+                                color={inputText.trim() ? theme.colors.primary : theme.colors.text.disabled}
+                            />
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </KeyboardAvoidingView>
 
             {isListening && (
                 <View style={styles.listeningOverlay}>
-                    <Text style={styles.listeningText}>Listening...</Text>
                     <ActivityIndicator size="large" color="#fff" />
+                    <Text style={styles.listeningText}>Listening...</Text>
                 </View>
             )}
         </View>
@@ -105,95 +146,137 @@ const VoiceAssistant = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f9f9f9',
+        backgroundColor: theme.colors.background,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 15,
-        backgroundColor: '#fff',
-        elevation: 2,
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingTop: 50,
+        paddingBottom: 20,
+        backgroundColor: theme.colors.surface,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.border,
+        ...theme.shadows.small,
+        zIndex: 10
     },
     backButton: {
-        marginRight: 15,
+        padding: 5
     },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#333',
+        color: theme.colors.text.primary,
     },
     chatContainer: {
-        padding: 15,
-        paddingBottom: 80,
+        padding: 20,
+        paddingBottom: 20,
     },
     messageBubble: {
         maxWidth: '80%',
-        padding: 12,
-        borderRadius: 15,
-        marginBottom: 10,
+        padding: 16,
+        borderRadius: 20,
+        marginBottom: 16,
+        ...theme.shadows.small,
     },
     userBubble: {
         alignSelf: 'flex-end',
-        backgroundColor: '#2e7d32',
-        borderBottomRightRadius: 2,
+        backgroundColor: theme.colors.primary,
+        borderBottomRightRadius: 4,
     },
     systemBubble: {
         alignSelf: 'flex-start',
-        backgroundColor: '#fff',
-        borderBottomLeftRadius: 2,
-        elevation: 1,
+        backgroundColor: theme.colors.surface,
+        borderBottomLeftRadius: 4,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
     },
     messageText: {
         fontSize: 16,
+        marginBottom: 4,
+        lineHeight: 22
     },
     userText: {
         color: '#fff',
     },
     systemText: {
-        color: '#333',
+        color: theme.colors.text.primary,
+    },
+    timeText: {
+        fontSize: 10,
+        alignSelf: 'flex-end',
+        marginTop: 2
+    },
+    userTimeText: {
+        color: 'rgba(255,255,255,0.7)'
+    },
+    systemTimeText: {
+        color: theme.colors.text.disabled
     },
     inputContainer: {
         flexDirection: 'row',
-        padding: 10,
-        backgroundColor: '#fff',
+        padding: 16,
+        backgroundColor: theme.colors.surface,
         alignItems: 'center',
         borderTopWidth: 1,
-        borderTopColor: '#eee',
+        borderTopColor: theme.colors.border,
+    },
+    micButtonWrapper: {
+        position: 'relative',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+        width: 50,
+        height: 50
+    },
+    pulseRing: {
+        position: 'absolute',
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: 'rgba(255, 0, 0, 0.2)',
+    },
+    micButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        ...theme.shadows.medium
+    },
+    inputWrapper: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.background,
+        borderRadius: 25,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderWidth: 1,
+        borderColor: theme.colors.border
     },
     input: {
         flex: 1,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 20,
-        paddingHorizontal: 15,
-        paddingVertical: 10,
-        marginRight: 10,
         fontSize: 16,
-    },
-    micButton: {
-        width: 45,
-        height: 45,
-        borderRadius: 25,
-        backgroundColor: '#2e7d32',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    micText: {
-        fontSize: 20,
-        color: '#fff',
+        color: theme.colors.text.primary,
+        marginRight: 10,
+        maxHeight: 100
     },
     listeningOverlay: {
         position: 'absolute',
-        bottom: 80,
+        top: '40%',
         alignSelf: 'center',
-        backgroundColor: 'rgba(0,0,0,0.7)',
-        padding: 15,
+        backgroundColor: 'rgba(0,0,0,0.8)',
+        padding: 30,
         borderRadius: 20,
-        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 100
     },
     listeningText: {
         color: '#fff',
-        marginRight: 10,
+        marginTop: 15,
         fontSize: 16,
         fontWeight: 'bold',
     },

@@ -32,6 +32,8 @@ import PriceDashboard from './src/screens/decision/PriceDashboard';
 import GovernmentSchemes from './src/screens/info/GovernmentSchemes';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
 import VoiceAssistant from './src/screens/voice/VoiceAssistant';
+import CommunityScreen from './src/screens/community/CommunityScreen';
+import PendingBidsScreen from './src/screens/farmer/PendingBidsScreen';
 
 // Import services
 import { initI18n } from './src/services/language';
@@ -39,6 +41,9 @@ import { initPushNotifications } from './src/services/notifications';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+// Import theme
+import { theme } from './src/styles/theme';
 
 // Farmer Tab Navigator
 const FarmerTabs = () => {
@@ -61,44 +66,29 @@ const FarmerTabs = () => {
                     }
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: '#2e7d32',
-                tabBarInactiveTintColor: 'gray',
+                tabBarActiveTintColor: theme.colors.primary,
+                tabBarInactiveTintColor: theme.colors.text.disabled,
                 tabBarStyle: {
                     paddingBottom: 5,
                     paddingTop: 5,
-                    height: 60
+                    height: 60,
+                    backgroundColor: theme.colors.surface,
+                    borderTopColor: theme.colors.border,
+                    ...theme.shadows.small
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
-                    marginBottom: 5
-                }
+                    marginBottom: 5,
+                    fontWeight: '500'
+                },
+                headerShown: false
             })}
         >
-            <Tab.Screen
-                name="Dashboard"
-                component={FarmerDashboard}
-                options={{ headerShown: false, tabBarLabel: t('dashboard_tab') }}
-            />
-            <Tab.Screen
-                name="Market"
-                component={MarketScreen}
-                options={{ headerShown: false, tabBarLabel: t('market_tab') }}
-            />
-            <Tab.Screen
-                name="Prices"
-                component={PriceDashboard}
-                options={{ headerShown: false, tabBarLabel: t('prices_tab') }}
-            />
-            <Tab.Screen
-                name="Schemes"
-                component={GovernmentSchemes}
-                options={{ headerShown: false, tabBarLabel: t('schemes_tab') }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{ headerShown: false, tabBarLabel: t('profile_tab') }}
-            />
+            <Tab.Screen name="Dashboard" component={FarmerDashboard} options={{ tabBarLabel: t('dashboard_tab') }} />
+            <Tab.Screen name="Market" component={MarketScreen} options={{ tabBarLabel: t('market_tab') }} />
+            <Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} />
+            <Tab.Screen name="Schemes" component={GovernmentSchemes} options={{ tabBarLabel: t('schemes_tab') }} />
+            <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} />
         </Tab.Navigator>
     );
 };
@@ -124,44 +114,29 @@ const BuyerTabs = () => {
                     }
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: '#2e7d32',
-                tabBarInactiveTintColor: 'gray',
+                tabBarActiveTintColor: theme.colors.primary,
+                tabBarInactiveTintColor: theme.colors.text.disabled,
                 tabBarStyle: {
                     paddingBottom: 5,
                     paddingTop: 5,
-                    height: 60
+                    height: 60,
+                    backgroundColor: theme.colors.surface,
+                    borderTopColor: theme.colors.border,
+                    ...theme.shadows.small
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
-                    marginBottom: 5
-                }
+                    marginBottom: 5,
+                    fontWeight: '500'
+                },
+                headerShown: false
             })}
         >
-            <Tab.Screen
-                name="Dashboard"
-                component={BuyerDashboard}
-                options={{ headerShown: false, tabBarLabel: 'Home' }}
-            />
-            <Tab.Screen
-                name="Browse"
-                component={MarketScreen}
-                options={{ headerShown: false, tabBarLabel: t('browse_tab') }}
-            />
-            <Tab.Screen
-                name="MyBids"
-                component={MyBidsScreen}
-                options={{ headerShown: false, tabBarLabel: t('my_bids_tab') }}
-            />
-            <Tab.Screen
-                name="Prices"
-                component={PriceDashboard}
-                options={{ headerShown: false, tabBarLabel: t('prices_tab') }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{ headerShown: false, tabBarLabel: t('profile_tab') }}
-            />
+            <Tab.Screen name="Dashboard" component={BuyerDashboard} options={{ tabBarLabel: 'Home' }} />
+            <Tab.Screen name="Browse" component={MarketScreen} options={{ tabBarLabel: t('browse_tab') }} />
+            <Tab.Screen name="MyBids" component={MyBidsScreen} options={{ tabBarLabel: t('my_bids_tab') }} />
+            <Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} />
+            <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} />
         </Tab.Navigator>
     );
 };
@@ -176,40 +151,31 @@ const AdminTabs = () => {
                     let iconName;
                     if (route.name === 'Dashboard') {
                         iconName = focused ? 'home' : 'home-outline';
-                    } else if (route.name === 'Market') {
-                        iconName = focused ? 'cart' : 'cart-outline';
-                    } else if (route.name === 'Prices') {
-                        iconName = focused ? 'trending-up' : 'trending-up-outline';
-                    } else if (route.name === 'Schemes') {
-                        iconName = focused ? 'document-text' : 'document-text-outline';
                     } else if (route.name === 'Profile') {
                         iconName = focused ? 'person' : 'person-outline';
                     }
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
-                tabBarActiveTintColor: '#2e7d32',
-                tabBarInactiveTintColor: 'gray',
+                tabBarActiveTintColor: theme.colors.primary,
+                tabBarInactiveTintColor: theme.colors.text.disabled,
                 tabBarStyle: {
                     paddingBottom: 5,
                     paddingTop: 5,
-                    height: 60
+                    height: 60,
+                    backgroundColor: theme.colors.surface,
+                    borderTopColor: theme.colors.border,
+                    ...theme.shadows.small
                 },
                 tabBarLabelStyle: {
                     fontSize: 12,
-                    marginBottom: 5
-                }
+                    marginBottom: 5,
+                    fontWeight: '500'
+                },
+                headerShown: false
             })}
         >
-            <Tab.Screen
-                name="Dashboard"
-                component={AdminDashboard}
-                options={{ headerShown: false, tabBarLabel: 'Admin Home' }}
-            />
-            <Tab.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{ headerShown: false, tabBarLabel: t('profile_tab') }}
-            />
+            <Tab.Screen name="Dashboard" component={AdminDashboard} options={{ tabBarLabel: 'Admin Home' }} />
+            <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} />
         </Tab.Navigator>
     );
 };
@@ -285,6 +251,16 @@ export default function App() {
                                     name="MyCrops"
                                     component={MyCropsScreen}
                                     options={{ title: 'My Active Listings' }}
+                                />
+                                <Stack.Screen
+                                    name="Community"
+                                    component={CommunityScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="PendingBids"
+                                    component={PendingBidsScreen}
+                                    options={{ headerShown: false }}
                                 />
 
                                 <Stack.Screen

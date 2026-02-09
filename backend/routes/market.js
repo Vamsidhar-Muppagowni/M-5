@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const marketController = require('../controllers/marketController');
 const { body, param, query } = require('express-validator');
+const { authMiddleware } = require('../middleware/auth');
 
 // List crop for sale
 router.post('/crops/list', [
+    authMiddleware,
     body('name').notEmpty().withMessage('Crop name is required'),
     body('quantity').isFloat({ gt: 0 }).withMessage('Quantity must be greater than 0'),
     body('min_price').isFloat({ gt: 0 }).withMessage('Minimum price must be greater than 0'),
@@ -25,12 +27,14 @@ router.get('/crops/:id', [
 
 // Place bid
 router.post('/bids', [
+    authMiddleware,
     body('crop_id').isUUID().withMessage('Invalid crop ID'),
     body('amount').isFloat({ gt: 0 }).withMessage('Bid amount must be greater than 0')
 ], marketController.placeBid);
 
 // Respond to bid
 router.post('/bids/respond', [
+    authMiddleware,
     body('bid_id').isUUID().withMessage('Invalid bid ID'),
     body('action').isIn(['accept', 'reject', 'counter']).withMessage('Invalid action')
 ], marketController.respondToBid);
@@ -45,10 +49,10 @@ router.get('/prices/history', [
 router.get('/prices/recent', marketController.getRecentPrices);
 
 // Get farmer's crops
-router.get('/my-crops', marketController.getCrops);
+router.get('/my-crops', authMiddleware, marketController.getCrops);
 
-// Get farmer's bids
-router.get('/my-bids', async (req, res) => {
+// Get farmer's bids (placed by them as a buyer)
+router.get('/my-bids', authMiddleware, async (req, res) => {
     try {
         const bids = await require('../models').Bid.findAll({
             where: { buyer_id: req.user.id },
@@ -68,5 +72,8 @@ router.get('/my-bids', async (req, res) => {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
+
+// Get bids received by farmer (for their crops)
+router.get('/bids/received', authMiddleware, marketController.getFarmerReceivedBids);
 
 module.exports = router;

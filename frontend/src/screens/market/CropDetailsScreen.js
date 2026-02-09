@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { marketAPI } from '../../services/api';
+import SuccessModal from '../../components/SuccessModal';
 
 const CropDetailsScreen = ({ route, navigation }) => {
     const { id } = route.params;
@@ -9,6 +10,7 @@ const CropDetailsScreen = ({ route, navigation }) => {
     const [loading, setLoading] = useState(true);
     const [bidAmount, setBidAmount] = useState('');
     const [placingBid, setPlacingBid] = useState(false);
+    const [successModalVisible, setSuccessModalVisible] = useState(false);
     const { user } = useSelector(state => state.auth);
 
     useEffect(() => {
@@ -40,7 +42,7 @@ const CropDetailsScreen = ({ route, navigation }) => {
                 crop_id: id,
                 amount: parseFloat(bidAmount)
             });
-            Alert.alert('Success', 'Bid placed successfully!');
+            setSuccessModalVisible(true);
             setBidAmount('');
             loadDetails(); // Reload to see updated bid count
         } catch (error) {
@@ -109,6 +111,14 @@ const CropDetailsScreen = ({ route, navigation }) => {
                     </TouchableOpacity>
                 </View>
             )}
+
+            <SuccessModal
+                visible={successModalVisible}
+                title="Bid Placed!"
+                message={`You successfully placed a bid of ₹${bidAmount || '---'} for ${crop.name}.`}
+                onClose={() => setSuccessModalVisible(false)}
+                buttonText="OK"
+            />
         </ScrollView>
     );
 };

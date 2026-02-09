@@ -9,8 +9,10 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { verifyOTP } from '../../store/slices/authSlice';
+import { LinearGradient } from 'expo-linear-gradient';
 import CustomButton from '../../components/CustomButton';
 import StyledInput from '../../components/StyledInput';
+import { theme } from '../../styles/theme';
 
 const OTPVerificationScreen = ({ route, navigation }) => {
     const { phone } = route.params;
@@ -45,43 +47,51 @@ const OTPVerificationScreen = ({ route, navigation }) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={[styles.card, isDesktop && styles.cardDesktop]}>
-                <View style={styles.iconContainer}>
-                    <Text style={styles.icon}>🔐</Text>
+        <LinearGradient
+            colors={[theme.colors.background, theme.colors.surface]}
+            style={{ flex: 1 }}
+        >
+            <View style={styles.container}>
+                <View style={[styles.card, isDesktop && styles.cardDesktop]}>
+                    <LinearGradient
+                        colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
+                        style={styles.iconContainer}
+                    >
+                        <Text style={styles.icon}>🔐</Text>
+                    </LinearGradient>
+
+                    <Text style={styles.title}>Verify OTP</Text>
+                    <Text style={styles.subtitle}>
+                        We've sent a 6-digit verification code to
+                        {'\n'}
+                        <Text style={styles.phoneText}>{phone}</Text>
+                    </Text>
+
+                    <StyledInput
+                        placeholder="000000"
+                        value={otp}
+                        onChangeText={setOtp}
+                        keyboardType="number-pad"
+                        icon="🔢"
+                        style={{ textAlign: 'center', letterSpacing: 5, fontSize: 24 }}
+                    />
+
+                    <CustomButton
+                        title="Verify Code"
+                        onPress={handleVerify}
+                        loading={loading}
+                        style={{ marginTop: 16 }}
+                    />
+
+                    <TouchableOpacity
+                        style={styles.resendButton}
+                        onPress={() => Alert.alert('Info', 'Resend feature coming soon')}
+                    >
+                        <Text style={styles.resendText}>Didn't receive code? Resend</Text>
+                    </TouchableOpacity>
                 </View>
-
-                <Text style={styles.title}>Verify OTP</Text>
-                <Text style={styles.subtitle}>
-                    We've sent a 6-digit verification code to
-                    {'\n'}
-                    <Text style={styles.phoneText}>{phone}</Text>
-                </Text>
-
-                <StyledInput
-                    placeholder="000000"
-                    value={otp}
-                    onChangeText={setOtp}
-                    keyboardType="number-pad"
-                    icon="🔢"
-                    style={{ textAlign: 'center', letterSpacing: 5, fontSize: 24 }}
-                />
-
-                <CustomButton
-                    title="Verify Code"
-                    onPress={handleVerify}
-                    loading={loading}
-                    style={{ marginTop: 16 }}
-                />
-
-                <TouchableOpacity
-                    style={styles.resendButton}
-                    onPress={() => Alert.alert('Info', 'Resend feature coming soon')}
-                >
-                    <Text style={styles.resendText}>Didn't receive code? Resend</Text>
-                </TouchableOpacity>
             </View>
-        </View>
+        </LinearGradient>
     );
 };
 
@@ -91,35 +101,28 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#f8f9fa'
     },
     card: {
         width: '100%',
-        backgroundColor: '#fff',
-        borderRadius: 16,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.l,
         padding: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
+        ...theme.shadows.medium,
     },
     cardDesktop: {
         maxWidth: 450,
         padding: 40,
-        shadowOpacity: 0.15,
-        shadowRadius: 16,
-        elevation: 10,
+        ...theme.shadows.large,
     },
     iconContainer: {
         alignSelf: 'center',
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: '#dcfce7',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 24,
+        ...theme.shadows.small,
     },
     icon: {
         fontSize: 32,
@@ -129,17 +132,17 @@ const styles = StyleSheet.create({
         fontWeight: '800',
         marginBottom: 8,
         textAlign: 'center',
-        color: '#1a1a1a'
+        color: theme.colors.text.primary,
     },
     subtitle: {
         fontSize: 16,
-        color: '#6b7280',
+        color: theme.colors.text.secondary,
         textAlign: 'center',
         marginBottom: 32,
         lineHeight: 24,
     },
     phoneText: {
-        color: '#1a1a1a',
+        color: theme.colors.text.primary,
         fontWeight: 'bold',
     },
     resendButton: {
@@ -147,7 +150,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     resendText: {
-        color: '#166534',
+        color: theme.colors.primary,
         fontSize: 14,
         fontWeight: '600',
     }

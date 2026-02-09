@@ -37,7 +37,28 @@ io.on('connection', (socket) => {
 // Global middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.FRONTEND_URL || '*',
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            process.env.FRONTEND_URL,
+            'http://localhost:19006',
+            'http://localhost:19007',
+            'http://localhost:8081' // Android emulator commonly uses this
+        ];
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            // For development, we might want to be more lenient if needed, but for now strict.
+            // Actually, for this specific error, we need to allow 19007.
+            // Let's just allow all localhost for dev to avoid this recurring.
+            if (origin.startsWith('http://localhost') || origin.startsWith('exp://')) {
+                callback(null, true);
+            } else {
+                callback(new Error('Not allowed by CORS'));
+            }
+        }
+    },
     credentials: true
 }));
 app.use(express.json());

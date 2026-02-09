@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Modal, Image, StatusBar, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Modal, Image, StatusBar, Dimensions, useWindowDimensions } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,10 +8,14 @@ import api, { marketAPI } from '../../services/api';
 import * as Location from 'expo-location';
 import { LineChart } from 'react-native-chart-kit';
 import { useFocusEffect } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { theme } from '../../styles/theme';
 
 const FarmerDashboard = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
     const { t, i18n } = useTranslation();
+    const { width } = useWindowDimensions();
+    const isDesktop = width >= 768;
     const [stats, setStats] = useState({
         activeListings: 0,
         totalSales: 0,
@@ -203,7 +207,7 @@ const FarmerDashboard = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+            <StatusBar barStyle="dark-content" backgroundColor={theme.colors.surface} />
 
             {/* Professional Header */}
             <View style={styles.header}>
@@ -215,13 +219,16 @@ const FarmerDashboard = ({ navigation }) => {
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>
                         <Text style={styles.languageButtonText}>{i18n.language.toUpperCase()}</Text>
-                        <Ionicons name="chevron-down" size={16} color="#2e7d32" style={{ marginLeft: 4 }} />
+                        <Ionicons name="chevron-down" size={16} color={theme.colors.primary} style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
 
                     <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
-                        <View style={styles.avatar}>
+                        <LinearGradient
+                            colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
+                            style={styles.avatar}
+                        >
                             <Text style={styles.avatarText}>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</Text>
-                        </View>
+                        </LinearGradient>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -233,16 +240,16 @@ const FarmerDashboard = ({ navigation }) => {
                 visible={modalVisible}
                 onRequestClose={() => setModalVisible(false)}
             >
-                <TouchableOpacity 
-                    style={styles.modalOverlay} 
-                    activeOpacity={1} 
+                <TouchableOpacity
+                    style={styles.modalOverlay}
+                    activeOpacity={1}
                     onPress={() => setModalVisible(false)}
                 >
-                    <View style={styles.modalContent}>
+                    <View style={[styles.modalContent, isDesktop && styles.modalContentDesktop]}>
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Select Language</Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Ionicons name="close" size={24} color="#666" />
+                                <Ionicons name="close" size={24} color={theme.colors.text.secondary} />
                             </TouchableOpacity>
                         </View>
 
@@ -263,7 +270,7 @@ const FarmerDashboard = ({ navigation }) => {
                                     {lang.label}
                                 </Text>
                                 {i18n.language === lang.code && (
-                                    <Ionicons name="checkmark-circle" size={24} color="#2e7d32" />
+                                    <Ionicons name="checkmark-circle" size={24} color={theme.colors.primary} />
                                 )}
                             </TouchableOpacity>
                         ))}
@@ -271,14 +278,18 @@ const FarmerDashboard = ({ navigation }) => {
                 </TouchableOpacity>
             </Modal>
 
-            <ScrollView 
+            <ScrollView
                 style={styles.content}
                 refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
                 }
+                contentContainerStyle={isDesktop ? styles.contentContainerDesktop : null}
             >
                 {/* Weather/Status Card */}
-                <View style={[styles.weatherCard, { backgroundColor: '#2e7d32' }]}>
+                <LinearGradient
+                    colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
+                    style={styles.weatherCard}
+                >
                     <View>
                         <Text style={styles.weatherTemp}>{weather.temp}</Text>
                         <Text style={styles.weatherCondition}>{t(weather.conditionKey)}</Text>
@@ -287,27 +298,27 @@ const FarmerDashboard = ({ navigation }) => {
                         </Text>
                     </View>
                     <Ionicons name={weather.icon} size={48} color={weather.color} />
-                </View>
+                </LinearGradient>
 
                 {/* Stats Grid */}
                 <View style={styles.statsGrid}>
-                    <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate('MyCrops')}>
+                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]} onPress={() => navigation.navigate('MyCrops')}>
                         <View style={[styles.iconContainer, { backgroundColor: '#e8f5e9' }]}>
-                            <Ionicons name="leaf" size={24} color="#2e7d32" />
+                            <Ionicons name="leaf" size={24} color={theme.colors.primary} />
                         </View>
                         <Text style={styles.statValue}>{stats.activeListings}</Text>
                         <Text style={styles.statLabel}>{t('active_listings')}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.statCard}>
+                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
                         <View style={[styles.iconContainer, { backgroundColor: '#fff3e0' }]}>
-                            <Ionicons name="cash" size={24} color="#ef6c00" />
+                            <Ionicons name="cash" size={24} color={theme.colors.secondary} />
                         </View>
                         <Text style={styles.statValue}>₹{stats.earnings}</Text>
                         <Text style={styles.statLabel}>{t('total_earnings')}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate('PendingBids')}>
+                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]} onPress={() => navigation.navigate('PendingBids')}>
                         <View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}>
                             <Ionicons name="time" size={24} color="#1565c0" />
                         </View>
@@ -315,7 +326,7 @@ const FarmerDashboard = ({ navigation }) => {
                         <Text style={styles.statLabel}>{t('pending_bids')}</Text>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.statCard}>
+                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
                         <View style={[styles.iconContainer, { backgroundColor: '#f3e5f5' }]}>
                             <Ionicons name="checkmark-circle" size={24} color="#7b1fa2" />
                         </View>
@@ -329,7 +340,7 @@ const FarmerDashboard = ({ navigation }) => {
                     <Text style={styles.sectionTitle}>{t('market_trends') || 'Market Trends'} (Wheat)</Text>
                 </View>
 
-                <View style={styles.chartContainer}>
+                <View style={[styles.chartContainer, isDesktop && styles.chartContainerDesktop]}>
                     {priceLoading ? (
                         <Text style={{ padding: 20 }}>Loading Chart...</Text>
                     ) : priceHistory ? (
@@ -338,14 +349,14 @@ const FarmerDashboard = ({ navigation }) => {
                                 labels: priceHistory.labels,
                                 datasets: priceHistory.datasets
                             }}
-                            width={Dimensions.get('window').width - 60}
+                            width={isDesktop ? Math.min(Dimensions.get('window').width - 60, 800) : Dimensions.get('window').width - 60}
                             height={220}
                             yAxisLabel="Rs"
                             yAxisInterval={1}
                             chartConfig={{
-                                backgroundColor: "#ffffff",
-                                backgroundGradientFrom: "#ffffff",
-                                backgroundGradientTo: "#ffffff",
+                                backgroundColor: theme.colors.surface,
+                                backgroundGradientFrom: theme.colors.surface,
+                                backgroundGradientTo: theme.colors.surface,
                                 decimalPlaces: 0,
                                 color: (opacity = 1) => `rgba(46, 125, 50, ${opacity})`,
                                 labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
@@ -355,7 +366,7 @@ const FarmerDashboard = ({ navigation }) => {
                                 propsForDots: {
                                     r: "6",
                                     strokeWidth: "2",
-                                    stroke: "#2e7d32"
+                                    stroke: theme.colors.primary
                                 }
                             }}
                             bezier
@@ -365,7 +376,7 @@ const FarmerDashboard = ({ navigation }) => {
                             }}
                         />
                     ) : (
-                        <Text style={{ padding: 20, color: '#666' }}>No price data available</Text>
+                        <Text style={{ padding: 20, color: theme.colors.text.secondary }}>No price data available</Text>
                     )}
                 </View>
 
@@ -375,18 +386,18 @@ const FarmerDashboard = ({ navigation }) => {
                         <Text style={styles.sectionTitle}>{t('quick_actions')}</Text>
                     </View>
 
-                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('CropListing')}>
-                        <View style={[styles.actionIcon, { backgroundColor: '#2e7d32' }]}>
+                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('CropListing')}>
+                        <View style={[styles.actionIcon, { backgroundColor: theme.colors.primary }]}>
                             <Ionicons name="add" size={24} color="#fff" />
                         </View>
                         <View style={styles.actionTextContainer}>
                             <Text style={styles.actionTitle}>{t('list_new_crop')}</Text>
                             <Text style={styles.actionDesc}>{t('list_crop_desc')}</Text>
                         </View>
-                        <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('Prices')}>
+                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('Prices')}>
                         <View style={[styles.actionIcon, { backgroundColor: '#1976d2' }]}>
                             <Ionicons name="bar-chart" size={24} color="#fff" />
                         </View>
@@ -394,10 +405,10 @@ const FarmerDashboard = ({ navigation }) => {
                             <Text style={styles.actionTitle}>{t('check_prices')}</Text>
                             <Text style={styles.actionDesc}>{t('check_prices_desc')}</Text>
                         </View>
-                        <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={styles.actionButton} onPress={() => navigation.navigate('VoiceAssistant')}>
+                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('VoiceAssistant')}>
                         <View style={[styles.actionIcon, { backgroundColor: '#f57c00' }]}>
                             <Ionicons name="mic" size={24} color="#fff" />
                         </View>
@@ -405,7 +416,7 @@ const FarmerDashboard = ({ navigation }) => {
                             <Text style={styles.actionTitle}>{t('voice_assistant')}</Text>
                             <Text style={styles.actionDesc}>{t('voice_assistant_desc')}</Text>
                         </View>
-                        <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </TouchableOpacity>
                 </View>
 
@@ -418,7 +429,7 @@ const FarmerDashboard = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f8f9fa'
+        backgroundColor: theme.colors.background
     },
     header: {
         flexDirection: 'row',
@@ -427,14 +438,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 50, // For status bar
         paddingBottom: 20,
-        backgroundColor: '#fff',
-        borderBottomLeftRadius: 24,
-        borderBottomRightRadius: 24,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 3,
+        backgroundColor: theme.colors.surface,
+        borderBottomLeftRadius: theme.borderRadius.l,
+        borderBottomRightRadius: theme.borderRadius.l,
+        ...theme.shadows.medium,
         zIndex: 10
     },
     headerLeft: {
@@ -442,26 +449,17 @@ const styles = StyleSheet.create({
     },
     greetingSubtitle: {
         fontSize: 14,
-        color: '#666',
+        color: theme.colors.text.secondary,
         marginBottom: 2
     },
     greetingTitle: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#2e7d32'
+        color: theme.colors.primary
     },
     headerRight: {
         flexDirection: 'row',
         alignItems: 'center'
-    },
-    iconButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#f5f5f5',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 10
     },
     languageButton: {
         flexDirection: 'row',
@@ -477,27 +475,22 @@ const styles = StyleSheet.create({
     languageButtonText: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#2e7d32'
+        color: theme.colors.primary
     },
     profileButton: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2
+        ...theme.shadows.small
     },
     avatar: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#2e7d32',
         justifyContent: 'center',
         alignItems: 'center',
         borderWidth: 2,
-        borderColor: '#fff'
+        borderColor: theme.colors.surface
     },
     avatarText: {
-        color: '#fff',
+        color: theme.colors.text.light,
         fontWeight: 'bold',
         fontSize: 18
     },
@@ -505,25 +498,23 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingTop: 20
     },
+    contentContainerDesktop: {
+        alignItems: 'center',
+    },
     weatherCard: {
         marginHorizontal: 20,
         marginBottom: 20,
-        backgroundColor: '#2e7d32',
-        borderRadius: 20,
+        borderRadius: theme.borderRadius.l,
         padding: 20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        shadowColor: '#2e7d32',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 5
+        ...theme.shadows.medium
     },
     weatherTemp: {
         fontSize: 32,
         fontWeight: 'bold',
-        color: '#fff'
+        color: theme.colors.text.light
     },
     weatherCondition: {
         fontSize: 16,
@@ -540,22 +531,23 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         paddingHorizontal: 15,
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        maxWidth: 800,
+        width: '100%'
     },
     statCard: {
         width: '48%',
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.surface,
         padding: 15,
-        borderRadius: 16,
+        borderRadius: theme.borderRadius.m,
         marginBottom: 15,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2,
+        ...theme.shadows.small,
         borderWidth: 1,
-        borderColor: '#f0f0f0'
+        borderColor: theme.colors.border
+    },
+    statCardDesktop: {
+        width: '23%',
     },
     iconContainer: {
         width: 48,
@@ -568,52 +560,56 @@ const styles = StyleSheet.create({
     statValue: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#333',
+        color: theme.colors.text.primary,
         marginBottom: 2
     },
     statLabel: {
         fontSize: 12,
-        color: '#666',
+        color: theme.colors.text.secondary,
         textAlign: 'center'
     },
     chartContainer: {
         alignItems: 'center',
         marginVertical: 10,
-        backgroundColor: '#fff',
-        borderRadius: 16,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.m,
         padding: 10,
         marginHorizontal: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2
+        width: 'auto',
+        maxWidth: 800,
+        ...theme.shadows.small
+    },
+    chartContainerDesktop: {
+        width: 800,
     },
     actionContainer: {
-        paddingHorizontal: 20
+        paddingHorizontal: 20,
+        width: '100%',
+        maxWidth: 800
     },
     sectionHeader: {
-        marginBottom: 15
+        marginBottom: 15,
+        width: '100%',
+        maxWidth: 800
     },
     sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333'
+        color: theme.colors.text.primary
     },
     actionButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.surface,
         padding: 15,
-        borderRadius: 16,
+        borderRadius: theme.borderRadius.m,
         marginBottom: 12,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        elevation: 2,
+        ...theme.shadows.small,
         borderWidth: 1,
-        borderColor: '#f0f0f0'
+        borderColor: theme.colors.border
+    },
+    actionButtonDesktop: {
+
     },
     actionIcon: {
         width: 48,
@@ -629,12 +625,12 @@ const styles = StyleSheet.create({
     actionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#333',
+        color: theme.colors.text.primary,
         marginBottom: 2
     },
     actionDesc: {
         fontSize: 13,
-        color: '#888'
+        color: theme.colors.text.secondary
     },
     // Modal Styles
     modalOverlay: {
@@ -645,14 +641,13 @@ const styles = StyleSheet.create({
     },
     modalContent: {
         width: '85%',
-        backgroundColor: '#fff',
-        borderRadius: 20,
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.l,
         padding: 20,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 10
+        ...theme.shadows.large
+    },
+    modalContentDesktop: {
+        width: 400
     },
     modalHeader: {
         flexDirection: 'row',
@@ -663,18 +658,18 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#333'
+        color: theme.colors.text.primary
     },
     languageOption: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 15,
         borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0'
+        borderBottomColor: theme.colors.border
     },
     languageOptionActive: {
-        backgroundColor: '#f0f9f0',
-        borderRadius: 10,
+        backgroundColor: theme.colors.background,
+        borderRadius: theme.borderRadius.s,
         paddingHorizontal: 10,
         borderBottomWidth: 0
     },
@@ -684,12 +679,12 @@ const styles = StyleSheet.create({
     },
     languageLabel: {
         fontSize: 16,
-        color: '#333',
+        color: theme.colors.text.primary,
         flex: 1
     },
     languageLabelActive: {
         fontWeight: 'bold',
-        color: '#2e7d32'
+        color: theme.colors.primary
     }
 });
 
