@@ -1,38 +1,218 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
 import { governmentAPI } from '../../services/api';
+import { theme } from '../../styles/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Ionicons } from '@expo/vector-icons';
 
-const GovernmentSchemes = () => {
+const GovernmentSchemes = ({ navigation }) => {
     const [schemes, setSchemes] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const fetchSchemes = async () => {
+        try {
+            const res = await governmentAPI.getSchemes();
+            if (res.data) {
+                setSchemes(res.data);
+            }
+        } catch (error) {
+            console.error("Error fetching schemes:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        governmentAPI.getSchemes().then(res => setSchemes(res.data)).catch(console.error);
+        fetchSchemes();
     }, []);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        await fetchSchemes();
+        setRefreshing(false);
+    };
+
+    const renderScheme = ({ item }) => (
+        <TouchableOpacity style={styles.card} activeOpacity={0.9}>
+            <View style={styles.cardHeader}>
+                <View style={styles.iconContainer}>
+                    <Ionicons name="document-text-outline" size={24} color={theme.colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <Text style={styles.schemeName}>{item.name}</Text>
+                    <Text style={styles.ministry}>Ministry of Agriculture</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
+            </View>
+
+            <View style={styles.divider} />
+
+            <Text style={styles.description} numberOfLines={3}>{item.description}</Text>
+
+            <View style={styles.benefitsContainer}>
+                <Text style={styles.benefitLabel}>Benefits:</Text>
+                <Text style={styles.benefitValue}>{item.benefits}</Text>
+            </View>
+
+            <TouchableOpacity style={styles.applyButton}>
+                <Text style={styles.applyButtonText}>View Details & Apply</Text>
+                <Ionicons name="arrow-forward" size={16} color="#fff" />
+            </TouchableOpacity>
+        </TouchableOpacity>
+    );
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Government Schemes</Text>
+            <LinearGradient
+                colors={[theme.colors.primary, theme.colors.primaryDark]}
+                style={styles.header}
+            >
+                <View style={styles.headerContent}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Government Schemes</Text>
+                    <View style={{ width: 24 }} />
+                </View>
+            </LinearGradient>
+
             <FlatList
                 data={schemes}
                 keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                    <View style={styles.card}>
-                        <Text style={styles.schemeName}>{item.name}</Text>
-                        <Text>{item.description}</Text>
-                        <Text style={styles.benefit}>Benefits: {item.benefits}</Text>
-                    </View>
-                )}
+                renderItem={renderScheme}
+                contentContainerStyle={styles.list}
+                showsVerticalScrollIndicator={false}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
+                }
+                ListEmptyComponent={
+                    !loading && (
+                        <View style={styles.emptyContainer}>
+                            <Ionicons name="document-outline" size={64} color={theme.colors.text.disabled} />
+                            <Text style={styles.emptyText}>No schemes available at the moment.</Text>
+                        </View>
+                    )
+                }
             />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 20 },
-    title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
-    card: { backgroundColor: '#fff', padding: 15, marginBottom: 15, borderRadius: 10 },
-    schemeName: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
-    benefit: { color: 'green', marginTop: 5, fontWeight: 'bold' }
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.background
+    },
+    header: {
+        paddingTop: 50,
+        paddingBottom: 20,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: theme.borderRadius.l,
+        borderBottomRightRadius: theme.borderRadius.l,
+        ...theme.shadows.medium
+    },
+    headerContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    headerTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#fff'
+    },
+    backButton: {
+        padding: 5
+    },
+    list: {
+        padding: 20,
+        paddingBottom: 40
+    },
+    card: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.m,
+        marginBottom: 16,
+        padding: 16,
+        ...theme.shadows.small,
+        borderWidth: 1,
+        borderColor: theme.colors.border
+    },
+    cardHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    iconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: theme.colors.p20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12
+    },
+    schemeName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: theme.colors.text.primary,
+        marginBottom: 2
+    },
+    ministry: {
+        fontSize: 12,
+        color: theme.colors.text.secondary
+    },
+    divider: {
+        height: 1,
+        backgroundColor: theme.colors.border,
+        marginBottom: 12
+    },
+    description: {
+        fontSize: 14,
+        color: theme.colors.text.secondary,
+        lineHeight: 20,
+        marginBottom: 12
+    },
+    benefitsContainer: {
+        backgroundColor: '#f0f9f0',
+        padding: 10,
+        borderRadius: 8,
+        marginBottom: 12,
+        flexDirection: 'row',
+        flexWrap: 'wrap'
+    },
+    benefitLabel: {
+        fontWeight: 'bold',
+        color: theme.colors.primary,
+        marginRight: 5
+    },
+    benefitValue: {
+        color: theme.colors.text.primary,
+        flex: 1
+    },
+    applyButton: {
+        backgroundColor: theme.colors.primary,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 10,
+        borderRadius: theme.borderRadius.m
+    },
+    applyButtonText: {
+        color: '#fff',
+        fontWeight: 'bold',
+        marginRight: 8
+    },
+    emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 60
+    },
+    emptyText: {
+        fontSize: 16,
+        color: theme.colors.text.secondary,
+        marginTop: 10
+    }
 });
 
 export default GovernmentSchemes;

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TextInput, Text, StyleSheet } from 'react-native';
+import { theme } from '../styles/theme';
 
 const StyledInput = ({
     label,
@@ -21,7 +22,7 @@ const StyledInput = ({
                     value={value}
                     onChangeText={onChangeText}
                     placeholder={placeholder}
-                    placeholderTextColor="#9ca3af"
+                    placeholderTextColor={theme.colors.text.disabled}
                     secureTextEntry={secureTextEntry}
                     keyboardType={keyboardType}
                 />
@@ -39,35 +40,36 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 14,
         fontWeight: '600',
-        color: '#374151',
+        color: theme.colors.text.primary,
         marginBottom: 8,
     },
     inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: '#e5e7eb',
-        borderRadius: 8,
-        backgroundColor: '#ffffff',
+        borderColor: theme.colors.border,
+        borderRadius: theme.borderRadius.m,
+        backgroundColor: theme.colors.surface,
         paddingHorizontal: 12,
         height: 50,
+        ...theme.shadows.small,
     },
     inputError: {
-        borderColor: '#ef4444',
+        borderColor: theme.colors.error,
     },
     icon: {
         fontSize: 18,
         marginRight: 10,
-        color: '#9ca3af',
+        color: theme.colors.text.disabled,
     },
     input: {
         flex: 1,
         fontSize: 16,
-        color: '#1f2937',
+        color: theme.colors.text.primary,
         height: '100%',
     },
     errorText: {
-        color: '#ef4444',
+        color: theme.colors.error,
         fontSize: 12,
         marginTop: 4,
     }

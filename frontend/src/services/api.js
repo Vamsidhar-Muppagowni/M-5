@@ -2,12 +2,9 @@ import axios from 'axios';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Use localhost for Android emulator (10.0.2.2) or local IP for physical device
-// If running on a physical device, replace '10.0.2.2' with your computer's local IP (e.g., 192.168.1.5)
-// const LOCAL_IP = '192.168.1.x'; 
-const API_BASE_URL = Platform.OS === 'android'
-    ? 'http://10.0.2.2:5000/api' // Change this to http://${LOCAL_IP}:5000/api for physical device
-    : 'http://localhost:5000/api';
+// USB Debugging Mode
+// When using 'adb reverse tcp:5000 tcp:5000', the phone can access the PC's localhost directly.
+const API_BASE_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -86,7 +83,8 @@ export const marketAPI = {
     listCrop: (data) => api.post('/market/crops/list', data),
     placeBid: (data) => api.post('/market/bids', data),
     respondToBid: (data) => api.post('/market/bids/respond', data),
-    getPriceHistory: (params) => api.get('/market/prices/history', { params })
+    getPriceHistory: (params) => api.get('/market/prices/history', { params }),
+    getPendingBids: () => api.get('/market/bids/received')
 };
 
 export const mlAPI = {

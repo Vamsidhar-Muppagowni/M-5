@@ -436,10 +436,12 @@ exports.respondToBid = async (req, res) => {
             return res.status(404).json({ error: 'Bid not found' });
         }
 
-        if (bid.crop.farmer_id !== farmerId) {
+        if (bid.crop?.farmer_id !== farmerId && bid.Crop?.farmer_id !== farmerId) {
             await transaction.rollback();
             return res.status(403).json({ error: 'Not authorized' });
         }
+
+        const cropId = bid.crop_id; // Safer to use FK directly if available, or fetch from bid.crop/Crop
 
         let updateData = {};
         if (action === 'accept') {
@@ -456,7 +458,11 @@ exports.respondToBid = async (req, res) => {
 
         res.json({ message: `Bid ${action}ed`, bid });
     } catch (error) {
-        if (!transaction.finished) await transaction.rollback();
+        try {
+            if (transaction && !transaction.finished) await transaction.rollback();
+        } catch (rollbackError) {
+            console.error('Rollback error:', rollbackError);
+        }
         console.error('Respond bid error', error);
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -587,6 +593,35 @@ exports.getRecentPrices = async (req, res) => {
         res.json(formatted);
     } catch (error) {
         console.error('Get recent prices error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.getFarmerReceivedBids = async (req, res) => {
+    try {
+        const farmerId = req.user.id;
+
+        // Find all bids for crops owned by this farmer
+        const bids = await Bid.findAll({
+            where: { status: 'pending' },
+            include: [
+                {
+                    model: Crop,
+                    where: { farmer_id: farmerId },
+                    attributes: ['id', 'name', 'status', 'current_price', 'min_price', 'unit']
+                },
+                {
+                    model: User,
+                    as: 'buyer', // Assuming alias is 'buyer' from other controller methods
+                    attributes: ['id', 'name', 'phone', 'location']
+                }
+            ],
+            order: [['created_at', 'DESC']]
+        });
+
+        res.json({ bids });
+    } catch (error) {
+        console.error('Get farmer received bids error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
