@@ -2,7 +2,7 @@ const { GovernmentScheme } = require('../models');
 
 exports.getSchemes = async (req, res) => {
     try {
-        const schemes = await GovernmentScheme.findAll();
+        const schemes = await GovernmentScheme.find();
         // Return dummy data if empty for demo
         if (schemes.length === 0) {
             return res.json([

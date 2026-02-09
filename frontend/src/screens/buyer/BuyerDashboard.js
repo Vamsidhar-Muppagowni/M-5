@@ -78,9 +78,9 @@ const BuyerDashboard = ({ navigation }) => {
             {/* Header Section */}
             <View style={styles.header}>
                 <View style={styles.headerLeft}>
-                    <Text style={styles.greetingSubtitle}>Welcome back,</Text>
+                    <Text style={styles.greetingSubtitle}>{t('welcome_back')},</Text>
                     <Text style={styles.greetingTitle}>{user?.name?.split(' ')[0] || 'Buyer'} 👋</Text>
-                    <Text style={styles.subtitle}>Marketplace Dashboard</Text>
+                    <Text style={styles.subtitle}>{t('marketplace_dashboard')}</Text>
                 </View>
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>
@@ -155,48 +155,48 @@ const BuyerDashboard = ({ navigation }) => {
                             <Ionicons name="time" size={24} color="#1565c0" />
                         </View>
                         <Text style={styles.statValue}>{stats.activeBids}</Text>
-                        <Text style={styles.statLabel}>Active Bids</Text>
+                        <Text style={styles.statLabel}>{t('active_bids')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.statCard} onPress={() => navigation.navigate('MyBids')}>
                         <View style={[styles.iconBg, { backgroundColor: '#e8f5e9' }]}>
                             <Ionicons name="checkmark-circle" size={24} color={theme.colors.success} />
                         </View>
                         <Text style={styles.statValue}>{stats.acceptedBids}</Text>
-                        <Text style={styles.statLabel}>Accepted</Text>
+                        <Text style={styles.statLabel}>{t('accepted_bids')}</Text>
                     </TouchableOpacity>
                 </View>
 
                 {/* Quick Actions */}
-                <Text style={styles.sectionTitle}>Quick Actions</Text>
+                <Text style={styles.sectionTitle}>{t('quick_actions')}</Text>
                 <View style={styles.actionsGrid}>
                     <QuickAction
                         icon="search"
-                        title="Browse Market"
+                        title={t('browse_market')}
                         color={theme.colors.primary}
                         onPress={() => navigation.navigate('Browse')}
                     />
                     <QuickAction
                         icon="trending-up"
-                        title="Check Prices"
+                        title={t('check_prices')}
                         color={theme.colors.secondary}
                         onPress={() => navigation.navigate('Prices')}
                     />
                     <QuickAction
                         icon="mic"
-                        title="Voice Helper"
+                        title={t('voice_helper')}
                         color="#0288d1"
                         onPress={() => navigation.navigate('VoiceAssistant')}
                     />
                     <QuickAction
                         icon="chatbubbles"
-                        title="Choupal"
+                        title={t('choupal')}
                         color="#7b1fa2"
                         onPress={() => navigation.navigate('Community')}
                     />
                 </View>
 
                 {/* Featured / Trending Section (Mock) */}
-                <Text style={styles.sectionTitle}>Market Trends</Text>
+                <Text style={styles.sectionTitle}>{t('market_trends')}</Text>
                 <View style={styles.trendCard}>
                     <LinearGradient
                         colors={[theme.colors.surface, '#f0fdf4']}
@@ -216,7 +216,7 @@ const BuyerDashboard = ({ navigation }) => {
                         <Text style={styles.trendSubtitle}>Price up by 5% this week</Text>
                         <View style={styles.trendFooter}>
                             <TouchableOpacity onPress={() => navigation.navigate('Prices')} style={styles.trendButton}>
-                                <Text style={styles.trendLink}>View Chart</Text>
+                                <Text style={styles.trendLink}>{t('view_chart')}</Text>
                                 <Ionicons name="arrow-forward" size={16} color={theme.colors.primary} />
                             </TouchableOpacity>
                         </View>

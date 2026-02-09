@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, Activity
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCrops } from '../../store/slices/marketSlice';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { theme } from '../../styles/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const MarketScreen = ({ navigation }) => {
     const dispatch = useDispatch();
+    const { t } = useTranslation();
     const { crops, isLoading, pagination } = useSelector(state => state.market);
     const [search, setSearch] = useState('');
     const [page, setPage] = useState(1);
@@ -38,7 +40,7 @@ const MarketScreen = ({ navigation }) => {
         return (
             <TouchableOpacity
                 style={styles.card}
-                onPress={() => navigation.navigate('CropDetails', { id: item.id })}
+                onPress={() => navigation.navigate('CropDetails', { id: item.id || item._id })}
                 activeOpacity={0.9}
             >
                 <View style={styles.cardHeader}>
@@ -47,7 +49,7 @@ const MarketScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.headerContent}>
                         <Text style={styles.cropName}>{item?.name || 'Unknown Crop'}</Text>
-                        <Text style={styles.farmerName}>By: {item?.farmer?.name || 'Unknown'}</Text>
+                        <Text style={styles.farmerName}>{t('by')}: {item?.farmer?.name || 'Unknown'}</Text>
                     </View>
                     <View style={styles.priceContainer}>
                         <Text style={styles.price}>₹{item?.current_price || item?.min_price}</Text>
@@ -64,7 +66,7 @@ const MarketScreen = ({ navigation }) => {
                     </View>
                     <View style={styles.detailRow}>
                         <Ionicons name="ribbon-outline" size={16} color={theme.colors.text.secondary} />
-                        <Text style={styles.detailText}>Grade {item?.quality_grade}</Text>
+                        <Text style={styles.detailText}>{t('grade')} {item?.quality_grade}</Text>
                     </View>
                     <View style={styles.detailRow}>
                         <Ionicons name="scale-outline" size={16} color={theme.colors.text.secondary} />
@@ -79,7 +81,7 @@ const MarketScreen = ({ navigation }) => {
                         </Text>
                     </View>
                     <TouchableOpacity style={styles.detailsButton}>
-                        <Text style={styles.detailsButtonText}>Details</Text>
+                        <Text style={styles.detailsButtonText}>{t('details')}</Text>
                         <Ionicons name="arrow-forward" size={14} color={theme.colors.primary} />
                     </TouchableOpacity>
                 </View>
@@ -92,8 +94,8 @@ const MarketScreen = ({ navigation }) => {
         return (
             <View style={styles.emptyContainer}>
                 <Ionicons name="search-outline" size={64} color={theme.colors.text.disabled} />
-                <Text style={styles.emptyText}>No crops found</Text>
-                <Text style={styles.emptySubText}>Try adjusting your search terms</Text>
+                <Text style={styles.emptyText}>{t('no_crops_found')}</Text>
+                <Text style={styles.emptySubText}>{t('try_adjusting_search')}</Text>
             </View>
         );
     };
@@ -108,7 +110,7 @@ const MarketScreen = ({ navigation }) => {
                     <Ionicons name="search" size={20} color={theme.colors.text.secondary} style={styles.searchIcon} />
                     <TextInput
                         style={styles.searchInput}
-                        placeholder="Search crops, farmers..."
+                        placeholder={t('search_placeholder')}
                         value={search}
                         onChangeText={setSearch}
                         onSubmitEditing={() => { setPage(1); loadCrops(); }}
@@ -120,12 +122,12 @@ const MarketScreen = ({ navigation }) => {
             {isLoading && page === 1 && !crops?.length ? (
                 <View style={styles.loaderContainer}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={styles.loaderText}>Loading Marketplace...</Text>
+                    <Text style={styles.loaderText}>{t('loading_market')}</Text>
                 </View>
             ) : (
                 <FlatList
                     data={crops || []}
-                    keyExtractor={(item) => item?.id?.toString() || Math.random().toString()}
+                    keyExtractor={(item) => item?.id?.toString() || item?._id?.toString() || Math.random().toString()}
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
                     refreshing={isLoading}

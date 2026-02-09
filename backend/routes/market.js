@@ -22,20 +22,20 @@ router.get('/crops', [
 
 // Get crop details
 router.get('/crops/:id', [
-    param('id').isUUID().withMessage('Invalid crop ID')
+    param('id').isMongoId().withMessage('Invalid crop ID')
 ], marketController.getCropDetails);
 
 // Place bid
 router.post('/bids', [
     authMiddleware,
-    body('crop_id').isUUID().withMessage('Invalid crop ID'),
+    body('crop_id').isMongoId().withMessage('Invalid crop ID'),
     body('amount').isFloat({ gt: 0 }).withMessage('Bid amount must be greater than 0')
 ], marketController.placeBid);
 
 // Respond to bid
 router.post('/bids/respond', [
     authMiddleware,
-    body('bid_id').isUUID().withMessage('Invalid bid ID'),
+    body('bid_id').isMongoId().withMessage('Invalid bid ID'),
     body('action').isIn(['accept', 'reject', 'counter']).withMessage('Invalid action')
 ], marketController.respondToBid);
 
@@ -51,27 +51,8 @@ router.get('/prices/recent', marketController.getRecentPrices);
 // Get farmer's crops
 router.get('/my-crops', authMiddleware, marketController.getCrops);
 
-// Get farmer's bids (placed by them as a buyer)
-router.get('/my-bids', authMiddleware, async (req, res) => {
-    try {
-        const bids = await require('../models').Bid.findAll({
-            where: { buyer_id: req.user.id },
-            include: [{
-                model: require('../models').Crop,
-                include: [{
-                    model: require('../models').User,
-                    as: 'farmer',
-                    attributes: ['name', 'phone']
-                }]
-            }],
-            order: [['created_at', 'DESC']]
-        });
-
-        res.json({ bids });
-    } catch (error) {
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
+// Get buyer's bids
+router.get('/my-bids', authMiddleware, marketController.getBuyerBids);
 
 // Get bids received by farmer (for their crops)
 router.get('/bids/received', authMiddleware, marketController.getFarmerReceivedBids);

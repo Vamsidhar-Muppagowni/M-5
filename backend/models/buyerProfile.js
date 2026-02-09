@@ -1,47 +1,55 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const BuyerProfile = sequelize.define('buyer_profile', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
-    user_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+const BuyerProfileSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        unique: true
     },
     company_name: {
-        type: DataTypes.STRING(100),
-        allowNull: true
+        type: String,
+        trim: true
     },
     gst_number: {
-        type: DataTypes.STRING(20),
-        allowNull: true
+        type: String,
+        trim: true
     },
-    interests: {
-        type: DataTypes.JSON,
-        defaultValue: []
+    license_number: {
+        type: String,
+        trim: true
     },
-    status: {
-        type: DataTypes.ENUM('active', 'suspended', 'pending'),
-        defaultValue: 'active'
+    business_type: {
+        type: String, // e.g., 'Retailer', 'Wholesaler', 'Exporter'
+        trim: true
     },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+    preferred_crops: {
+        type: [String],
+        default: []
     },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+    rating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
+    rating_count: {
+        type: Number,
+        default: 0
+    },
+    verification_status: {
+        type: String,
+        enum: ['pending', 'verified', 'rejected'],
+        default: 'pending'
     }
 }, {
-    tableName: 'buyer_profiles',
-    timestamps: false
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = BuyerProfile;
+BuyerProfileSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+module.exports = mongoose.model('BuyerProfile', BuyerProfileSchema);

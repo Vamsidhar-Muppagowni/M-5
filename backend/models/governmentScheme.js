@@ -1,43 +1,27 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const GovernmentScheme = sequelize.define('government_scheme', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
+const GovernmentSchemeSchema = new mongoose.Schema({
     name: {
-        type: DataTypes.STRING(200),
-        allowNull: false
+        type: String,
+        required: true,
+        trim: true
     },
-    description: {
-        type: DataTypes.TEXT,
-        allowNull: true
+    description: String,
+    benefits: String,
+    eligibility_criteria: String,
+    application_link: String,
+    deadline: Date,
+    status: {
+        type: String,
+        enum: ['active', 'expired', 'upcoming'],
+        default: 'active'
     },
-    eligibility_criteria: {
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
-    benefits: {
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
-    application_link: {
-        type: DataTypes.STRING(500),
-        allowNull: true
-    },
-    deadline: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    }
+    state: String, // Applicable state or 'Central'
+    category: String // e.g., 'Loan', 'Subsidy', 'Insurance'
 }, {
-    tableName: 'government_schemes',
-    timestamps: false
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = GovernmentScheme;
+module.exports = mongoose.model('GovernmentScheme', GovernmentSchemeSchema);
