@@ -75,7 +75,11 @@ const ProfileScreen = ({ navigation }) => {
                     </Text>
                 </View>
                 <Text style={styles.name}>{user.name}</Text>
-                <Text style={styles.role}>{user.type ? user.type.toUpperCase() : 'FARMER'}</Text>
+                <Text style={styles.role}>
+                    {user.user_type === 'farmer' ? t('role_farmer') :
+                        user.user_type === 'buyer' ? t('role_buyer') :
+                            user.user_type === 'admin' ? t('role_admin') : t('unknown_role')}
+                </Text>
                 <Text style={styles.phone}>{user.phone}</Text>
             </LinearGradient>
 
@@ -96,7 +100,7 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.option}>
+                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('EditProfile')}>
                     <View style={styles.optionLeft}>
                         <View style={[styles.iconBox, { backgroundColor: '#f3e5f5' }]}>
                             <Ionicons name="create-outline" size={22} color="#7b1fa2" />
@@ -106,7 +110,7 @@ const ProfileScreen = ({ navigation }) => {
                     <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.option}>
+                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('HelpSupport')}>
                     <View style={styles.optionLeft}>
                         <View style={[styles.iconBox, { backgroundColor: '#e0f7fa' }]}>
                             <Ionicons name="help-circle-outline" size={22} color="#006064" />

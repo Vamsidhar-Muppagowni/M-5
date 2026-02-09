@@ -7,8 +7,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import StyledInput from '../../components/StyledInput';
 import SuccessModal from '../../components/SuccessModal';
+import { useTranslation } from 'react-i18next';
 
 const CropListingScreen = ({ navigation }) => {
+    const { t } = useTranslation();
     const [formData, setFormData] = useState({
         name: '',
         variety: '',
@@ -27,17 +29,17 @@ const CropListingScreen = ({ navigation }) => {
 
     const validate = () => {
         let tempErrors = {};
-        if (!formData.name) tempErrors.name = 'Crop name is required';
-        if (!formData.quantity) tempErrors.quantity = 'Quantity is required';
-        if (!formData.min_price) tempErrors.min_price = 'Price is required';
-        if (!formData.location.district) tempErrors.district = 'District is required';
+        if (!formData.name) tempErrors.name = t('fill_required');
+        if (!formData.quantity) tempErrors.quantity = t('fill_required');
+        if (!formData.min_price) tempErrors.min_price = t('fill_required');
+        if (!formData.location.district) tempErrors.district = t('fill_required');
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
     };
 
     const handleSubmit = async () => {
         if (!validate()) {
-            Alert.alert('Error', 'Please fill required fields');
+            Alert.alert('Error', t('fill_required'));
             return;
         }
 
@@ -82,7 +84,7 @@ const CropListingScreen = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>List New Crop</Text>
+                <Text style={styles.headerTitle}>{t('list_new_crop')}</Text>
                 <View style={{ width: 24 }} />
             </View>
 
@@ -92,11 +94,11 @@ const CropListingScreen = ({ navigation }) => {
                 showsVerticalScrollIndicator={false}
             >
                 <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Crop Details</Text>
+                    <Text style={styles.sectionTitle}>{t('crop_details')}</Text>
 
                     <StyledInput
-                        label="Crop Name *"
-                        placeholder="e.g. Wheat, Rice"
+                        label={t('crop_name')}
+                        placeholder={t('crop_name_placeholder')}
                         value={formData.name}
                         onChangeText={(text) => setFormData({ ...formData, name: text })}
                         icon="leaf-outline"
@@ -104,8 +106,8 @@ const CropListingScreen = ({ navigation }) => {
                     />
 
                     <StyledInput
-                        label="Variety (Optional)"
-                        placeholder="e.g. Basmati"
+                        label={t('variety')}
+                        placeholder={t('variety_placeholder')}
                         value={formData.variety}
                         onChangeText={(text) => setFormData({ ...formData, variety: text })}
                         icon="pricetag-outline"
@@ -114,7 +116,7 @@ const CropListingScreen = ({ navigation }) => {
                     <View style={styles.row}>
                         <View style={styles.halfInput}>
                             <StyledInput
-                                label="Quantity *"
+                                label={t('quantity')}
                                 placeholder="0.00"
                                 value={formData.quantity}
                                 onChangeText={(text) => setFormData({ ...formData, quantity: text })}
@@ -124,7 +126,7 @@ const CropListingScreen = ({ navigation }) => {
                             />
                         </View>
                         <View style={styles.halfInput}>
-                            <Text style={styles.label}>Unit</Text>
+                            <Text style={styles.label}>{t('unit')}</Text>
                             <View style={styles.pickerContainer}>
                                 <Picker
                                     selectedValue={formData.unit}
@@ -140,8 +142,8 @@ const CropListingScreen = ({ navigation }) => {
                     </View>
 
                     <StyledInput
-                        label="Expected Price (₹) *"
-                        placeholder="Minimum price"
+                        label={t('expected_price')}
+                        placeholder={t('min_price_placeholder')}
                         value={formData.min_price}
                         onChangeText={(text) => setFormData({ ...formData, min_price: text })}
                         keyboardType="numeric"
@@ -149,7 +151,7 @@ const CropListingScreen = ({ navigation }) => {
                         error={errors.min_price}
                     />
 
-                    <Text style={styles.label}>Quality Grade</Text>
+                    <Text style={styles.label}>{t('quality_grade')}</Text>
                     <View style={styles.pickerContainer}>
                         <Picker
                             selectedValue={formData.quality_grade}
@@ -163,20 +165,20 @@ const CropListingScreen = ({ navigation }) => {
                         </Picker>
                     </View>
 
-                    <Text style={styles.label}>Description</Text>
+                    <Text style={styles.label}>{t('description')}</Text>
                     <TextInput
                         style={[styles.textArea, { borderColor: theme.colors.border }]}
                         value={formData.description}
                         onChangeText={(text) => setFormData({ ...formData, description: text })}
                         multiline
                         numberOfLines={4}
-                        placeholder="Additional details about the crop..."
+                        placeholder={t('description_placeholder')}
                         placeholderTextColor={theme.colors.text.disabled}
                     />
 
                     <StyledInput
-                        label="District *"
-                        placeholder="e.g. Guntur"
+                        label={t('district')}
+                        placeholder={t('district_placeholder')}
                         value={formData.location.district}
                         onChangeText={(text) => setFormData({ ...formData, location: { district: text } })}
                         icon="location-outline"
@@ -194,11 +196,11 @@ const CropListingScreen = ({ navigation }) => {
                         style={styles.button}
                     >
                         {loading ? (
-                            <Text style={styles.buttonText}>Listing...</Text>
+                            <Text style={styles.buttonText}>{t('listing')}</Text>
                         ) : (
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Ionicons name="checkmark-circle-outline" size={24} color="#fff" style={{ marginRight: 8 }} />
-                                <Text style={styles.buttonText}>List Crop Market</Text>
+                                <Text style={styles.buttonText}>{t('list_crop_button')}</Text>
                             </View>
                         )}
                     </LinearGradient>
@@ -206,13 +208,13 @@ const CropListingScreen = ({ navigation }) => {
 
                 <SuccessModal
                     visible={successModalVisible}
-                    title="Crop Listed!"
-                    message="Your crop has been successfully added to the marketplace."
+                    title={t('crop_listed_success')}
+                    message={t('crop_listed_message')}
                     onClose={() => {
                         setSuccessModalVisible(false);
                         navigation.goBack();
                     }}
-                    buttonText="Back to Dashboard"
+                    buttonText={t('back_to_dashboard')}
                 />
 
             </ScrollView>

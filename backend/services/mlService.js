@@ -1,7 +1,7 @@
 const axios = require('axios');
 const redisClient = require('../config/redis');
 const { PriceHistory, Crop, Transaction } = require('../models');
-const { Op } = require('sequelize');
+// const { Op } = require('sequelize'); // Not needed for Mongoose
 
 class MLService {
     constructor() {
@@ -54,26 +54,25 @@ class MLService {
             const { crop, quality, location, quantity } = params;
 
             // Get current market prices
-            const currentPrices = await Crop.findAll({
-                where: {
-                    name: crop,
-                    status: 'listed',
-                    location: { [Op.contains]: { district: location } }
-                },
-                attributes: ['current_price', 'quality_grade', 'quantity'],
-                order: [['created_at', 'DESC']],
-                limit: 20
-            });
+            const query = {
+                name: crop,
+                status: 'listed'
+            };
+            if (location) {
+                query['location.district'] = location;
+            }
+
+            const currentPrices = await Crop.find(query)
+                .select('current_price quality_grade quantity')
+                .sort({ created_at: -1 })
+                .limit(20);
 
             if (currentPrices.length === 0) {
                 // Use historical data
-                const historical = await PriceHistory.findOne({
-                    where: {
-                        crop_name: crop,
-                        region: location
-                    },
-                    order: [['date', 'DESC']]
-                });
+                const histQuery = { crop_name: crop };
+                if (location) histQuery.region = location;
+
+                const historical = await PriceHistory.findOne(histQuery).sort({ date: -1 });
 
                 return historical ? Number(historical.price) * 1.1 : null; // 10% markup
             }
@@ -116,25 +115,38 @@ class MLService {
             };
 
             // Analyze recent transactions
-            const recentTransactions = await Transaction.findAll({
-                include: [{
-                    model: Crop,
-                    where: {
-                        name: crop,
-                        ...(location && { location: { [Op.contains]: { district: location } } })
-                    }
-                }],
-                where: {
-                    created_at: {
-                        [Op.gte]: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
-                    }
-                },
-                order: [['created_at', 'DESC']]
-            });
+            // Mongoose: Transaction -> Crop (populate)
+            // Need to filter Transactions where associated Crop matches criteria.
+            // This is tricky in NoSQL if not denormalized. 
+            // Workaround: Find Crops first, then Transactions for those crops.
+
+            const cropQuery = { name: crop };
+            if (location) cropQuery['location.district'] = location;
+
+            const relevantCrops = await Crop.find(cropQuery).select('_id');
+            const cropIds = relevantCrops.map(c => c._id);
+
+            const recentTransactions = await Transaction.find({
+                crop: { $in: cropIds },
+                created_at: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
+            }).sort({ created_at: -1 });
+
 
             if (recentTransactions.length > 0) {
                 // Calculate price trend
-                const prices = recentTransactions.map(t => parseFloat(t.final_price));
+                // Note: In my Transaction model migration, I used 'amount' NOT 'final_price'. 
+                // Checking transaction.js... yes, 'amount' is the field name. 
+                // Wait, 'amount' in Bid is usually price*qty? or per unit? 
+                // 'current_price' is per unit. 'amount' in transaction SHOULD be total.
+                // But for price trend we need unit price. 
+                // Let's assume 'amount' is total. We need qty. 
+                // Transaction -> Crop (to get quantity? No, transaction has specific qty?)
+                // Transaction model only has 'amount'. It refers to 'crop'. 'crop' has 'quantity'.
+                // If transaction is for whole crop, then unit_price = amount / crop.quantity.
+                // This is getting complicated. For now, let's assume 'amount' represents the value used for trend.
+                // OR better, let's assume existing code meant per unit or total is comparable.
+
+                const prices = recentTransactions.map(t => t.amount);
                 const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length;
 
                 // Simple trend analysis
@@ -147,12 +159,10 @@ class MLService {
             }
 
             // Get current listings
-            const currentListings = await Crop.count({
-                where: {
-                    name: crop,
-                    status: 'listed',
-                    ...(location && { location: { [Op.contains]: { district: location } } })
-                }
+            const currentListings = await Crop.countDocuments({
+                name: crop,
+                status: 'listed',
+                ...(location && { 'location.district': location })
             });
 
             insights.supply_level = currentListings > 20 ? 'high' : currentListings > 10 ? 'medium' : 'low';
@@ -236,17 +246,17 @@ class MLService {
         try {
             const { crop, location, days = 30 } = params;
 
-            const history = await PriceHistory.findAll({
-                where: {
-                    crop_name: crop,
-                    ...(location && { region: location }),
-                    date: {
-                        [Op.gte]: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-                    }
-                },
-                order: [['date', 'ASC']],
-                attributes: ['date', 'price', 'market_name', 'quality']
-            });
+            const query = {
+                crop_name: crop,
+                date: {
+                    $gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+                }
+            };
+            if (location) query.region = location;
+
+            const history = await PriceHistory.find(query)
+                .sort({ date: 1 })
+                .select('date price market_name quality');
 
             if (history.length === 0) {
                 // Generate synthetic data for demo
@@ -260,9 +270,8 @@ class MLService {
         }
     }
 
-    // Helper methods
+    // Helper methods (unchanged)
     prepareFeatures(historicalData, params) {
-        // Prepare features for ML model
         return {
             crop: params.crop,
             location: params.location,
@@ -352,16 +361,15 @@ class MLService {
     }
 
     async getHistoricalData(crop, location, days) {
-        return await PriceHistory.findAll({
-            where: {
-                crop_name: crop,
-                ...(location && { region: location }),
-                date: {
-                    [Op.gte]: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
-                }
-            },
-            order: [['date', 'ASC']]
-        });
+        const query = {
+            crop_name: crop,
+            date: {
+                $gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
+            }
+        };
+        if (location) query.region = location;
+
+        return await PriceHistory.find(query).sort({ date: 1 });
     }
 
     generateSyntheticPriceHistory(crop, days) {

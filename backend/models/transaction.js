@@ -1,51 +1,58 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const Transaction = sequelize.define('transaction', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
+const TransactionSchema = new mongoose.Schema({
+    bid: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Bid',
+        required: true,
+        unique: true
     },
-    crop_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'crops',
-            key: 'id'
-        }
+    crop: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Crop',
+        required: true
     },
-    farmer_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+    buyer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-    buyer_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+    farmer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-    final_price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+    amount: {
+        type: Number,
+        required: true
     },
-    status: {
-        type: DataTypes.STRING(20),
-        defaultValue: 'pending'
+    payment_status: {
+        type: String,
+        enum: ['pending', 'processing', 'completed', 'failed', 'refunded'],
+        default: 'pending'
     },
-    completed_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+    payment_method: {
+        type: String,
+        enum: ['cash', 'upi', 'bank_transfer', 'card'],
+        default: 'cash'
+    },
+    transaction_id: {
+        type: String, // from payment gateway
+        sparse: true
+    },
+    delivery_status: {
+        type: String,
+        enum: ['pending', 'scheduled', 'shipped', 'delivered', 'cancelled'],
+        default: 'pending'
     }
 }, {
-    tableName: 'transactions',
-    timestamps: false
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = Transaction;
+TransactionSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+module.exports = mongoose.model('Transaction', TransactionSchema);

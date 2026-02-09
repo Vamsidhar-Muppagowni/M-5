@@ -1,41 +1,28 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const PriceHistory = sequelize.define('price_history', {
-    id: {
-        type: DataTypes.INTEGER,
-        // Actually SQL said SERIAL PRIMARY KEY
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
-        primaryKey: true
-    },
+const PriceHistorySchema = new mongoose.Schema({
     crop_name: {
-        type: DataTypes.STRING(100),
-        allowNull: false
+        type: String,
+        required: true,
+        index: true
     },
-    market_name: {
-        type: DataTypes.STRING(100),
-        allowNull: true
-    },
+    market_name: String,
     price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        type: Number,
+        required: true
     },
     date: {
-        type: DataTypes.DATEONLY,
-        allowNull: false
+        type: Date,
+        required: true,
+        default: Date.now,
+        index: true
     },
-    quality: {
-        type: DataTypes.STRING(10),
-        allowNull: true
-    },
-    region: {
-        type: DataTypes.STRING(50),
-        allowNull: true
-    }
+    quality: String,
+    region: String
 }, {
-    tableName: 'price_history',
-    timestamps: false
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = PriceHistory;
+module.exports = mongoose.model('PriceHistory', PriceHistorySchema);

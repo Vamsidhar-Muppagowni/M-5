@@ -1,93 +1,110 @@
-const { DataTypes } = require('sequelize');
+const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const sequelize = require('../config/database');
 
-const User = sequelize.define('user', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
-    phone: {
-        type: DataTypes.STRING(15),
-        allowNull: false,
-        unique: true,
-        validate: {
-            is: /^\+?[1-9]\d{1,14}$/
-        }
-    },
+const UserSchema = new mongoose.Schema({
     name: {
-        type: DataTypes.STRING(100),
-        allowNull: false
+        type: String,
+        required: [true, 'Name is required'],
+        trim: true,
+        maxlength: [100, 'Name cannot be more than 100 characters']
     },
     email: {
-        type: DataTypes.STRING(100),
-        validate: {
-            isEmail: true
-        }
+        type: String,
+        match: [
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            'Please add a valid email'
+        ],
+        unique: true,
+        sparse: true, // Allow null/undefined but unique if present
+        lowercase: true,
+        trim: true
+    },
+    phone: {
+        type: String,
+        required: [true, 'Phone number is required'],
+        unique: true,
+        trim: true,
+        match: [/^[0-9]{10,15}$/, 'Phone number is invalid']
     },
     password: {
-        type: DataTypes.STRING,
-        allowNull: false
+        type: String,
+        required: [true, 'Password is required'],
+        minlength: 6,
+        select: false // Don't return password by default
     },
     user_type: {
-        type: DataTypes.ENUM('farmer', 'buyer', 'admin'),
-        allowNull: false,
-        defaultValue: 'farmer'
+        type: String,
+        enum: ['farmer', 'buyer', 'admin'],
+        required: true
     },
     language: {
-        type: DataTypes.STRING(10),
-        defaultValue: 'en'
-    },
-    is_verified: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+        type: String,
+        default: 'en',
+        maxlength: 10
     },
     location: {
-        type: DataTypes.JSONB,
-        defaultValue: {}
+        address_line1: String,
+        city: String,
+        state: String,
+        pincode: String,
+        coordinates: {
+            lat: Number,
+            lng: Number
+        }
     },
-    device_token: {
-        type: DataTypes.STRING,
-        allowNull: true
+    is_active: {
+        type: Boolean,
+        default: true
+    },
+    is_verified: {
+        type: Boolean,
+        default: false
     },
     last_login: {
-        type: DataTypes.DATE
+        type: Date
     },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+    // References to profiles
+    farmerProfile: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FarmerProfile'
     },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+    buyerProfile: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'BuyerProfile'
     }
 }, {
-    tableName: 'users',
-    timestamps: false,
-    hooks: {
-        beforeCreate: async (user) => {
-            if (user.password) {
-                user.password = await bcrypt.hash(user.password, 10);
-            }
-        },
-        beforeUpdate: async (user) => {
-            if (user.changed('password')) {
-                user.password = await bcrypt.hash(user.password, 10);
-            }
-            user.updated_at = new Date();
-        }
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
+});
+
+// Encrypt password using bcrypt
+UserSchema.pre('save', async function () {
+    if (!this.isModified('password')) {
+        return;
+    }
+    console.log('Hashing password for user:', this.phone);
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+});
+
+// Match user entered password to hashed password in database
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Cascade delete profiles when a user is deleted
+UserSchema.pre('remove', async function () {
+    if (this.user_type === 'farmer') {
+        await this.model('FarmerProfile').deleteOne({ user: this._id });
+    } else if (this.user_type === 'buyer') {
+        await this.model('BuyerProfile').deleteOne({ user: this._id });
     }
 });
 
-User.prototype.comparePassword = async function (candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
-};
+// Virtual for 'id' to match frontend expectation
+UserSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
 
-User.prototype.toJSON = function () {
-    const values = Object.assign({}, this.get());
-    delete values.password;
-    return values;
-};
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);

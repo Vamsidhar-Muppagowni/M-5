@@ -12,13 +12,13 @@ const {
 
 const generateToken = (user) => {
     return jwt.sign({
-            id: user.id,
-            phone: user.phone,
-            user_type: user.user_type
-        },
+        id: user._id,
+        phone: user.phone,
+        user_type: user.user_type
+    },
         process.env.JWT_SECRET || 'your-secret-key', {
-            expiresIn: '7d'
-        }
+        expiresIn: '7d'
+    }
     );
 };
 
@@ -26,7 +26,6 @@ exports.register = async (req, res) => {
     try {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            console.log('Validation Errors:', errors.array());
             return res.status(400).json({
                 errors: errors.array()
             });
@@ -42,11 +41,7 @@ exports.register = async (req, res) => {
         } = req.body;
 
         // Check if user already exists
-        const existingUser = await User.findOne({
-            where: {
-                phone
-            }
-        });
+        const existingUser = await User.findOne({ phone });
         if (existingUser) {
             return res.status(400).json({
                 error: 'User already exists with this phone number'
@@ -54,65 +49,62 @@ exports.register = async (req, res) => {
         }
 
         // Create user
-        const user = await User.create({
+        const userData = {
             phone,
             name,
             password,
             user_type,
-            language: language || 'en',
-            email: email === '' ? null : email
-        });
+            language: language || 'en'
+        };
+
+        if (email && email.trim() !== '') {
+            userData.email = email;
+        }
+
+        const user = await User.create(userData);
 
         // Create profile based on user type
         if (user_type === 'farmer') {
             await FarmerProfile.create({
-                user_id: user.id
+                user: user._id
             });
         } else if (user_type === 'buyer') {
             await BuyerProfile.create({
-                user_id: user.id
+                user: user._id
             });
         }
 
-        // Generate OTP for verification
+        // Generate OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        await redisClient.setEx(`otp:${phone}`, 300, otp); // OTP valid for 5 minutes
+        await redisClient.setEx(`otp:${phone}`, 300, otp);
 
-        // Send OTP via SMS
+        // Send OTP
         await smsService.sendSMS(phone, `Your verification OTP is: ${otp}`);
 
-        // DEV ONLY: Log OTP to file for easy access
+        // DEV ONLY
         if (process.env.NODE_ENV === 'development') {
             const fs = require('fs');
             fs.writeFileSync('otp.txt', `Latest OTP for ${phone}: ${otp}\n`);
             console.log(`[DEV] OTP for ${phone}: ${otp}`);
         }
 
-        // Generate token
         const token = generateToken(user);
 
         res.status(201).json({
             message: 'User registered successfully. OTP sent for verification.',
             user: {
-                id: user.id,
+                id: user._id,
                 phone: user.phone,
                 name: user.name,
                 user_type: user.user_type,
                 language: user.language
             },
             token,
-            token,
             requires_verification: true,
-            // DEV ONLY: Return OTP in response
             dev_otp: process.env.NODE_ENV === 'development' ? otp : undefined
         });
     } catch (error) {
         console.error('Registration error:', error);
-        // Emergency logging to file
-        const fs = require('fs');
-        fs.writeFileSync('backend_error.txt', `[${new Date().toISOString()}] ${error.stack}\n`, {
-            flag: 'a'
-        });
         res.status(500).json({
             error: 'Internal server error'
         });
@@ -121,16 +113,11 @@ exports.register = async (req, res) => {
 
 exports.verifyOTP = async (req, res) => {
     try {
-        const {
-            phone,
-            otp
-        } = req.body;
+        const { phone, otp } = req.body;
 
         const storedOTP = await redisClient.get(`otp:${phone}`);
 
-        // For development, allow specific OTP or check if OTP logic matches
         if (!storedOTP) {
-            // In dev, maybe skip if redis not working or expired? No, stick to logic.
             return res.status(400).json({
                 error: 'OTP expired or not found'
             });
@@ -142,16 +129,9 @@ exports.verifyOTP = async (req, res) => {
             });
         }
 
-        // Update user verification status
-        await User.update({
-            is_verified: true
-        }, {
-            where: {
-                phone
-            }
-        });
+        // Update verify status
+        await User.updateOne({ phone }, { is_verified: true });
 
-        // Remove OTP from Redis
         await redisClient.del(`otp:${phone}`);
 
         res.json({
@@ -167,23 +147,16 @@ exports.verifyOTP = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        const {
-            phone,
-            password
-        } = req.body;
+        const { phone, password } = req.body;
 
-        const user = await User.findOne({
-            where: {
-                phone
-            }
-        });
+        const user = await User.findOne({ phone }).select('+password');
         if (!user) {
             return res.status(401).json({
                 error: 'Invalid credentials'
             });
         }
 
-        const isPasswordValid = await user.comparePassword(password);
+        const isPasswordValid = await user.matchPassword(password);
         if (!isPasswordValid) {
             return res.status(401).json({
                 error: 'Invalid credentials'
@@ -191,25 +164,22 @@ exports.login = async (req, res) => {
         }
 
         // Update last login
-        await User.update({
-            last_login: new Date()
-        }, {
-            where: {
-                id: user.id
-            }
-        });
+        user.last_login = new Date();
+        await user.save({ validateBeforeSave: false });
 
         const token = generateToken(user);
 
         res.json({
             message: 'Login successful',
             user: {
-                id: user.id,
+                id: user._id,
                 phone: user.phone,
                 name: user.name,
                 user_type: user.user_type,
                 language: user.language,
-                is_verified: user.is_verified
+                is_verified: user.is_verified,
+                email: user.email,
+                location: user.location
             },
             token
         });
@@ -223,15 +193,9 @@ exports.login = async (req, res) => {
 
 exports.resendOTP = async (req, res) => {
     try {
-        const {
-            phone
-        } = req.body;
+        const { phone } = req.body;
 
-        const user = await User.findOne({
-            where: {
-                phone
-            }
-        });
+        const user = await User.findOne({ phone });
         if (!user) {
             return res.status(404).json({
                 error: 'User not found'
@@ -244,14 +208,11 @@ exports.resendOTP = async (req, res) => {
             });
         }
 
-        // Generate new OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         await redisClient.setEx(`otp:${phone}`, 300, otp);
 
-        // Send OTP via SMS
         await smsService.sendSMS(phone, `Your verification OTP is: ${otp}`);
 
-        // DEV ONLY: Log to file
         if (process.env.NODE_ENV === 'development') {
             const fs = require('fs');
             fs.writeFileSync('otp.txt', `Latest OTP for ${phone}: ${otp}\n`);
@@ -260,7 +221,6 @@ exports.resendOTP = async (req, res) => {
 
         res.json({
             message: 'OTP resent successfully',
-            // DEV ONLY: Return OTP in response
             dev_otp: process.env.NODE_ENV === 'development' ? otp : undefined
         });
     } catch (error) {
@@ -276,21 +236,13 @@ exports.updateProfile = async (req, res) => {
         const userId = req.user.id;
         const updates = req.body;
 
-        // Remove sensitive fields
         delete updates.password;
         delete updates.phone;
         delete updates.user_type;
 
-        await User.update(updates, {
-            where: {
-                id: userId
-            }
-        });
-
-        const user = await User.findByPk(userId, {
-            attributes: {
-                exclude: ['password']
-            }
+        const user = await User.findByIdAndUpdate(userId, updates, {
+            new: true,
+            runValidators: true
         });
 
         res.json({
@@ -308,9 +260,7 @@ exports.updateProfile = async (req, res) => {
 exports.changeLanguage = async (req, res) => {
     try {
         const userId = req.user.id;
-        const {
-            language
-        } = req.body;
+        const { language } = req.body;
 
         if (!language) {
             return res.status(400).json({
@@ -318,13 +268,7 @@ exports.changeLanguage = async (req, res) => {
             });
         }
 
-        await User.update({
-            language
-        }, {
-            where: {
-                id: userId
-            }
-        });
+        await User.findByIdAndUpdate(userId, { language });
 
         res.json({
             message: 'Language updated successfully',
@@ -341,28 +285,18 @@ exports.changeLanguage = async (req, res) => {
 exports.getProfile = async (req, res) => {
     try {
         const userId = req.user.id;
-        const user = await User.findByPk(userId, {
-            attributes: {
-                exclude: ['password']
-            },
-            include: [{
-                    model: FarmerProfile,
-                    required: req.user.user_type === 'farmer',
-                    as: 'farmer_profile' // Assuming auto generated alias or need to verify from index.js associations
-                },
-                {
-                    model: BuyerProfile,
-                    required: req.user.user_type === 'buyer',
-                    as: 'buyer_profile' // Same here
-                }
-            ]
-        });
 
-        // Note: Sequelize association alias might default to model name. 
-        // In index.js: User.hasOne(FarmerProfile). 
-        // By default the alias is 'farmer_profile' or just FarmerProfile depending on initialization.
-        // I should check index.js. 
-        // User.hasOne(FarmerProfile). No 'as' defined. Default alias is 'farmer_profile'.
+        let query = User.findById(userId);
+
+        if (req.user.user_type === 'farmer') {
+            // In Mongoose, we populate the virtual or actual reference. 
+            // In User model I defined 'farmerProfile' as a direct ref field.
+            query = query.populate('farmerProfile');
+        } else if (req.user.user_type === 'buyer') {
+            query = query.populate('buyerProfile');
+        }
+
+        const user = await query;
 
         if (!user) {
             return res.status(404).json({
@@ -370,13 +304,9 @@ exports.getProfile = async (req, res) => {
             });
         }
 
-        res.json({
-            user
-        });
+        res.json({ user });
     } catch (error) {
         console.error('Get profile error:', error);
-        // Try again without includes if association names are wrong, as fallback? 
-        // Or just return user.
         res.status(500).json({
             error: 'Internal server error'
         });

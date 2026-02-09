@@ -1,41 +1,29 @@
-const { Crop, Bid, Transaction, sequelize } = require('../models');
+const { Crop, Bid, Transaction } = require('../models');
 
 exports.getStats = async (req, res) => {
     try {
         const farmerId = req.user.id;
 
-        const activeListings = await Crop.count({
-            where: { farmer_id: farmerId, status: 'listed' }
+        const activeListings = await Crop.countDocuments({
+            farmer: farmerId,
+            status: 'listed'
         });
 
-        const totalSales = await Transaction.count({
-            where: { farmer_id: farmerId }
+        const totalSales = await Transaction.countDocuments({
+            farmer: farmerId
         });
 
-        // Calculate total earnings
-        const transactions = await Transaction.findAll({
-            where: { farmer_id: farmerId },
-            attributes: ['final_price']
-        });
-        const earnings = transactions.reduce((sum, t) => sum + parseFloat(t.final_price), 0);
+        // Earnings
+        const transactions = await Transaction.find({
+            farmer: farmerId
+        }).select('amount'); // Transaction model uses 'amount' not 'final_price' in my migration
 
-        // Pending Bids
-        // Count bids on crops owned by farmer where status is pending
-        // This requires a join or two queries
-        // simpler: Get all my crops, then count bids. Or association.
-        // Crop.hasMany(Bid)
+        const earnings = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
 
-        // We can do it via raw query or include. 
-        // Let's iterate crops or use a targeted count.
-        // Better: Count Bid where crop.farmer_id = farmerId and status = pending. 
-        // But Bid table doesn't have farmer_id directly. It has crop_id.
-        // So include Crop.
-        const pendingBids = await Bid.count({
-            include: [{
-                model: Crop,
-                where: { farmer_id: farmerId }
-            }],
-            where: { status: 'pending' }
+        // Pending Bids - Count bids where farmer is recipient and status is pending
+        const pendingBids = await Bid.countDocuments({
+            farmer: farmerId,
+            status: 'pending'
         });
 
         res.json({

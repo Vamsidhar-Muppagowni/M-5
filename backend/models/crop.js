@@ -1,108 +1,91 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const Crop = sequelize.define('crop', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
-    farmer_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+const CropSchema = new mongoose.Schema({
+    farmer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
     name: {
-        type: DataTypes.STRING(100),
-        allowNull: false
+        type: String,
+        required: [true, 'Crop name is required'],
+        trim: true,
+        index: true
     },
     variety: {
-        type: DataTypes.STRING(100),
-        allowNull: true
+        type: String,
+        trim: true
     },
     quantity: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
-        comment: 'Quantity in kilograms'
+        type: Number,
+        required: [true, 'Quantity is required'],
+        min: 0
     },
     unit: {
-        type: DataTypes.STRING(20),
-        defaultValue: 'kg'
+        type: String,
+        default: 'kg',
+        enum: ['kg', 'quintal', 'ton']
     },
     quality_grade: {
-        type: DataTypes.ENUM('A', 'B', 'C', 'D'),
-        defaultValue: 'B'
+        type: String,
+        enum: ['A', 'B', 'C', 'D'],
+        default: 'B'
     },
     min_price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        type: Number,
+        required: [true, 'Minimum price is required'],
+        min: 0
     },
     current_price: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        type: Number,
+        required: [true, 'Current price is required'],
+        min: 0
     },
-    description: {
-        type: DataTypes.TEXT,
-        allowNull: true
-    },
+    description: String,
     location: {
-        type: DataTypes.JSON,
-        allowNull: false,
-        defaultValue: {}
+        address_line1: String,
+        city: String,
+        state: String,
+        pincode: String,
+        coordinates: {
+            lat: Number,
+            lng: Number
+        }
     },
     images: {
-        type: DataTypes.JSON,
-        defaultValue: []
+        type: [String],
+        default: []
     },
-    harvest_date: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
-    expiry_date: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
+    harvest_date: Date,
+    expiry_date: Date,
     status: {
-        type: DataTypes.ENUM('draft', 'listed', 'reserved', 'sold', 'expired'),
-        defaultValue: 'draft'
+        type: String,
+        enum: ['draft', 'listed', 'reserved', 'sold', 'expired'],
+        default: 'draft',
+        index: true
     },
-    bid_end_date: {
-        type: DataTypes.DATE,
-        allowNull: true
-    },
+    bid_end_date: Date,
     view_count: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0
+        type: Number,
+        default: 0
     },
     bid_count: {
-        type: DataTypes.INTEGER,
-        defaultValue: 0
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        type: Number,
+        default: 0
     }
 }, {
-    tableName: 'crops',
-    timestamps: false,
-    indexes: [
-        {
-            fields: ['status']
-        },
-        {
-            fields: ['farmer_id']
-        },
-        {
-            fields: ['name']
-        }
-    ]
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = Crop;
+// Indexes for common queries
+CropSchema.index({ name: 'text', description: 'text', variety: 'text' });
+// CropSchema.index({ status: 1 }); // Already indexed in schema definition
+CropSchema.index({ farmer: 1 });
+
+CropSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+module.exports = mongoose.model('Crop', CropSchema);
