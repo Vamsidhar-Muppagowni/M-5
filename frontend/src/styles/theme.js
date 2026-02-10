@@ -1,9 +1,11 @@
 export const theme = {
     colors: {
         primary: '#10B981', // Modern Emerald Green
+        primaryDark: '#059669', // Darker Emerald for gradients
         secondary: '#F59E0B', // Warm Amber
         background: '#F3F4F6', // Light Gray
         surface: '#FFFFFF',
+        p20: '#d1fae5', // 20% opacity primary equivalent (light emerald)
         text: {
             primary: '#111827', // Dark Gray/Black
             secondary: '#6B7280', // Medium Gray

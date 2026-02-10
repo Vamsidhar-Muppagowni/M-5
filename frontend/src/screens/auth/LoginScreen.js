@@ -23,14 +23,30 @@ const LoginScreen = ({ navigation }) => {
     const [phone, setPhone] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [phoneError, setPhoneError] = useState('');
     const dispatch = useDispatch();
     const { width } = useWindowDimensions();
     const isDesktop = width >= 768;
+
+    const validatePhone = (value) => {
+        const digitsOnly = value.replace(/[^0-9]/g, '');
+        setPhone(digitsOnly);
+        if (digitsOnly.length > 0 && digitsOnly.length !== 10) {
+            setPhoneError(t('phone_invalid') || 'Phone number must be exactly 10 digits');
+        } else {
+            setPhoneError('');
+        }
+    };
 
     const handleLogin = async () => {
         try {
             if (!phone || !password) {
                 Alert.alert('Error', t('error_fill_fields') || 'Please fill in all fields');
+                return;
+            }
+
+            if (phone.length !== 10) {
+                setPhoneError(t('phone_invalid') || 'Phone number must be exactly 10 digits');
                 return;
             }
 
@@ -48,12 +64,20 @@ const LoginScreen = ({ navigation }) => {
                     navigation.replace('BuyerTabs');
                 }
             } else {
-                Alert.alert('Login Failed', resultAction.payload || 'Unknown error');
+                // Always show error message for failed login
+                const errorMsg = resultAction.payload || 'Login failed';
+                Alert.alert(
+                    t('invalid_credentials') || 'Invalid Credentials',
+                    t('invalid_credentials_msg') || 'The phone number or password you entered is incorrect. Please try again.'
+                );
             }
         } catch (err) {
             console.error(err);
             setLoading(false);
-            Alert.alert('Error', 'An unexpected error occurred');
+            Alert.alert(
+                t('invalid_credentials') || 'Error',
+                t('invalid_credentials_msg') || 'An unexpected error occurred. Please try again.'
+            );
         }
     };
 
@@ -93,9 +117,9 @@ const LoginScreen = ({ navigation }) => {
                     {/* Right Side - Login Form */}
                     <View style={[styles.rightSide, isDesktop ? styles.rightSideDesktop : styles.rightSideMobile]}>
                         <View style={styles.formCard}>
-                            <Text style={styles.loginHeader}>Login</Text>
+                            <Text style={styles.loginHeader}>{t('login_header') || 'Login'}</Text>
 
-                            <Text style={styles.label}>Select Role</Text>
+                            <Text style={styles.label}>{t('select_role') || 'Select Role'}</Text>
                             <View style={styles.roleSelector}>
                                 {['farmer', 'buyer', 'admin'].map((r) => (
                                     <TouchableOpacity
@@ -121,8 +145,9 @@ const LoginScreen = ({ navigation }) => {
                                 icon="📞"
                                 placeholder="Enter your phone number"
                                 value={phone}
-                                onChangeText={setPhone}
+                                onChangeText={validatePhone}
                                 keyboardType="phone-pad"
+                                error={phoneError}
                             />
 
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
@@ -130,7 +155,7 @@ const LoginScreen = ({ navigation }) => {
                                     {t('password_placeholder') || 'Password'}
                                 </Text>
                                 <TouchableOpacity>
-                                    <Text style={styles.forgotPassword}>Forgot Password?</Text>
+                                    <Text style={styles.forgotPassword}>{t('forgot_password') || 'Forgot Password?'}</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -143,16 +168,16 @@ const LoginScreen = ({ navigation }) => {
                             />
 
                             <CustomButton
-                                title="Sign In →"
+                                title={t('sign_in') || 'Sign In →'}
                                 onPress={handleLogin}
                                 loading={loading}
                                 style={{ marginTop: 24, marginBottom: 24 }}
                             />
 
                             <View style={styles.registerContainer}>
-                                <Text style={styles.registerText}>Don't have an account? </Text>
+                                <Text style={styles.registerText}>{t('dont_have_account') || "Don't have an account?"} </Text>
                                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                                    <Text style={styles.registerLink}>Register New Farm</Text>
+                                    <Text style={styles.registerLink}>{t('register_new_farm') || 'Register New Farm'}</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>

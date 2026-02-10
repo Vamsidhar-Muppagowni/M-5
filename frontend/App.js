@@ -30,8 +30,9 @@ import MarketScreen from './src/screens/market/MarketScreen';
 import CropDetailsScreen from './src/screens/market/CropDetailsScreen';
 import PriceDashboard from './src/screens/decision/PriceDashboard';
 import GovernmentSchemes from './src/screens/info/GovernmentSchemes';
+import SchemeDetailsScreen from './src/screens/info/SchemeDetailsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
-import VoiceAssistant from './src/screens/voice/VoiceAssistant';
+
 import CommunityScreen from './src/screens/community/CommunityScreen';
 import PendingBidsScreen from './src/screens/farmer/PendingBidsScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
@@ -134,7 +135,7 @@ const BuyerTabs = () => {
                 headerShown: false
             })}
         >
-            <Tab.Screen name="Dashboard" component={BuyerDashboard} options={{ tabBarLabel: 'Home' }} />
+            <Tab.Screen name="Dashboard" component={BuyerDashboard} options={{ tabBarLabel: t('dashboard_tab') }} />
             <Tab.Screen name="Browse" component={MarketScreen} options={{ tabBarLabel: t('browse_tab') }} />
             <Tab.Screen name="MyBids" component={MyBidsScreen} options={{ tabBarLabel: t('my_bids_tab') }} />
             <Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} />
@@ -176,7 +177,7 @@ const AdminTabs = () => {
                 headerShown: false
             })}
         >
-            <Tab.Screen name="Dashboard" component={AdminDashboard} options={{ tabBarLabel: 'Admin Home' }} />
+            <Tab.Screen name="Dashboard" component={AdminDashboard} options={{ tabBarLabel: t('dashboard_tab') }} />
             <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} />
         </Tab.Navigator>
     );
@@ -278,10 +279,12 @@ export default function App() {
                                 />
 
                                 <Stack.Screen
-                                    name="VoiceAssistant"
-                                    component={VoiceAssistant}
+                                    name="SchemeDetails"
+                                    component={SchemeDetailsScreen}
                                     options={{ headerShown: false }}
                                 />
+
+
                                 <Stack.Screen
                                     name="EditProfile"
                                     component={EditProfileScreen}
