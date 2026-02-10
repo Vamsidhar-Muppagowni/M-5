@@ -3,11 +3,13 @@ import { View, Text, StyleSheet, Dimensions, ScrollView, ActivityIndicator, Touc
 import { LineChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { theme } from '../../styles/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const PriceDashboard = ({ navigation }) => {
+    const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [crops, setCrops] = useState([]);
     const [selectedCrop, setSelectedCrop] = useState('');
@@ -21,7 +23,7 @@ const PriceDashboard = ({ navigation }) => {
                 strokeWidth: 2
             }
         ],
-        legend: ["Loading..."]
+        legend: [t('loading')]
     });
 
     const [recentPrices, setRecentPrices] = useState([]);
@@ -100,7 +102,7 @@ const PriceDashboard = ({ navigation }) => {
             <View style={styles.insightContainer}>
                 <Ionicons name={isUp ? "trending-up" : "trending-down"} size={24} color={isUp ? theme.colors.success : theme.colors.error} />
                 <Text style={styles.insightText}>
-                    {isUp ? "Upward" : "Downward"} trend in last month
+                    {isUp ? t('upward_trend') : t('downward_trend')} {t('trend_in_last_month')}
                 </Text>
                 <View style={[styles.percentBadge, { backgroundColor: isUp ? theme.colors.success + '20' : theme.colors.error + '20' }]}>
                     <Text style={{ fontWeight: 'bold', color: isUp ? theme.colors.success : theme.colors.error }}>
@@ -126,16 +128,16 @@ const PriceDashboard = ({ navigation }) => {
         const percent = ((diff / firstPrice) * 100);
         const percentStr = percent.toFixed(2);
 
-        let trendText = "Stable trend";
+        let trendText = t('stable_trend') + ' ' + t('trend_in_last_month');
         let trendColor = theme.colors.text.secondary;
         let iconName = "remove-circle-outline";
 
         if (percent > 2) {
-            trendText = "Upward trend";
+            trendText = t('upward_trend') + ' ' + t('trend_in_last_month');
             trendColor = theme.colors.success;
             iconName = "trending-up";
         } else if (percent < -2) {
-            trendText = "Downward trend";
+            trendText = t('downward_trend') + ' ' + t('trend_in_last_month');
             trendColor = theme.colors.error;
             iconName = "trending-down";
         }
@@ -146,7 +148,7 @@ const PriceDashboard = ({ navigation }) => {
                     <Ionicons name={iconName} size={24} color={trendColor} />
                 </View>
                 <View style={{ flex: 1 }}>
-                    <Text style={styles.insightTitle}>6-Month Analysis</Text>
+                    <Text style={styles.insightTitle}>{t('six_month_analysis')}</Text>
                     <Text style={styles.insightSubtitle}>{trendText}</Text>
                 </View>
                 <Text style={[styles.insightValue, { color: trendColor }]}>
@@ -172,7 +174,7 @@ const PriceDashboard = ({ navigation }) => {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Market Price Trends</Text>
+                    <Text style={styles.headerTitle}>{t('market_price_trends')}</Text>
                     <View style={{ width: 24 }} />
                 </View>
             </LinearGradient>
@@ -185,7 +187,7 @@ const PriceDashboard = ({ navigation }) => {
                 }
             >
                 <View style={styles.pickerContainer}>
-                    <Text style={styles.label}>Select Crop</Text>
+                    <Text style={styles.label}>{t('select_crop')}</Text>
                     <View style={styles.pickerWrapper}>
                         <Picker
                             selectedValue={selectedCrop}
@@ -201,8 +203,8 @@ const PriceDashboard = ({ navigation }) => {
                 </View>
 
                 <View style={styles.chartContainer}>
-                    <Text style={styles.chartTitle}>{selectedCrop} Price Analysis</Text>
-                    <Text style={styles.chartSubtitle}>Last 6 Months</Text>
+                    <Text style={styles.chartTitle}>{selectedCrop} {t('price_analysis')}</Text>
+                    <Text style={styles.chartSubtitle}>{t('last_6_months')}</Text>
 
                     {loading ? (
                         <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loader} />
@@ -264,7 +266,7 @@ const PriceDashboard = ({ navigation }) => {
                 {renderSixMonthTrend()}
 
                 <View style={styles.updatesSection}>
-                    <Text style={styles.subHeader}>Recent Market Updates</Text>
+                    <Text style={styles.subHeader}>{t('recent_market_updates')}</Text>
                     {recentPrices.map((item) => (
                         <View key={item.id} style={styles.priceItem}>
                             <View style={styles.priceIconPlaceholder}>
@@ -280,7 +282,7 @@ const PriceDashboard = ({ navigation }) => {
 
                     {recentPrices.length === 0 && (
                         <View style={styles.emptyContainer}>
-                            <Text style={styles.emptyText}>No recent updates available.</Text>
+                            <Text style={styles.emptyText}>{t('no_recent_updates')}</Text>
                         </View>
                     )}
                 </View>

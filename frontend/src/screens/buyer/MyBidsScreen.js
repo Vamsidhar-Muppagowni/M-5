@@ -8,6 +8,7 @@ import { theme } from '../../styles/theme';
 
 const MyBidsScreen = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
+    const { t } = useTranslation();
     const [bids, setBids] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -52,7 +53,7 @@ const MyBidsScreen = ({ navigation }) => {
                 </View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.cropName}>{item.crop?.name}</Text>
-                    <Text style={styles.farmerName}>Farmer: {item.crop?.farmer?.name}</Text>
+                    <Text style={styles.farmerName}>{t('farmer_colon') || 'Farmer:'} {item.crop?.farmer?.name}</Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
                     <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
@@ -66,12 +67,12 @@ const MyBidsScreen = ({ navigation }) => {
             <View style={styles.bidDetails}>
                 <View style={styles.detailRow}>
                     <Ionicons name="cash-outline" size={16} color={theme.colors.text.secondary} />
-                    <Text style={styles.detailLabel}>My Bid:</Text>
+                    <Text style={styles.detailLabel}>{t('my_bid_label') || 'My Bid:'}</Text>
                     <Text style={styles.detailValue}>₹{item.amount}</Text>
                 </View>
                 <View style={styles.detailRow}>
                     <Ionicons name="calendar-outline" size={16} color={theme.colors.text.secondary} />
-                    <Text style={styles.detailLabel}>Date:</Text>
+                    <Text style={styles.detailLabel}>{t('date_label') || 'Date:'}</Text>
                     <Text style={styles.detailValue}>{new Date(item.created_at).toLocaleDateString()}</Text>
                 </View>
             </View>
@@ -84,14 +85,14 @@ const MyBidsScreen = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.title}>My Bids</Text>
+                <Text style={styles.title}>{t('my_bids') || 'My Bids'}</Text>
                 <View style={{ width: 40 }} />
             </View>
 
             <FlatList
                 data={bids}
                 renderItem={renderBid}
-                keyExtractor={item => item.id}
+                keyExtractor={item => (item.id || item._id || '').toString()}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
                 refreshControl={
@@ -101,8 +102,8 @@ const MyBidsScreen = ({ navigation }) => {
                     !loading && (
                         <View style={styles.emptyContainer}>
                             <Ionicons name="file-tray-outline" size={64} color={theme.colors.text.disabled} />
-                            <Text style={styles.emptyText}>No bids placed yet.</Text>
-                            <Text style={styles.emptySubText}>Start bidding on crops to see them here.</Text>
+                            <Text style={styles.emptyText}>{t('no_bids_yet') || 'No bids placed yet.'}</Text>
+                            <Text style={styles.emptySubText}>{t('start_bidding') || 'Start bidding on crops to see them here.'}</Text>
                         </View>
                     )
                 }

@@ -408,16 +408,7 @@ const FarmerDashboard = ({ navigation }) => {
                         <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('VoiceAssistant')}>
-                        <View style={[styles.actionIcon, { backgroundColor: '#f57c00' }]}>
-                            <Ionicons name="mic" size={24} color="#fff" />
-                        </View>
-                        <View style={styles.actionTextContainer}>
-                            <Text style={styles.actionTitle}>{t('voice_assistant')}</Text>
-                            <Text style={styles.actionDesc}>{t('voice_assistant_desc')}</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
-                    </TouchableOpacity>
+
                 </View>
 
                 <View style={{ height: 20 }} />

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView, RefreshControl } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { governmentAPI } from '../../services/api';
 import { theme } from '../../styles/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 
 const GovernmentSchemes = ({ navigation }) => {
+    const { t } = useTranslation();
     const [schemes, setSchemes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -33,15 +35,23 @@ const GovernmentSchemes = ({ navigation }) => {
         setRefreshing(false);
     };
 
+    const handleNavigateToDetails = (item) => {
+        navigation.navigate('SchemeDetails', { scheme: item });
+    };
+
     const renderScheme = ({ item }) => (
-        <TouchableOpacity style={styles.card} activeOpacity={0.9}>
+        <TouchableOpacity
+            style={styles.card}
+            activeOpacity={0.9}
+            onPress={() => handleNavigateToDetails(item)}
+        >
             <View style={styles.cardHeader}>
                 <View style={styles.iconContainer}>
                     <Ionicons name="document-text-outline" size={24} color={theme.colors.primary} />
                 </View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.schemeName}>{item.name}</Text>
-                    <Text style={styles.ministry}>Ministry of Agriculture</Text>
+                    <Text style={styles.ministry}>{t('ministry_agriculture')}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color={theme.colors.text.secondary} />
             </View>
@@ -51,12 +61,12 @@ const GovernmentSchemes = ({ navigation }) => {
             <Text style={styles.description} numberOfLines={3}>{item.description}</Text>
 
             <View style={styles.benefitsContainer}>
-                <Text style={styles.benefitLabel}>Benefits:</Text>
+                <Text style={styles.benefitLabel}>{t('benefits_label')}</Text>
                 <Text style={styles.benefitValue}>{item.benefits}</Text>
             </View>
 
-            <TouchableOpacity style={styles.applyButton}>
-                <Text style={styles.applyButtonText}>View Details & Apply</Text>
+            <TouchableOpacity style={styles.applyButton} onPress={() => handleNavigateToDetails(item)}>
+                <Text style={styles.applyButtonText}>{t('view_details_apply')}</Text>
                 <Ionicons name="arrow-forward" size={16} color="#fff" />
             </TouchableOpacity>
         </TouchableOpacity>
@@ -72,14 +82,14 @@ const GovernmentSchemes = ({ navigation }) => {
                     <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                         <Ionicons name="arrow-back" size={24} color="#fff" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Government Schemes</Text>
+                    <Text style={styles.headerTitle}>{t('government_schemes')}</Text>
                     <View style={{ width: 24 }} />
                 </View>
             </LinearGradient>
 
             <FlatList
                 data={schemes}
-                keyExtractor={item => item.id}
+                keyExtractor={item => (item.id || item._id || '').toString()}
                 renderItem={renderScheme}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
@@ -90,7 +100,7 @@ const GovernmentSchemes = ({ navigation }) => {
                     !loading && (
                         <View style={styles.emptyContainer}>
                             <Ionicons name="document-outline" size={64} color={theme.colors.text.disabled} />
-                            <Text style={styles.emptyText}>No schemes available at the moment.</Text>
+                            <Text style={styles.emptyText}>{t('no_schemes')}</Text>
                         </View>
                     )
                 }

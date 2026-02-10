@@ -36,8 +36,7 @@ const en = {
     list_crop_desc: 'Upload crop details for sale',
     check_prices: 'Check Market Prices',
     check_prices_desc: 'View mandi rates & trends',
-    voice_assistant: 'Voice Assistant',
-    voice_assistant_desc: 'Speak to navigate or list',
+
     welcome_greeting: 'Namaste',
     welcome_subtitle: 'Welcome to your dashboard',
     partly_cloudy: 'Partly Cloudy',
@@ -49,6 +48,7 @@ const en = {
     schemes_tab: 'Schemes',
     profile_tab: 'Profile',
     browse_tab: 'Browse',
+    my_bids_tab: 'My Bids',
     // Weather
     weather_clear: 'Clear Sky',
     weather_cloudy: 'Partly Cloudy',
@@ -70,8 +70,6 @@ const en = {
     active_bids: 'Active Bids',
     accepted_bids: 'Accepted',
     browse_market: 'Browse Market',
-    voice_helper: 'Voice Helper',
-    choupal: 'Choupal',
     market_trends: 'Market Trends',
     view_chart: 'View Chart',
     buy_crops: 'Buy Crops',
@@ -140,7 +138,92 @@ const en = {
     try_adjusting_search: 'Try adjusting your search terms',
     details: 'Details',
     by: 'By',
-    grade: 'Grade'
+    grade: 'Grade',
+
+    // Price Dashboard
+    market_price_trends: 'Market Price Trends',
+    select_crop: 'Select Crop',
+    price_analysis: 'Price Analysis',
+    last_6_months: 'Last 6 Months',
+    recent_market_updates: 'Recent Market Updates',
+    no_recent_updates: 'No recent updates available.',
+    upward_trend: 'Upward',
+    downward_trend: 'Downward',
+    stable_trend: 'Stable',
+    trend_in_last_month: 'trend in last month',
+    six_month_analysis: '6-Month Analysis',
+    loading: 'Loading...',
+
+    // Government Schemes
+    government_schemes: 'Government Schemes',
+    ministry_agriculture: 'Ministry of Agriculture',
+    benefits_label: 'Benefits:',
+    view_details_apply: 'View Details & Apply',
+    no_schemes: 'No schemes available at the moment.',
+    scheme_details: 'Scheme Details',
+    eligibility: 'Eligibility',
+    apply_now: 'Apply Now',
+    apply_online: 'Apply Online',
+    scheme_info: 'Scheme Information',
+
+    // Login Errors
+    invalid_credentials: 'Invalid Credentials',
+    invalid_credentials_msg: 'The phone number or password you entered is incorrect. Please try again.',
+
+    // Validation
+    phone_invalid: 'Phone number must be exactly 10 digits',
+    email_invalid: 'Please enter a valid email address',
+
+    // Crop Details Screen (Buyer side)
+    current_price: 'Current Price',
+    quality: 'Quality',
+    variety_label: 'Variety',
+    description_label: 'Description',
+    no_description: 'No description available.',
+    location: 'Location',
+    farmer_label: 'Farmer',
+    place_a_bid: 'Place a Bid',
+    enter_bid_amount: 'Enter amount (Min ₹{min})',
+    place_bid: 'Place Bid',
+    placing_bid: 'Placing Bid...',
+    bid_placed: 'Bid Placed!',
+    bid_placed_msg: 'You successfully placed a bid of ₹{amount} for {crop}.',
+    enter_bid_error: 'Enter bid amount',
+    bid_failed: 'Failed to place bid',
+    load_failed: 'Failed to load details',
+    crop_not_found: 'Crop not found',
+
+    // My Bids Screen (Buyer side)
+    my_bids: 'My Bids',
+    no_bids_yet: 'No bids placed yet.',
+    start_bidding: 'Start bidding on crops to see them here.',
+    my_bid_label: 'My Bid:',
+    date_label: 'Date:',
+    farmer_colon: 'Farmer:',
+
+    // Help & Support
+    need_help: 'Need immediate help?',
+    support_available: 'Our support team is available 24/7',
+    call_helpline: 'Call Helpline',
+    email_support: 'Email Support',
+    faq_title: 'Frequently Asked Questions',
+
+    // Scheme Details extra
+    required_documents: 'Required Documents',
+    how_to_apply: 'How to Apply',
+    important_dates: 'Important Dates',
+    scheme_coverage: 'Scheme Coverage',
+
+    // Select Role
+    select_role: 'Select Role',
+    i_am_a: 'I am a...',
+    sign_in: 'Sign In →',
+    dont_have_account: "Don't have an account?",
+    register_new_farm: 'Register New Farm',
+    forgot_password: 'Forgot Password?',
+    login_header: 'Login',
+    join_community: 'Join our community of farmers and buyers',
+    login_here: 'Login Here',
 };
 const resources = {
     en: {
@@ -164,7 +247,7 @@ const translateText = async (text, targetLang) => {
     try {
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
         const response = await axios.get(url);
-        // Response format: [[["Translated Text","Source Text",...],...],...]
+        // Response format: [[["Translated Text","Source Text",...],...],...] 
         if (response.data && response.data[0] && response.data[0][0] && response.data[0][0][0]) {
             return response.data[0][0][0];
         }

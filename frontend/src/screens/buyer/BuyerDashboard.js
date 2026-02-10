@@ -40,7 +40,6 @@ const BuyerDashboard = ({ navigation }) => {
 
     const fetchStats = async () => {
         try {
-            // In a real app, this would be a dedicated stats endpoint
             const response = await api.get('/market/my-bids');
             const bids = response.data.bids || [];
 
@@ -113,7 +112,7 @@ const BuyerDashboard = ({ navigation }) => {
                 >
                     <View style={styles.modalContent}>
                         <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Select Language</Text>
+                            <Text style={styles.modalTitle}>{t('change_language') || 'Select Language'}</Text>
                             <TouchableOpacity onPress={() => setModalVisible(false)}>
                                 <Ionicons name="close" size={24} color={theme.colors.text.secondary} />
                             </TouchableOpacity>
@@ -181,18 +180,6 @@ const BuyerDashboard = ({ navigation }) => {
                         color={theme.colors.secondary}
                         onPress={() => navigation.navigate('Prices')}
                     />
-                    <QuickAction
-                        icon="mic"
-                        title={t('voice_helper')}
-                        color="#0288d1"
-                        onPress={() => navigation.navigate('VoiceAssistant')}
-                    />
-                    <QuickAction
-                        icon="chatbubbles"
-                        title={t('choupal')}
-                        color="#7b1fa2"
-                        onPress={() => navigation.navigate('Community')}
-                    />
                 </View>
 
                 {/* Featured / Trending Section (Mock) */}
@@ -239,7 +226,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: 20,
-        paddingTop: 50, // For status bar
+        paddingTop: 50,
         paddingBottom: 20,
         backgroundColor: theme.colors.surface,
         borderBottomLeftRadius: theme.borderRadius.l,
@@ -274,7 +261,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 12,
         paddingVertical: 8,
-        backgroundColor: '#f1f8e9', // Light green background
+        backgroundColor: '#f1f8e9',
         borderRadius: 20,
         marginRight: 10,
         borderWidth: 1,
@@ -349,7 +336,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     actionCard: {
-        width: (width - 50) / 2, // Calculated width for 2 columns with spacing
+        width: (width - 50) / 2,
         backgroundColor: theme.colors.surface,
         padding: 15,
         borderRadius: theme.borderRadius.m,

@@ -22,20 +22,62 @@ const RegisterScreen = ({ navigation }) => {
     const isDesktop = width >= 768;
     const [loading, setLoading] = useState(false);
     const [secretKey, setSecretKey] = useState('');
+    const [phoneError, setPhoneError] = useState('');
+    const [emailError, setEmailError] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         password: '',
-        email: '', // Note: Backend validatos might need to be checked if email is actually used
+        email: '',
         user_type: 'farmer'
     });
     const dispatch = useDispatch();
+
+    const validatePhone = (value) => {
+        const digitsOnly = value.replace(/[^0-9]/g, '');
+        setFormData({ ...formData, phone: digitsOnly });
+        if (digitsOnly.length > 0 && digitsOnly.length !== 10) {
+            setPhoneError(t('phone_invalid') || 'Phone number must be exactly 10 digits');
+        } else {
+            setPhoneError('');
+        }
+    };
+
+    const validateEmail = (value) => {
+        setFormData({ ...formData, email: value });
+        if (value.length > 0) {
+            // Standard email regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) {
+                setEmailError(t('email_invalid') || 'Please enter a valid email address');
+            } else {
+                setEmailError('');
+            }
+        } else {
+            setEmailError('');
+        }
+    };
 
     const handleRegister = async () => {
         try {
             if (!formData.name || !formData.phone || !formData.password) {
                 Alert.alert('Error', t('error_fill_fields'));
                 return;
+            }
+
+            // Validate phone is exactly 10 digits
+            if (formData.phone.length !== 10) {
+                setPhoneError(t('phone_invalid') || 'Phone number must be exactly 10 digits');
+                return;
+            }
+
+            // Validate email if provided
+            if (formData.email.length > 0) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(formData.email)) {
+                    setEmailError(t('email_invalid') || 'Please enter a valid email address');
+                    return;
+                }
             }
 
             // Security Check for Admin
@@ -79,10 +121,10 @@ const RegisterScreen = ({ navigation }) => {
                                 <Text style={styles.logoIcon}>🌱</Text>
                             </LinearGradient>
                             <Text style={styles.title}>{t('register')}</Text>
-                            <Text style={styles.subtitle}>Join our community of farmers and buyers</Text>
+                            <Text style={styles.subtitle}>{t('join_community') || 'Join our community of farmers and buyers'}</Text>
                         </View>
 
-                        <Text style={styles.label}>I am a...</Text>
+                        <Text style={styles.label}>{t('i_am_a') || 'I am a...'}</Text>
                         <View style={styles.roleSelector}>
                             {['farmer', 'buyer', 'admin'].map((type) => (
                                 <TouchableOpacity
@@ -126,19 +168,20 @@ const RegisterScreen = ({ navigation }) => {
                             label={t('phone_placeholder') || 'Phone Number'}
                             placeholder="Enter your phone number"
                             value={formData.phone}
-                            onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                            onChangeText={validatePhone}
                             keyboardType="phone-pad"
                             icon="📞"
+                            error={phoneError}
                         />
 
-                        {/* Including Email even if optional/unused by backend just to match UI if needed */}
                         <StyledInput
                             label={t('email_placeholder') || 'Email Address (Optional)'}
                             placeholder="name@example.com"
                             value={formData.email}
-                            onChangeText={(text) => setFormData({ ...formData, email: text })}
+                            onChangeText={validateEmail}
                             keyboardType="email-address"
                             icon="✉️"
+                            error={emailError}
                         />
 
                         <StyledInput
@@ -160,7 +203,7 @@ const RegisterScreen = ({ navigation }) => {
                         <View style={styles.loginContainer}>
                             <Text style={styles.loginText}>{t('have_account') || 'Already have an account?'} </Text>
                             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                                <Text style={styles.loginLink}>Login Here</Text>
+                                <Text style={styles.loginLink}>{t('login_here') || 'Login Here'}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>

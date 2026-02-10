@@ -67,7 +67,7 @@ const MyCropsScreen = ({ navigation }) => {
     const renderCropItem = ({ item }) => (
         <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('CropDetails', { cropId: item.id })}
+            onPress={() => navigation.navigate('CropDetails', { id: item.id || item._id })}
             activeOpacity={0.9}
         >
             <View style={styles.cardHeader}>
@@ -157,7 +157,7 @@ const MyCropsScreen = ({ navigation }) => {
                 <FlatList
                     data={crops}
                     renderItem={renderCropItem}
-                    keyExtractor={item => item.id || item._id}
+                    keyExtractor={item => (item.id || item._id || '').toString()}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     refreshControl={

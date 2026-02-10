@@ -34,13 +34,17 @@ const MarketScreen = ({ navigation }) => {
         loadCrops();
     };
 
+    const handleNavigateToDetails = (item) => {
+        navigation.navigate('CropDetails', { id: item.id || item._id });
+    };
+
     const renderItem = ({ item }) => {
         if (!item) return null;
 
         return (
             <TouchableOpacity
                 style={styles.card}
-                onPress={() => navigation.navigate('CropDetails', { id: item.id || item._id })}
+                onPress={() => handleNavigateToDetails(item)}
                 activeOpacity={0.9}
             >
                 <View style={styles.cardHeader}>
@@ -80,7 +84,7 @@ const MarketScreen = ({ navigation }) => {
                             {item?.status?.toUpperCase()}
                         </Text>
                     </View>
-                    <TouchableOpacity style={styles.detailsButton}>
+                    <TouchableOpacity style={styles.detailsButton} onPress={() => handleNavigateToDetails(item)}>
                         <Text style={styles.detailsButtonText}>{t('details')}</Text>
                         <Ionicons name="arrow-forward" size={14} color={theme.colors.primary} />
                     </TouchableOpacity>
