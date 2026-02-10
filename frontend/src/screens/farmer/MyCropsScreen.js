@@ -47,17 +47,17 @@ const MyCropsScreen = ({ navigation }) => {
 
     const handleDelete = (cropId) => {
         Alert.alert(
-            "Delete Listing",
-            "Are you sure you want to remove this crop from the market?",
+            t('delete_listing'),
+            t('delete_confirm'),
             [{
-                text: "Cancel",
+                text: t('cancel'),
                 style: "cancel"
             },
             {
-                text: "Delete",
+                text: t('delete'),
                 style: "destructive",
                 onPress: async () => {
-                    Alert.alert("Info", "Delete feature coming soon");
+                    Alert.alert("Info", t('delete_soon'));
                 }
             }
             ]
@@ -98,7 +98,7 @@ const MyCropsScreen = ({ navigation }) => {
             <View style={styles.cardBody}>
                 <View style={styles.infoColumn}>
                     <View style={styles.infoRow}>
-                        <Ionicons name="scale-outline" size={16} color={theme.colors.text.secondary} />
+                        <Ionicons name="cube-outline" size={16} color={theme.colors.text.secondary} />
                         <Text style={styles.infoText}>{item.quantity} {item.unit}</Text>
                     </View>
                     <View style={styles.infoRow}>
@@ -109,18 +109,18 @@ const MyCropsScreen = ({ navigation }) => {
                 <View style={styles.infoColumn}>
                     <View style={styles.infoRow}>
                         <Ionicons name="eye-outline" size={16} color={theme.colors.text.secondary} />
-                        <Text style={styles.infoText}>{item.view_count || 0} Views</Text>
+                        <Text style={styles.infoText}>{item.view_count || 0} {t('views')}</Text>
                     </View>
                     <View style={styles.infoRow}>
                         <Ionicons name="hammer-outline" size={16} color={theme.colors.text.secondary} />
-                        <Text style={styles.infoText}>{item.bid_count || 0} Bids</Text>
+                        <Text style={styles.infoText}>{item.bid_count || 0} {t('bids')}</Text>
                     </View>
                 </View>
             </View>
 
             <View style={styles.cardFooter}>
-                <Text style={styles.dateText}>Listed {new Date(item.created_at).toLocaleDateString()}</Text>
-                <TouchableOpacity style={styles.actionButton} onPress={() => handleDelete(item.id)}>
+                <Text style={styles.dateText}>{t('listed_date')} {new Date(item.created_at).toLocaleDateString()}</Text>
+                <TouchableOpacity style={styles.actionButton} onPress={() => handleDelete(item.id || item._id)}>
                     <Ionicons name="trash-outline" size={18} color={theme.colors.error} />
                 </TouchableOpacity>
             </View>
@@ -133,7 +133,7 @@ const MyCropsScreen = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.title}>{t('active_listings')}</Text>
+                <Text style={styles.title}>{t('my_active_listings')}</Text>
                 <TouchableOpacity
                     style={styles.addButton}
                     onPress={() => navigation.navigate('CropListing')}
@@ -151,13 +151,13 @@ const MyCropsScreen = ({ navigation }) => {
             {loading ? (
                 <View style={styles.center}>
                     <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={{ marginTop: 10, color: theme.colors.text.secondary }}>Loading your crops...</Text>
+                    <Text style={{ marginTop: 10, color: theme.colors.text.secondary }}>{t('loading_market')}</Text>
                 </View>
             ) : (
                 <FlatList
                     data={crops}
                     renderItem={renderCropItem}
-                    keyExtractor={item => item.id}
+                    keyExtractor={item => item.id || item._id}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
@@ -172,8 +172,8 @@ const MyCropsScreen = ({ navigation }) => {
                             <View style={styles.emptyIconContainer}>
                                 <Ionicons name="leaf-outline" size={64} color={theme.colors.text.disabled} />
                             </View>
-                            <Text style={styles.emptyTitle}>No Active Listings</Text>
-                            <Text style={styles.emptyText}>You haven't listed any crops for sale yet.</Text>
+                            <Text style={styles.emptyTitle}>{t('no_active_listings')}</Text>
+                            <Text style={styles.emptyText}>{t('no_active_listings_desc')}</Text>
                             <TouchableOpacity
                                 onPress={() => navigation.navigate('CropListing')}
                                 activeOpacity={0.8}
@@ -182,7 +182,7 @@ const MyCropsScreen = ({ navigation }) => {
                                     colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
                                     style={styles.primaryButton}
                                 >
-                                    <Text style={styles.primaryButtonText}>List Your First Crop</Text>
+                                    <Text style={styles.primaryButtonText}>{t('list_first_crop')}</Text>
                                     <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
                                 </LinearGradient>
                             </TouchableOpacity>

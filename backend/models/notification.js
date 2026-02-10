@@ -1,43 +1,43 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const Notification = sequelize.define('notification', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
-    },
-    user_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+const NotificationSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
     },
     title: {
-        type: DataTypes.STRING(100),
-        allowNull: false
+        type: String,
+        required: true,
+        trim: true
     },
     message: {
-        type: DataTypes.TEXT,
-        allowNull: false
+        type: String,
+        required: true
     },
     type: {
-        type: DataTypes.STRING(50), // e.g., 'bid', 'system', 'price_alert'
-        defaultValue: 'system'
+        type: String,
+        enum: ['info', 'success', 'warning', 'error', 'bid', 'order', 'scheme'],
+        default: 'info'
+    },
+    action_link: String,
+    metadata: {
+        type: Map,
+        of: String
     },
     is_read: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
+        type: Boolean,
+        default: false
     }
 }, {
-    tableName: 'notifications',
-    timestamps: false
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = Notification;
+NotificationSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+module.exports = mongoose.model('Notification', NotificationSchema);

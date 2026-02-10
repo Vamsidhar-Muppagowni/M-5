@@ -1,74 +1,49 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const mongoose = require('mongoose');
 
-const Bid = sequelize.define('bid', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true
+const BidSchema = new mongoose.Schema({
+    crop: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Crop',
+        required: true,
+        index: true
     },
-    crop_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'crops',
-            key: 'id'
-        }
+    buyer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
     },
-    buyer_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-            model: 'users',
-            key: 'id'
-        }
+    farmer: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        index: true
     },
     amount: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
-    },
-    message: {
-        type: DataTypes.TEXT,
-        allowNull: true
+        type: Number,
+        required: true,
+        min: 0
     },
     status: {
-        type: DataTypes.ENUM('pending', 'accepted', 'rejected', 'countered', 'expired'),
-        defaultValue: 'pending'
+        type: String,
+        enum: ['pending', 'accepted', 'rejected', 'countered'],
+        default: 'pending',
+        index: true
     },
-    counter_amount: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: true
-    },
-    negotiation_history: {
-        type: DataTypes.JSONB,
-        defaultValue: []
-    },
-    is_highest: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    created_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW
-    }
+    message: String,
+
+    // Counter offer details (optional, if status is countered)
+    counter_amount: Number,
+    counter_message: String
+
 }, {
-    tableName: 'bids',
-    timestamps: false,
-    indexes: [
-        {
-            fields: ['crop_id']
-        },
-        {
-            fields: ['buyer_id']
-        },
-        {
-            fields: ['status']
-        }
-    ]
+    timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true }
 });
 
-module.exports = Bid;
+BidSchema.virtual('id').get(function () {
+    return this._id.toHexString();
+});
+
+module.exports = mongoose.model('Bid', BidSchema);

@@ -63,10 +63,85 @@ const en = {
     change_language: 'Change Language',
     help_support: 'Help & Support',
     logout: 'Logout',
-    logout_confirm: 'Are you sure you want to logout?'
-};
+    logout_confirm: 'Are you sure you want to logout?',
+    // Buyer Dashboard
+    welcome_back: 'Welcome back',
+    marketplace_dashboard: 'Marketplace Dashboard',
+    active_bids: 'Active Bids',
+    accepted_bids: 'Accepted',
+    browse_market: 'Browse Market',
+    voice_helper: 'Voice Helper',
+    choupal: 'Choupal',
+    market_trends: 'Market Trends',
+    view_chart: 'View Chart',
+    buy_crops: 'Buy Crops',
+    buyer_stat_active: 'Active',
+    buyer_stat_accepted: 'Accepted',
 
-// Only English is hardcoded
+    // Roles
+    role_farmer: 'FARMER',
+    role_buyer: 'BUYER',
+    role_admin: 'ADMIN',
+    unknown_role: 'USER',
+
+    // Crop Listing
+    crop_details: 'Crop Details',
+    crop_name: 'Crop Name',
+    crop_name_placeholder: 'e.g. Wheat, Rice',
+    variety: 'Variety (Optional)',
+    variety_placeholder: 'e.g. Basmati',
+    quantity: 'Quantity',
+    unit: 'Unit',
+    expected_price: 'Expected Price (₹)',
+    min_price_placeholder: 'Minimum price',
+    quality_grade: 'Quality Grade',
+    description: 'Description',
+    description_placeholder: 'Additional details about the crop...',
+    district: 'District',
+    district_placeholder: 'e.g. Guntur',
+    list_crop_button: 'List Crop Market',
+    listing: 'Listing...',
+    crop_listed_success: 'Crop Listed!',
+    crop_listed_message: 'Your crop has been successfully added to the marketplace.',
+    back_to_dashboard: 'Back to Dashboard',
+    fill_required: 'Please fill required fields',
+
+    // My Crops
+    my_active_listings: 'My Active Listings',
+    no_active_listings: 'No Active Listings',
+    no_active_listings_desc: "You haven't listed any crops for sale yet.",
+    list_first_crop: 'List Your First Crop',
+    views: 'Views',
+    bids: 'Bids',
+    listed_date: 'Listed',
+    delete_listing: 'Delete Listing',
+    delete_confirm: 'Are you sure you want to remove this crop from the market?',
+    delete_soon: 'Delete feature coming soon',
+    cancel: 'Cancel',
+    delete: 'Delete',
+
+    // Pending Bids
+    pending_bids_title: 'Pending Bids',
+    no_pending_bids: 'No pending bids found',
+    buyer: 'Buyer',
+    min: 'Min',
+    qty: 'Qty',
+    offer: 'Offer',
+    accept: 'Accept',
+    reject: 'Reject',
+    bid_accepted: 'Bid Accepted Successfully!',
+    bid_rejected: 'Bid Rejected.',
+    failed_to_fetch_bids: 'Failed to fetch bids',
+
+    // Market
+    search_placeholder: 'Search crops, farmers...',
+    loading_market: 'Loading Marketplace...',
+    no_crops_found: 'No crops found',
+    try_adjusting_search: 'Try adjusting your search terms',
+    details: 'Details',
+    by: 'By',
+    grade: 'Grade'
+};
 const resources = {
     en: {
         translation: en

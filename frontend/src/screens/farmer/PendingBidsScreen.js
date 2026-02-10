@@ -4,9 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { marketAPI } from '../../services/api';
 import { theme } from '../../styles/theme';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import SuccessModal from '../../components/SuccessModal';
 
 const PendingBidsScreen = ({ navigation }) => {
+    const { t } = useTranslation();
     const [bids, setBids] = useState([]);
     const [loading, setLoading] = useState(true);
     const [refreshing, setRefreshing] = useState(false);
@@ -20,7 +22,7 @@ const PendingBidsScreen = ({ navigation }) => {
             setBids(response.data.bids);
         } catch (error) {
             console.error(error);
-            Alert.alert('Error', 'Failed to fetch bids');
+            Alert.alert('Error', t('failed_to_fetch_bids'));
         } finally {
             setLoading(false);
         }
@@ -44,7 +46,7 @@ const PendingBidsScreen = ({ navigation }) => {
                 action: action
             });
 
-            setModalMessage(action === 'accept' ? 'Bid Accepted Successfully!' : 'Bid Rejected.');
+            setModalMessage(action === 'accept' ? t('bid_accepted') : t('bid_rejected'));
             setSuccessModalVisible(true);
 
             // Remove from list locally for instant feedback
@@ -63,18 +65,18 @@ const PendingBidsScreen = ({ navigation }) => {
             <View style={styles.cardHeader}>
                 <View>
                     <Text style={styles.cropName}>{item.crop?.name || item.Crop?.name || 'Unknown Crop'}</Text>
-                    <Text style={styles.buyerName}>Buyer: {item.buyer?.name || 'Unknown'}</Text>
+                    <Text style={styles.buyerName}>{t('buyer')}: {item.buyer?.name || 'Unknown'}</Text>
                 </View>
                 <View style={styles.priceContainer}>
                     <Text style={styles.bidAmount}>₹{item.amount}</Text>
-                    <Text style={styles.minPrice}>Min: ₹{item.crop?.min_price || item.Crop?.min_price}</Text>
+                    <Text style={styles.minPrice}>{t('min')}: ₹{item.crop?.min_price || item.Crop?.min_price}</Text>
                 </View>
             </View>
 
             <View style={styles.divider} />
 
             <View style={styles.detailsContainer}>
-                <Text style={styles.quantity}>Qty: {item.crop?.quantity || item.Crop?.quantity || '--'} {item.crop?.unit || item.Crop?.unit}</Text>
+                <Text style={styles.quantity}>{t('qty')}: {item.crop?.quantity || item.Crop?.quantity || '--'} {item.crop?.unit || item.Crop?.unit}</Text>
                 <Text style={styles.date}>{new Date(item.created_at).toLocaleDateString()}</Text>
             </View>
 
@@ -85,7 +87,7 @@ const PendingBidsScreen = ({ navigation }) => {
                     disabled={processingId === item.id}
                 >
                     <Ionicons name="close-circle-outline" size={20} color="#EF4444" />
-                    <Text style={styles.rejectText}>Reject</Text>
+                    <Text style={styles.rejectText}>{t('reject')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -98,7 +100,7 @@ const PendingBidsScreen = ({ navigation }) => {
                     ) : (
                         <>
                             <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
-                            <Text style={styles.acceptText}>Accept</Text>
+                            <Text style={styles.acceptText}>{t('accept')}</Text>
                         </>
                     )}
                 </TouchableOpacity>
@@ -120,7 +122,7 @@ const PendingBidsScreen = ({ navigation }) => {
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Pending Bids</Text>
+                <Text style={styles.headerTitle}>{t('pending_bids_title')}</Text>
                 <View style={{ width: 24 }} />
             </View>
 
@@ -135,7 +137,7 @@ const PendingBidsScreen = ({ navigation }) => {
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
                         <Ionicons name="documents-outline" size={64} color={theme.colors.text.disabled} />
-                        <Text style={styles.emptyText}>No pending bids found</Text>
+                        <Text style={styles.emptyText}>{t('no_pending_bids')}</Text>
                     </View>
                 }
             />
@@ -146,8 +148,7 @@ const PendingBidsScreen = ({ navigation }) => {
                 message={modalMessage}
                 onClose={() => setSuccessModalVisible(false)}
                 buttonText="OK"
-            />
-        </View>
+            />        </View>
     );
 };
 

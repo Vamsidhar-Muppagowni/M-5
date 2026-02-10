@@ -4,12 +4,13 @@ exports.getStats = async (req, res) => {
     try {
         const buyerId = req.user.id;
 
-        const activeBids = await Bid.count({
-            where: { buyer_id: buyerId, status: 'pending' }
+        const activeBids = await Bid.countDocuments({
+            buyer: buyerId,
+            status: 'pending'
         });
 
-        const completedPurchases = await Transaction.count({
-            where: { buyer_id: buyerId }
+        const completedPurchases = await Transaction.countDocuments({
+            buyer: buyerId
         });
 
         res.json({

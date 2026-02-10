@@ -34,6 +34,8 @@ import ProfileScreen from './src/screens/profile/ProfileScreen';
 import VoiceAssistant from './src/screens/voice/VoiceAssistant';
 import CommunityScreen from './src/screens/community/CommunityScreen';
 import PendingBidsScreen from './src/screens/farmer/PendingBidsScreen';
+import EditProfileScreen from './src/screens/profile/EditProfileScreen';
+import HelpSupportScreen from './src/screens/profile/HelpSupportScreen';
 
 // Import services
 import { initI18n } from './src/services/language';
@@ -278,6 +280,16 @@ export default function App() {
                                 <Stack.Screen
                                     name="VoiceAssistant"
                                     component={VoiceAssistant}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="EditProfile"
+                                    component={EditProfileScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="HelpSupport"
+                                    component={HelpSupportScreen}
                                     options={{ headerShown: false }}
                                 />
                             </Stack.Navigator>

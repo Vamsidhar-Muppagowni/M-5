@@ -1,19 +1,19 @@
-const { Crop, Bid, Transaction, User, PriceHistory, sequelize } = require('../models');
+const { Crop, Bid, User, PriceHistory, FarmerProfile } = require('../models');
 const redisClient = require('../config/redis');
 const smsService = require('../services/smsService');
 const mlService = require('../services/mlService');
-const { Op } = require('sequelize');
+const mongoose = require('mongoose');
 
 // Helper for seeding data if empty
 const seedMarketData = async () => {
     try {
-        const cropCount = await Crop.count();
+        const cropCount = await Crop.countDocuments();
         if (cropCount > 0) return;
 
         console.log('Seeding market data...');
 
         // Find a farmer to assign crops to
-        let farmer = await User.findOne({ where: { user_type: 'farmer' } });
+        let farmer = await User.findOne({ user_type: 'farmer' });
         if (!farmer) {
             // Create a dummy farmer if none exists
             farmer = await User.create({
@@ -22,9 +22,9 @@ const seedMarketData = async () => {
                 password: 'password123',
                 user_type: 'farmer',
                 location: { district: 'Guntur', state: 'Andhra Pradesh' },
-                is_verified: true
+                is_active: true
             });
-            await require('../models/farmerProfile').create({ user_id: farmer.id });
+            await FarmerProfile.create({ user: farmer._id });
         }
 
         const crops = [
@@ -77,12 +77,11 @@ const seedMarketData = async () => {
         for (const cropData of crops) {
             await Crop.create({
                 ...cropData,
-                farmer_id: farmer.id
+                farmer: farmer._id
             });
         }
 
         // Seed Price History for Chart
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
         const basePrices = { 'Wheat': 2000, 'Rice': 2500, 'Cotton': 5000, 'Chilli': 15000 };
 
         for (const cropName of Object.keys(basePrices)) {
@@ -111,7 +110,8 @@ const seedMarketData = async () => {
 };
 
 exports.listCrop = async (req, res) => {
-    const transaction = await sequelize.transaction();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
         const farmerId = req.user.id;
@@ -142,8 +142,8 @@ exports.listCrop = async (req, res) => {
             finalPrice = recommendedPrice || min_price;
         }
 
-        const crop = await Crop.create({
-            farmer_id: farmerId,
+        const crop = await Crop.create([{
+            farmer: farmerId,
             name,
             variety,
             quantity: parseFloat(quantity),
@@ -157,7 +157,7 @@ exports.listCrop = async (req, res) => {
             expiry_date,
             bid_end_date,
             status: 'listed'
-        }, { transaction });
+        }], { session });
 
         // Get price prediction for this crop
         const pricePrediction = await mlService.predictPrice({
@@ -166,15 +166,17 @@ exports.listCrop = async (req, res) => {
             days: 7
         });
 
-        await transaction.commit();
+        await session.commitTransaction();
+        session.endSession();
 
         res.status(201).json({
             message: 'Crop listed successfully',
-            crop,
+            crop: crop[0],
             price_prediction: pricePrediction
         });
     } catch (error) {
-        await transaction.rollback();
+        await session.abortTransaction();
+        session.endSession();
         console.error('List crop error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -200,98 +202,59 @@ exports.getCrops = async (req, res) => {
 
         const limitInt = parseInt(limit) || 10;
         const pageInt = parseInt(page) || 1;
-        const offset = (pageInt - 1) * limitInt;
+        const skip = (pageInt - 1) * limitInt;
 
-        const where = { status };
+        const query = { status };
 
         // Apply filters
         if (search) {
-            where[Op.or] = [
-                { name: { [Op.like]: `%${search}%` } }, // SQLite uses LIKE
-                { description: { [Op.like]: `%${search}%` } },
-                { variety: { [Op.like]: `%${search}%` } }
+            query.$or = [
+                { name: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } },
+                { variety: { $regex: search, $options: 'i' } }
             ];
         }
 
         if (crop_name) {
-            where.name = { [Op.like]: `%${crop_name}%` };
+            query.name = { $regex: crop_name, $options: 'i' };
         }
 
         if (min_price || max_price) {
-            where.current_price = {};
-            if (min_price) where.current_price[Op.gte] = parseFloat(min_price);
-            if (max_price) where.current_price[Op.lte] = parseFloat(max_price);
+            query.current_price = {};
+            if (min_price) query.current_price.$gte = parseFloat(min_price);
+            if (max_price) query.current_price.$lte = parseFloat(max_price);
         }
 
         if (quality) {
-            where.quality_grade = quality;
+            query.quality_grade = quality;
         }
 
         if (farmer_id) {
-            where.farmer_id = farmer_id;
+            query.farmer = farmer_id;
         }
 
-        const { count, rows: cropList } = await Crop.findAndCountAll({
-            where,
-            limit: limitInt,
-            offset: offset,
-            order: [['created_at', 'DESC']],
-            include: [
-                {
-                    model: User,
-                    as: 'farmer',
-                    attributes: ['id', 'name', 'phone', 'location']
-                },
-                {
-                    model: Bid,
-                    limit: 5,
-                    order: [['amount', 'DESC']],
-                    include: [
-                        {
-                            model: User,
-                            as: 'buyer',
-                            attributes: ['id', 'name', 'phone']
-                        }
-                    ]
-                }
-            ]
-        });
+        const totalItems = await Crop.countDocuments(query);
+        const crops = await Crop.find(query)
+            .sort({ created_at: -1 })
+            .skip(skip)
+            .limit(limitInt)
+            .populate('farmer', 'name phone location')
+            // To get top 5 bids, Mongoose needs virtual populate or separate query
+            // For simplicity, we won't embed top bids in listing view to save bandwidth
+            // unless essential. If needed, we'd do aggregation.
+            // Let's rely on getCropDetails for bids.
+            .lean();
 
-        // Format for frontend
-        const crops = cropList.map(c => {
-            const json = c.toJSON();
+        // Manual mapping if needed, but lean() + populate works well
 
-            // Ensure location is an object if it's a string (SQLite JSON storage quirk sometimes)
-            let loc = json.location;
-            if (typeof loc === 'string') {
-                try { loc = JSON.parse(loc); } catch (e) { }
-            }
-
-            return {
-                id: json.id,
-                name: json.name,
-                current_price: json.current_price,
-                unit: json.unit,
-                quantity: json.quantity,
-                quality_grade: json.quality_grade,
-                status: json.status,
-                location: loc,
-                farmer: json.farmer,
-                // Additional fields if needed
-                description: json.description,
-                created_at: json.created_at
-            };
-        });
-
-        // Calculate total pages safely
-        const totalPages = Math.ceil(count / limitInt) || 0;
+        const totalPages = Math.ceil(totalItems / limitInt) || 0;
 
         res.json({
             crops,
             pagination: {
                 page: pageInt,
-                totalPages: totalPages,
-                totalItems: count
+                totalPages,
+                totalItems
             }
         });
     } catch (error) {
@@ -304,42 +267,37 @@ exports.getCropDetails = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const crop = await Crop.findByPk(id, {
-            include: [
-                {
-                    model: User,
-                    as: 'farmer',
-                    attributes: ['id', 'name', 'phone', 'location'],
-                    include: [
-                        {
-                            model: require('../models/farmerProfile'),
-                            as: 'farmer_profile', // explicit alias matching index.js usually
-                            attributes: ['experience_years', 'primary_crops', 'farm_size'],
-                            required: false
-                        }
-                    ]
-                },
-                {
-                    model: Bid,
-                    limit: 5,
-                    order: [['amount', 'DESC']],
-                    include: [
-                        {
-                            model: User,
-                            as: 'buyer',
-                            attributes: ['id', 'name', 'phone']
-                        }
-                    ]
+        // basic validation for ObjectId
+        if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: 'Invalid crop ID' });
+        }
+
+        // In Mongoose, getting top 5 bids requires specific query logic often not simple 'populate' with limit/sort
+        // We can do a second query for bids
+        const crop = await Crop.findById(id)
+            .populate({
+                path: 'farmer',
+                select: 'name phone location',
+                populate: {
+                    path: 'farmerProfile', // This is a virtual if defined in User, or use direct query
+                    // In my User model I added farmerProfile as direct ref
+                    select: 'experience_years farm_size major_crops'
                 }
-            ]
-        });
+            });
 
         if (!crop) {
             return res.status(404).json({ error: 'Crop not found' });
         }
 
+        // Get bids separately to sort and limit
+        const bids = await Bid.find({ crop: id })
+            .sort({ amount: -1 })
+            .limit(5)
+            .populate('buyer', 'name phone');
+
         // Increment view count
-        await crop.increment('view_count');
+        crop.view_count += 1;
+        await crop.save();
 
         // Get market insights
         const insights = await mlService.getMarketInsights({
@@ -347,8 +305,11 @@ exports.getCropDetails = async (req, res) => {
             location: crop.location?.district
         });
 
+        const cropJson = crop.toJSON();
+        cropJson.bids = bids; // attach bids structure manually to match expected frontend
+
         res.json({
-            crop,
+            crop: cropJson,
             insights,
             similar_crops: await getSimilarCrops(crop)
         });
@@ -359,110 +320,108 @@ exports.getCropDetails = async (req, res) => {
 };
 
 exports.placeBid = async (req, res) => {
-    const transaction = await sequelize.transaction();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
         const buyerId = req.user.id;
         const { crop_id, amount, message } = req.body;
 
-        // Validate buyer is not the farmer
-        const crop = await Crop.findByPk(crop_id, { transaction });
+        const crop = await Crop.findById(crop_id).session(session);
         if (!crop) {
-            await transaction.rollback();
+            await session.abortTransaction();
             return res.status(404).json({ error: 'Crop not found' });
         }
 
-        if (crop.farmer_id === buyerId) {
-            await transaction.rollback();
+        if (crop.farmer.toString() === buyerId) {
+            await session.abortTransaction();
             return res.status(400).json({ error: 'You cannot bid on your own crop' });
         }
 
         if (crop.status !== 'listed') {
-            await transaction.rollback();
+            await session.abortTransaction();
             return res.status(400).json({ error: 'Crop is not available for bidding' });
         }
 
-        if (parseFloat(amount) < parseFloat(crop.min_price)) {
-            await transaction.rollback();
+        if (parseFloat(amount) < crop.min_price) {
+            await session.abortTransaction();
             return res.status(400).json({ error: 'Bid amount is below minimum price' });
         }
 
-        // Create bid
-        const bid = await Bid.create({
-            crop_id,
-            buyer_id: buyerId,
+        const bid = await Bid.create([{
+            crop: crop_id,
+            buyer: buyerId,
+            farmer: crop.farmer,
             amount: parseFloat(amount),
             message,
             status: 'pending'
-        }, { transaction });
+        }], { session });
 
-        // Update crop bid count and potentially current price
-        await crop.increment('bid_count', { transaction });
-        if (parseFloat(amount) > parseFloat(crop.current_price)) {
-            await crop.update({ current_price: amount }, { transaction });
+        crop.bid_count += 1;
+        if (parseFloat(amount) > crop.current_price) {
+            crop.current_price = parseFloat(amount);
         }
+        await crop.save({ session });
 
-        // Update highest bid logic is complex, skipping strict strict highest flag management for simplicity
-        // in this iteration, relying on queries to find highest.
-
-        await transaction.commit();
+        await session.commitTransaction();
+        session.endSession();
 
         res.status(201).json({
             message: 'Bid placed successfully',
-            bid
+            bid: bid[0]
         });
     } catch (error) {
-        if (!transaction.finished) {
-            await transaction.rollback();
+        if (session.inTransaction()) {
+            await session.abortTransaction();
         }
+        session.endSession();
         console.error('Place bid error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };
 
 exports.respondToBid = async (req, res) => {
-    const transaction = await sequelize.transaction();
+    const session = await mongoose.startSession();
+    session.startTransaction();
 
     try {
         const farmerId = req.user.id;
         const { bid_id, action, counter_amount } = req.body;
 
-        const bid = await Bid.findByPk(bid_id, {
-            include: [Crop]
-        });
+        const bid = await Bid.findById(bid_id).populate('crop').session(session);
 
         if (!bid) {
-            await transaction.rollback();
+            await session.abortTransaction();
             return res.status(404).json({ error: 'Bid not found' });
         }
 
-        if (bid.crop?.farmer_id !== farmerId && bid.Crop?.farmer_id !== farmerId) {
-            await transaction.rollback();
+        // Check ownership via crop relationship or direct farmer field on bid
+        if (bid.farmer.toString() !== farmerId) {
+            await session.abortTransaction();
             return res.status(403).json({ error: 'Not authorized' });
         }
 
-        const cropId = bid.crop_id; // Safer to use FK directly if available, or fetch from bid.crop/Crop
-
-        let updateData = {};
         if (action === 'accept') {
-            updateData = { status: 'accepted' };
-            await Crop.update({ status: 'reserved' }, { where: { id: bid.crop_id }, transaction });
+            bid.status = 'accepted';
+            // Mark crop as reserved
+            await Crop.findByIdAndUpdate(bid.crop._id, { status: 'reserved' }, { session });
         } else if (action === 'reject') {
-            updateData = { status: 'rejected' };
+            bid.status = 'rejected';
         } else if (action === 'counter') {
-            updateData = { status: 'countered', counter_amount };
+            bid.status = 'countered';
+            bid.counter_amount = counter_amount;
         }
 
-        await bid.update(updateData, { transaction });
-        await transaction.commit();
+        await bid.save({ session });
+        await session.commitTransaction();
+        session.endSession();
 
         res.json({ message: `Bid ${action}ed`, bid });
     } catch (error) {
-        try {
-            if (transaction && !transaction.finished) await transaction.rollback();
-        } catch (rollbackError) {
-            console.error('Rollback error:', rollbackError);
+        if (session.inTransaction()) {
+            await session.abortTransaction();
         }
+        session.endSession();
         console.error('Respond bid error', error);
         res.status(500).json({ error: 'Internal server error' });
     }
@@ -474,36 +433,25 @@ exports.getPriceHistory = async (req, res) => {
 
         let { crop } = req.query;
 
-        // 1. If no crop provided, default to the first available one in PriceHistory
         if (!crop) {
-            const firstEntry = await PriceHistory.findOne({
-                attributes: ['crop_name'],
-                order: [['date', 'DESC']]
-            });
+            const firstEntry = await PriceHistory.findOne().sort({ date: -1 });
             crop = firstEntry ? firstEntry.crop_name : 'Wheat';
         }
 
-        // 2. Calculate date range (Last 6 months)
         const endDate = new Date();
         const startDate = new Date();
         startDate.setMonth(startDate.getMonth() - 6);
 
-        // 3. Fetch history
-        const history = await PriceHistory.findAll({
-            where: {
-                crop_name: crop,
-                date: {
-                    [Op.gte]: startDate,
-                    [Op.lte]: endDate
-                }
-            },
-            order: [['date', 'ASC']]
-        });
+        const history = await PriceHistory.find({
+            crop_name: crop,
+            date: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        }).sort({ date: 1 });
 
-        // 4. Aggregate by month (Average price per month)
+        // Aggregate by month
         const monthlyData = {};
-
-        // Initialize last 6 months to ensure continuous labels even if missing data
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
             d.setMonth(d.getMonth() - i);
@@ -514,47 +462,31 @@ exports.getPriceHistory = async (req, res) => {
         history.forEach(record => {
             const d = new Date(record.date);
             const monthLabel = d.toLocaleString('default', { month: 'short' });
-
-            // Adjust to fit into our initialized windows or just use actual data
-            // For strict 6 months, using the record's actual month is better
             if (!monthlyData[monthLabel]) monthlyData[monthLabel] = { total: 0, count: 0 };
-
-            monthlyData[monthLabel].total += parseFloat(record.price);
+            monthlyData[monthLabel].total += record.price;
             monthlyData[monthLabel].count += 1;
         });
 
-        // 5. Format for Chart.js
         const finalLabels = [];
         const finalData = [];
 
-        // Re-construct labels based on chronological time to ensure sort order
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
             d.setMonth(d.getMonth() - i);
             const monthLabel = d.toLocaleString('default', { month: 'short' });
-
-            finalLabels.push(monthLabel); // "Sept", "Oct"
-
+            finalLabels.push(monthLabel);
             if (monthlyData[monthLabel] && monthlyData[monthLabel].count > 0) {
                 finalData.push(Math.round(monthlyData[monthLabel].total / monthlyData[monthLabel].count));
             } else {
-                // If no data for this month, carry forward previous or 0
                 finalData.push(finalData.length > 0 ? finalData[finalData.length - 1] : 0);
             }
         }
 
-        // 6. Return response
         res.json({
-            crop: crop,
+            crop,
             labels: finalLabels,
-            datasets: [
-                {
-                    data: finalData,
-                    strokeWidth: 2
-                }
-            ]
+            datasets: [{ data: finalData }]
         });
-
     } catch (error) {
         console.error('Get price history error:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -563,29 +495,21 @@ exports.getPriceHistory = async (req, res) => {
 
 exports.getRecentPrices = async (req, res) => {
     try {
-        // Return latest price entries provided solely for the "Recent Market Updates" list
-        // Frontend expects: [{ id, crop, price, date }]
-
-        const recent = await PriceHistory.findAll({
-            order: [['date', 'DESC']],
-            limit: 5
-        });
-
+        const recent = await PriceHistory.find().sort({ date: -1 }).limit(5);
         const formatted = recent.map(p => ({
-            id: p.id.toString(),
+            id: p._id.toString(),
             crop: p.crop_name,
-            price: p.price.toString(), // or formatted string
-            date: p.date // YYYY-MM-DD usually returned by sequelize DATEONLY
+            price: p.price.toString(),
+            date: p.date.toISOString().split('T')[0]
         }));
 
-        // Fallback if empty
         if (formatted.length === 0) {
-            const crops = await Crop.findAll({ limit: 5, order: [['updated_at', 'DESC']] });
+            const crops = await Crop.find().limit(5).sort({ updated_at: -1 });
             const fallback = crops.map(c => ({
-                id: c.id,
+                id: c._id,
                 crop: c.name,
                 price: c.current_price,
-                date: new Date(c.updated_at).toISOString().split('T')[0]
+                date: c.updated_at.toISOString().split('T')[0]
             }));
             return res.json(fallback);
         }
@@ -600,24 +524,13 @@ exports.getRecentPrices = async (req, res) => {
 exports.getFarmerReceivedBids = async (req, res) => {
     try {
         const farmerId = req.user.id;
-
-        // Find all bids for crops owned by this farmer
-        const bids = await Bid.findAll({
-            where: { status: 'pending' },
-            include: [
-                {
-                    model: Crop,
-                    where: { farmer_id: farmerId },
-                    attributes: ['id', 'name', 'status', 'current_price', 'min_price', 'unit']
-                },
-                {
-                    model: User,
-                    as: 'buyer', // Assuming alias is 'buyer' from other controller methods
-                    attributes: ['id', 'name', 'phone', 'location']
-                }
-            ],
-            order: [['created_at', 'DESC']]
-        });
+        const bids = await Bid.find({
+            farmer: farmerId,
+            status: 'pending'
+        })
+            .sort({ created_at: -1 })
+            .populate('crop', 'name status current_price min_price unit')
+            .populate('buyer', 'name phone location');
 
         res.json({ bids });
     } catch (error) {
@@ -626,16 +539,33 @@ exports.getFarmerReceivedBids = async (req, res) => {
     }
 };
 
-// Helper function
+
+exports.getBuyerBids = async (req, res) => {
+    try {
+        const buyerId = req.user.id;
+        const bids = await Bid.find({ buyer: buyerId })
+            .sort({ created_at: -1 })
+            .populate({
+                path: 'crop',
+                select: 'name min_price current_price unit status images',
+                populate: {
+                    path: 'farmer',
+                    select: 'name phone'
+                }
+            });
+
+        res.json({ bids });
+    } catch (error) {
+        console.error('Get buyer bids error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 async function getSimilarCrops(crop) {
-    return await Crop.findAll({
-        where: {
-            name: crop.name,
-            id: { [Op.ne]: crop.id },
-            status: 'listed'
-        },
-        limit: 5,
-        order: [['created_at', 'DESC']]
-    });
+    return await Crop.find({
+        name: crop.name,
+        _id: { $ne: crop._id },
+        status: 'listed'
+    }).limit(5).sort({ created_at: -1 });
 }
 
