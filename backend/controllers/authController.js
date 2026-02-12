@@ -236,21 +236,28 @@ exports.updateProfile = async (req, res) => {
         const userId = req.user.id;
         const updates = req.body;
 
+        console.log('[Auth] Update profile request for user:', userId);
+        console.log('[Auth] Update payload:', JSON.stringify(updates, null, 2));
+
         delete updates.password;
         delete updates.phone;
         delete updates.user_type;
+
+        console.log('[Auth] Sanitized updates:', JSON.stringify(updates, null, 2));
 
         const user = await User.findByIdAndUpdate(userId, updates, {
             new: true,
             runValidators: true
         });
 
+        console.log('[Auth] Updated user:', JSON.stringify(user, null, 2));
+
         res.json({
             message: 'Profile updated successfully',
             user
         });
     } catch (error) {
-        console.error('Update profile error:', error);
+        console.error('[Auth] Update profile error:', error);
         res.status(500).json({
             error: 'Internal server error'
         });

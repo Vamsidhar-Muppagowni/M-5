@@ -29,6 +29,7 @@ import MyCropsScreen from './src/screens/farmer/MyCropsScreen';
 import MarketScreen from './src/screens/market/MarketScreen';
 import CropDetailsScreen from './src/screens/market/CropDetailsScreen';
 import PriceDashboard from './src/screens/decision/PriceDashboard';
+import AIInsightsScreen from './src/screens/decision/AIInsightsScreen';
 import GovernmentSchemes from './src/screens/info/GovernmentSchemes';
 import SchemeDetailsScreen from './src/screens/info/SchemeDetailsScreen';
 import ProfileScreen from './src/screens/profile/ProfileScreen';
@@ -288,6 +289,11 @@ export default function App() {
                                 <Stack.Screen
                                     name="EditProfile"
                                     component={EditProfileScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="AIInsights"
+                                    component={AIInsightsScreen}
                                     options={{ headerShown: false }}
                                 />
                                 <Stack.Screen

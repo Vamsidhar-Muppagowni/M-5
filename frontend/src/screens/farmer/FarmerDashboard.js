@@ -408,6 +408,17 @@ const FarmerDashboard = ({ navigation }) => {
                         <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </TouchableOpacity>
 
+                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('AIInsights')}>
+                        <View style={[styles.actionIcon, { backgroundColor: theme.colors.secondary }]}>
+                            <Ionicons name="sparkles" size={24} color="#fff" />
+                        </View>
+                        <View style={styles.actionTextContainer}>
+                            <Text style={styles.actionTitle}>🤖 AI Market Insights</Text>
+                            <Text style={styles.actionDesc}>Get AI-powered recommendations</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
+                    </TouchableOpacity>
+
 
                 </View>
 

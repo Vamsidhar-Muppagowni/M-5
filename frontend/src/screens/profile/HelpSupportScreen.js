@@ -22,52 +22,52 @@ const HelpSupportScreen = ({ navigation }) => {
 
     const faqs = [
         {
-            question: "How do I list my crops?",
-            answer: "Go to the dashboard and click on 'List New Crop'. Fill in the details like crop name, quantity, and price, then upload a photo. Your listing will be visible to buyers immediately."
+            question: t('faq_q1'),
+            answer: t('faq_a1')
         },
         {
-            question: "How do I accept a bid?",
-            answer: "Check your 'Pending Bids' section from the dashboard. You can view details of each bid including the buyer's offer amount and click 'Accept' or 'Reject'."
+            question: t('faq_q2'),
+            answer: t('faq_a2')
         },
         {
-            question: "Is my payment secure?",
-            answer: "Yes, all transactions are secured and monitored. Payments are processed only after successful delivery confirmation. We use bank-grade encryption for all financial data."
+            question: t('faq_q3'),
+            answer: t('faq_a3')
         },
         {
-            question: "How can I change my language?",
-            answer: "Go to Profile -> Change Language and select your preferred language from the list. The app supports English, Hindi, Telugu, Tamil, Kannada, Malayalam, Bengali, Marathi, and Gujarati."
+            question: t('faq_q4'),
+            answer: t('faq_a4')
         },
         {
-            question: "How do I browse and bid on crops as a buyer?",
-            answer: "Navigate to the 'Browse' tab to see all available crop listings. Tap any listing to see details, then enter your bid amount and press 'Place Bid'. You'll be notified when the farmer responds."
+            question: t('faq_q5'),
+            answer: t('faq_a5')
         },
         {
-            question: "What are Government Schemes and how do I apply?",
-            answer: "The 'Schemes' tab lists all current government agricultural schemes available for farmers. Tap any scheme to see full details including eligibility, required documents, and the application process. You can apply directly through the app."
+            question: t('faq_q6'),
+            answer: t('faq_a6')
         },
         {
-            question: "How do I check current market prices?",
-            answer: "Go to the 'Prices' tab to see real-time market price trends for different crops. You can select specific crops and view 6-month price charts to make informed selling or buying decisions."
+            question: t('faq_q7'),
+            answer: t('faq_a7')
         },
         {
-            question: "What should I do if my bid is rejected?",
-            answer: "If your bid is rejected, you can place a new bid with a higher amount. Check the crop's current price and minimum price to ensure your bid is competitive. You can also browse other listings."
+            question: t('faq_q8'),
+            answer: t('faq_a8')
         },
         {
-            question: "How do I edit or delete my crop listing?",
-            answer: "Go to your dashboard and tap on 'Active Listings'. Find the listing you want to modify. You can view details or use the delete button to remove it from the marketplace."
+            question: t('faq_q9'),
+            answer: t('faq_a9')
         },
         {
-            question: "How do I contact a farmer or buyer directly?",
-            answer: "For privacy and security, direct contact details are shared only after a bid is accepted. Once a bid is accepted, both parties will receive each other's contact information to arrange delivery."
+            question: t('faq_q10'),
+            answer: t('faq_a10')
         },
         {
-            question: "What crops can I list on the marketplace?",
-            answer: "You can list any agricultural produce including grains (wheat, rice, maize), pulses, oilseeds, cash crops (cotton, sugarcane), fruits, vegetables, and spices. Make sure to provide accurate quality grade information."
+            question: t('faq_q11'),
+            answer: t('faq_a11')
         },
         {
-            question: "How is the quality grade determined?",
-            answer: "Quality grades range from A (premium) to D (basic). Grade A indicates the highest quality with minimal impurities. You should honestly assess your crop quality as buyers may verify upon delivery."
+            question: t('faq_q12'),
+            answer: t('faq_a12')
         }
     ];
 

@@ -5,5 +5,7 @@ pandas
 scikit-learn
 python-dotenv
 gunicorn
+xgboost
+joblib
 # tensorflow removed/unpinned because version 2.12 is incompatible with Python 3.13
 tensorflow

@@ -28,6 +28,8 @@ const PriceDashboard = ({ navigation }) => {
 
     const [recentPrices, setRecentPrices] = useState([]);
     const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0, visible: false, value: 0 });
+    const [mlPrediction, setMlPrediction] = useState(null);
+    const [predictionLoading, setPredictionLoading] = useState(false);
 
     useEffect(() => {
         fetchCropsAndRecent();
@@ -36,6 +38,7 @@ const PriceDashboard = ({ navigation }) => {
     useEffect(() => {
         if (selectedCrop) {
             fetchPriceHistory(selectedCrop);
+            fetchMLPrediction(selectedCrop);
         }
     }, [selectedCrop]);
 
@@ -73,11 +76,29 @@ const PriceDashboard = ({ navigation }) => {
         }
     };
 
+    const fetchMLPrediction = async (cropName) => {
+        setPredictionLoading(true);
+        try {
+            const res = await api.post('/ml/predict-price', {
+                crop: cropName,
+                location: 'North',
+                days: 7
+            });
+            setMlPrediction(res.data);
+        } catch (error) {
+            console.error("Failed to fetch ML prediction", error);
+            setMlPrediction(null);
+        } finally {
+            setPredictionLoading(false);
+        }
+    };
+
     const onRefresh = async () => {
         setRefreshing(true);
         await fetchCropsAndRecent();
         if (selectedCrop) {
             await fetchPriceHistory(selectedCrop);
+            await fetchMLPrediction(selectedCrop);
         }
         setRefreshing(false);
     };
@@ -154,6 +175,58 @@ const PriceDashboard = ({ navigation }) => {
                 <Text style={[styles.insightValue, { color: trendColor }]}>
                     {diff > 0 ? '+' : ''}{percentStr}%
                 </Text>
+            </View>
+        );
+    };
+
+    const renderMLPrediction = () => {
+        if (predictionLoading) {
+            return (
+                <View style={styles.mlCard}>
+                    <Text style={styles.mlTitle}>🤖 AI Price Prediction</Text>
+                    <ActivityIndicator size="small" color={theme.colors.primary} style={{ marginTop: 10 }} />
+                </View>
+            );
+        }
+
+        if (!mlPrediction || !mlPrediction.predictions || mlPrediction.predictions.length === 0) {
+            return null;
+        }
+
+        const nextWeekPrediction = mlPrediction.predictions[mlPrediction.predictions.length - 1];
+        const trendIcon = mlPrediction.trend === 'up' ? 'trending-up' : mlPrediction.trend === 'down' ? 'trending-down' : 'remove';
+        const trendColor = mlPrediction.trend === 'up' ? theme.colors.success : mlPrediction.trend === 'down' ? theme.colors.error : theme.colors.text.secondary;
+
+        return (
+            <View style={styles.mlCard}>
+                <View style={styles.mlHeader}>
+                    <Text style={styles.mlTitle}>🤖 AI Price Prediction</Text>
+                    <View style={[styles.confidenceBadge, { backgroundColor: theme.colors.primary + '20' }]}>
+                        <Text style={[styles.confidenceText, { color: theme.colors.primary }]}>
+                            {Math.round((nextWeekPrediction.confidence || 0.85) * 100)}% Confidence
+                        </Text>
+                    </View>
+                </View>
+
+                <View style={styles.mlPredictionRow}>
+                    <View style={styles.mlPredictionItem}>
+                        <Text style={styles.mlLabel}>Next Week Forecast</Text>
+                        <Text style={styles.mlValue}>₹{nextWeekPrediction.predicted_price}/quintal</Text>
+                    </View>
+                    <View style={[styles.trendBadge, { backgroundColor: trendColor + '20' }]}>
+                        <Ionicons name={trendIcon} size={24} color={trendColor} />
+                        <Text style={[styles.trendText, { color: trendColor }]}>
+                            {mlPrediction.trend.toUpperCase()}
+                        </Text>
+                    </View>
+                </View>
+
+                {mlPrediction.recommendation && (
+                    <View style={styles.recommendationBox}>
+                        <Ionicons name="bulb" size={20} color={theme.colors.secondary} />
+                        <Text style={styles.recommendationText}>{mlPrediction.recommendation}</Text>
+                    </View>
+                )}
             </View>
         );
     };
@@ -262,6 +335,8 @@ const PriceDashboard = ({ navigation }) => {
                     )}
                     {renderTrendInsight()}
                 </View>
+
+                {renderMLPrediction()}
 
                 {renderSixMonthTrend()}
 
@@ -477,6 +552,82 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         color: theme.colors.text.disabled
+    },
+    mlCard: {
+        backgroundColor: theme.colors.surface,
+        borderRadius: theme.borderRadius.l,
+        padding: 16,
+        marginBottom: 20,
+        ...theme.shadows.medium,
+        borderLeftWidth: 4,
+        borderLeftColor: theme.colors.secondary
+    },
+    mlHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 16
+    },
+    mlTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.colors.text.primary
+    },
+    confidenceBadge: {
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: theme.borderRadius.s
+    },
+    confidenceText: {
+        fontSize: 12,
+        fontWeight: 'bold'
+    },
+    mlPredictionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12
+    },
+    mlPredictionItem: {
+        flex: 1
+    },
+    mlLabel: {
+        fontSize: 12,
+        color: theme.colors.text.secondary,
+        marginBottom: 4,
+        textTransform: 'uppercase'
+    },
+    mlValue: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.colors.primary
+    },
+    trendBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: theme.borderRadius.m,
+        gap: 6
+    },
+    trendText: {
+        fontSize: 14,
+        fontWeight: 'bold'
+    },
+    recommendationBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.secondary + '10',
+        padding: 12,
+        borderRadius: theme.borderRadius.m,
+        marginTop: 8,
+        gap: 8
+    },
+    recommendationText: {
+        flex: 1,
+        fontSize: 14,
+        color: theme.colors.text.primary,
+        fontStyle: 'italic'
     }
 });
 

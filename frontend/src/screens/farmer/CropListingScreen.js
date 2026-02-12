@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Platform, ToastAndroid, KeyboardAvoidingView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { marketAPI } from '../../services/api';
+import api from '../../services/api';
 import { theme } from '../../styles/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,6 +27,8 @@ const CropListingScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [successModalVisible, setSuccessModalVisible] = useState(false);
+    const [recommendedPrice, setRecommendedPrice] = useState(null);
+    const [fetchingPrice, setFetchingPrice] = useState(false);
 
     const validate = () => {
         let tempErrors = {};
@@ -72,6 +75,71 @@ const CropListingScreen = ({ navigation }) => {
             Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchRecommendedPrice = async () => {
+        console.log('🤖 AI Price Suggestion - Starting...');
+
+        if (!formData.name || !formData.quantity || !formData.quality_grade) {
+            Alert.alert('Info', 'Please fill crop name, quantity, and quality grade first');
+            return;
+        }
+
+        setFetchingPrice(true);
+
+        const requestData = {
+            crop: formData.name,
+            quality: formData.quality_grade,
+            location: formData.location.district || 'North',
+            quantity: parseFloat(formData.quantity) || 100
+        };
+
+        console.log('📤 Sending request to /ml/recommend-price:', requestData);
+
+        try {
+            const res = await api.post('/ml/recommend-price', requestData);
+
+            console.log('✅ Response received:', res.data);
+
+            if (res.data && res.data.recommended_price) {
+                setRecommendedPrice(res.data.recommended_price);
+                setFormData({ ...formData, min_price: res.data.recommended_price.toString() });
+
+                if (Platform.OS === 'android') {
+                    ToastAndroid.show(`AI Suggested: ₹${res.data.recommended_price}`, ToastAndroid.SHORT);
+                } else {
+                    Alert.alert('Success', `AI Suggested Price: ₹${res.data.recommended_price}`);
+                }
+            } else {
+                console.warn('⚠️ No recommended_price in response:', res.data);
+                Alert.alert('Info', 'Could not generate price recommendation. Please enter manually.');
+            }
+        } catch (error) {
+            console.error('❌ Failed to fetch recommended price:', error);
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                config: error.config
+            });
+
+            let errorMessage = 'Could not fetch price recommendation.';
+
+            if (error.response?.status === 401) {
+                errorMessage = 'Authentication required. Please log in again.';
+            } else if (error.response?.status === 500) {
+                errorMessage = 'Server error. Please try again later.';
+            } else if (error.response?.data?.error) {
+                errorMessage = error.response.data.error;
+            } else if (error.message === 'Network Error') {
+                errorMessage = 'Network error. Please check your connection.';
+            }
+
+            Alert.alert('Error', errorMessage);
+        } finally {
+            setFetchingPrice(false);
+            console.log('🏁 AI Price Suggestion - Completed');
         }
     };
 
@@ -150,6 +218,26 @@ const CropListingScreen = ({ navigation }) => {
                         icon="cash-outline"
                         error={errors.min_price}
                     />
+
+                    <TouchableOpacity
+                        onPress={fetchRecommendedPrice}
+                        disabled={fetchingPrice}
+                        style={styles.aiButton}
+                    >
+                        <Ionicons name="sparkles" size={20} color={theme.colors.secondary} />
+                        <Text style={styles.aiButtonText}>
+                            {fetchingPrice ? 'Getting AI Suggestion...' : '🤖 Get AI Price Suggestion'}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {recommendedPrice && (
+                        <View style={styles.recommendationBox}>
+                            <Ionicons name="bulb" size={20} color={theme.colors.success} />
+                            <Text style={styles.recommendationText}>
+                                Recommended: ₹{recommendedPrice}/quintal
+                            </Text>
+                        </View>
+                    )}
 
                     <Text style={styles.label}>{t('quality_grade')}</Text>
                     <View style={styles.pickerContainer}>
@@ -307,6 +395,37 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 18,
+        fontWeight: 'bold'
+    },
+    aiButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: theme.colors.secondary + '15',
+        padding: 12,
+        borderRadius: theme.borderRadius.m,
+        marginBottom: 15,
+        borderWidth: 1,
+        borderColor: theme.colors.secondary,
+        gap: 8
+    },
+    aiButtonText: {
+        color: theme.colors.secondary,
+        fontSize: 14,
+        fontWeight: '600'
+    },
+    recommendationBox: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.success + '10',
+        padding: 12,
+        borderRadius: theme.borderRadius.m,
+        marginBottom: 15,
+        gap: 8
+    },
+    recommendationText: {
+        color: theme.colors.success,
+        fontSize: 14,
         fontWeight: 'bold'
     }
 });

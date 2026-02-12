@@ -5,7 +5,7 @@ const { PriceHistory, Crop, Transaction } = require('../models');
 
 class MLService {
     constructor() {
-        this.predictionApi = process.env.ML_API_URL || 'http://localhost:5000';
+        this.predictionApi = process.env.ML_API_URL || 'http://localhost:5001';
         this.weatherApiKey = process.env.WEATHER_API_KEY;
     }
 
@@ -53,32 +53,85 @@ class MLService {
         try {
             const { crop, quality, location, quantity } = params;
 
-            // Get current market prices
-            const query = {
-                name: crop,
-                status: 'listed'
-            };
+            console.log(`[ML Service] Getting recommended price for: ${crop}, quality: ${quality}, location: ${location}, quantity: ${quantity}`);
+
+            // Get current market prices - try with location first, then without
+            let currentPrices = [];
+
+            // Use case-insensitive regex for crop name matching
+            const cropNameRegex = new RegExp(`^${crop}$`, 'i');
+
+            // Try with location.district filter
             if (location) {
-                query['location.district'] = location;
+                const queryWithDistrict = {
+                    name: cropNameRegex,
+                    status: 'listed',
+                    'location.district': location
+                };
+
+                currentPrices = await Crop.find(queryWithDistrict)
+                    .select('current_price quality_grade quantity location')
+                    .sort({ created_at: -1 })
+                    .limit(20);
+
+                console.log(`[ML Service] Found ${currentPrices.length} crops with location.district = ${location}`);
             }
 
-            const currentPrices = await Crop.find(query)
-                .select('current_price quality_grade quantity')
-                .sort({ created_at: -1 })
-                .limit(20);
+            // If no results with district, try with state or without location filter
+            if (currentPrices.length === 0) {
+                const queryWithoutLocation = {
+                    name: cropNameRegex,
+                    status: 'listed'
+                };
+
+                currentPrices = await Crop.find(queryWithoutLocation)
+                    .select('current_price quality_grade quantity location')
+                    .sort({ created_at: -1 })
+                    .limit(20);
+
+                console.log(`[ML Service] Found ${currentPrices.length} crops without location filter`);
+            }
 
             if (currentPrices.length === 0) {
-                // Use historical data
-                const histQuery = { crop_name: crop };
-                if (location) histQuery.region = location;
+                console.log('[ML Service] No current listings found, checking price history...');
 
-                const historical = await PriceHistory.findOne(histQuery).sort({ date: -1 });
+                // Use historical data - try with and without location
+                let historical = null;
 
-                return historical ? Number(historical.price) * 1.1 : null; // 10% markup
+                // Use case-insensitive regex for crop name
+                // const cropNameRegex = new RegExp(`^${crop}$`, 'i'); // Already defined above
+
+                if (location) {
+                    historical = await PriceHistory.findOne({
+                        crop_name: cropNameRegex,
+                        $or: [
+                            { region: location },
+                            { region: new RegExp(location, 'i') }
+                        ]
+                    }).sort({ date: -1 });
+                }
+
+                // If no match with location, try without
+                if (!historical) {
+                    historical = await PriceHistory.findOne({ crop_name: cropNameRegex }).sort({ date: -1 });
+                }
+
+                if (historical) {
+                    const recommendedPrice = parseFloat((Number(historical.price) * 1.1).toFixed(2));
+                    console.log(`[ML Service] Using historical price: ${historical.price}, recommended: ${recommendedPrice}`);
+                    return recommendedPrice;
+                }
+
+                console.log('[ML Service] No historical data found, returning null');
+                return null;
             }
 
+            console.log(`[ML Service] Analyzing ${currentPrices.length} crops for price calculation`);
+
             // Calculate average price based on quality
-            const qualityPrices = currentPrices.filter(p => p.quality_grade === quality);
+            const qualityPrices = currentPrices.filter(p => p.quality_grade === quality && p.current_price);
+            console.log(`[ML Service] Found ${qualityPrices.length} crops with quality grade ${quality}`);
+
             if (qualityPrices.length > 0) {
                 const avgPrice = qualityPrices.reduce((sum, p) => sum + parseFloat(p.current_price), 0) / qualityPrices.length;
 
@@ -86,18 +139,30 @@ class MLService {
                 let finalPrice = avgPrice;
                 if (quantity > 1000) { // More than 1000kg
                     finalPrice *= 0.95; // 5% discount
+                    console.log(`[ML Service] Applied bulk discount (quantity > 1000kg)`);
                 } else if (quantity < 100) { // Less than 100kg
                     finalPrice *= 1.05; // 5% premium
+                    console.log(`[ML Service] Applied small quantity premium (quantity < 100kg)`);
                 }
 
-                return parseFloat(finalPrice.toFixed(2));
+                const recommendedPrice = parseFloat(finalPrice.toFixed(2));
+                console.log(`[ML Service] Recommended price: ${recommendedPrice} (avg: ${avgPrice.toFixed(2)})`);
+                return recommendedPrice;
             }
 
-            // Fallback to overall average
-            const avgPrice = currentPrices.reduce((sum, p) => sum + parseFloat(p.current_price), 0) / currentPrices.length;
-            return parseFloat(avgPrice.toFixed(2));
+            // Fallback to overall average (any quality)
+            const validPrices = currentPrices.filter(p => p.current_price && p.current_price > 0);
+            if (validPrices.length > 0) {
+                const avgPrice = validPrices.reduce((sum, p) => sum + parseFloat(p.current_price), 0) / validPrices.length;
+                const recommendedPrice = parseFloat(avgPrice.toFixed(2));
+                console.log(`[ML Service] Using average of all qualities: ${recommendedPrice}`);
+                return recommendedPrice;
+            }
+
+            console.log('[ML Service] No valid prices found, returning null');
+            return null;
         } catch (error) {
-            console.error('Get recommended price error:', error);
+            console.error('[ML Service] Get recommended price error:', error);
             return null;
         }
     }
@@ -272,27 +337,48 @@ class MLService {
 
     // Helper methods (unchanged)
     prepareFeatures(historicalData, params) {
+        // Prepare features for the new ML API
+        // The ML API expects: crop, location, season, soil_type, farmer_type, rainfall, temperature, area, yield
         return {
             crop: params.crop,
-            location: params.location,
-            historical_prices: historicalData.map(d => ({
-                date: d.date,
-                price: d.price
-            })),
-            season: this.getCurrentSeason(),
-            market_holidays: this.getUpcomingHolidays(),
-            weather_forecast: this.getWeatherForecast(params.location)
+            location: params.location || 'North', // Default region
+            season: this.getIndianSeason(), // Get Indian agricultural season
+            soil_type: params.soil_type || 'Loamy', // Default soil type
+            farmer_type: params.farmer_type || 'Medium',
+            rainfall: params.rainfall || 1000, // Default rainfall in mm
+            temperature: params.temperature || 25, // Default temperature in C
+            area: params.area || 5.0, // Default area in hectares
+            yield: params.yield || 4.0 // Default yield in ton/hectare
         };
     }
 
     async callMLApi(features) {
         try {
-            const response = await axios.post(`${this.predictionApi}/predict`, features);
+            console.log('Calling ML API with features:', features);
+            const response = await axios.post(`${this.predictionApi}/predict`, features, {
+                timeout: 10000, // 10 second timeout
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('ML API response:', response.data);
             return response.data;
         } catch (error) {
-            console.error('ML API call failed:', error);
+            console.error('ML API call failed:', error.message);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+            }
             throw error;
         }
+    }
+
+    getIndianSeason() {
+        // Get current Indian agricultural season based on month
+        const month = new Date().getMonth() + 1;
+        if (month >= 6 && month <= 9) return 'Kharif'; // Monsoon season
+        if (month >= 10 || month <= 3) return 'Rabi'; // Winter season
+        return 'Zaid'; // Summer season (April-May)
     }
 
     localPrediction(features) {

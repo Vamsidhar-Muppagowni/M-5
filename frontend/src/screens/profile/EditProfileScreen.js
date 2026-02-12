@@ -59,6 +59,8 @@ const EditProfileScreen = ({ navigation }) => {
     };
 
     const handleSave = async () => {
+        console.log('💾 Edit Profile - Starting save...');
+
         if (!formData.name.trim()) {
             Alert.alert('Error', 'Name is required');
             return;
@@ -76,18 +78,29 @@ const EditProfileScreen = ({ navigation }) => {
 
             const updatePayload = {
                 name: formData.name,
-                email: formData.email ? formData.email : null,
                 location: location
             };
 
+            // Only include email if it has a value (to avoid duplicate key error on null)
+            if (formData.email && formData.email.trim()) {
+                updatePayload.email = formData.email;
+            }
+
+            console.log('📤 Sending update payload:', updatePayload);
+
             const response = await api.put('/auth/profile', updatePayload);
+
+            console.log('✅ Profile update response:', response.data);
 
             // Update Redux Store
             const updatedUser = { ...user, ...response.data.user };
+            console.log('📝 Updated user object:', updatedUser);
+
             dispatch(setUser({ user: updatedUser, token }));
 
             // Update AsyncStorage
             await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+            console.log('💾 Saved to AsyncStorage');
 
             setSuccessMsg('Profile updated successfully!');
             setTimeout(() => {
@@ -99,10 +112,16 @@ const EditProfileScreen = ({ navigation }) => {
                 { text: 'OK', onPress: () => navigation.goBack() }
             ]);
         } catch (error) {
-            console.error(error);
+            console.error('❌ Profile update error:', error);
+            console.error('Error details:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status
+            });
             Alert.alert('Error', error.response?.data?.error || 'Failed to update profile');
         } finally {
             setLoading(false);
+            console.log('🏁 Profile update completed');
         }
     };
 

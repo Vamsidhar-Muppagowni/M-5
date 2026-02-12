@@ -118,7 +118,7 @@ const CropDetailsScreen = ({ route, navigation }) => {
                     <View style={styles.grid}>
                         <View style={styles.gridItem}>
                             <View style={styles.infoRow}>
-                                <Ionicons name="scale-outline" size={16} color={theme.colors.text.secondary} />
+                                <Ionicons name="cube-outline" size={16} color={theme.colors.text.secondary} />
                                 <Text style={styles.label}>{t('quantity') || 'Quantity'}</Text>
                             </View>
                             <Text style={styles.value}>{crop.quantity} {crop.unit}</Text>
