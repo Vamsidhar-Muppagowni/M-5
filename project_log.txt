@@ -1029,3 +1029,4 @@ Commit 85: Add ML integration by Siddhartha-kosuri on 2026-02-12T04:16:00.000Z
 Commit 86: Fix layout on mobile by Vamsidhar-Muppagowni on 2026-02-12T13:24:00.000Z
 Commit 87: Refactor dashboard by Siddhartha-kosuri on 2026-02-13T16:30:00.000Z
 Commit 88: Fix bidding logic by Siddhartha-kosuri on 2026-02-14T15:44:00.000Z
+Commit 89: Add crop listing validation by Siddhartha-kosuri on 2026-02-14T07:14:00.000Z
