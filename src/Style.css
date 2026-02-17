@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ... existing styles if any ... */
+
+/* HIDE GOOGLE TRANSLATE BANNER AND UI */
+.goog-te-banner-frame.skiptranslate {
+    display: none !important;
+}
+
+body {
+    top: 0px !important;
+}
+
+#google_translate_element {
+    display: none !important;
+}
+
+.goog-tooltip {
+    display: none !important;
+}
+
+.goog-te-gadget-icon {
+    display: none !important;
+}
+
+iframe[id^=":"] {
+    display: none !important;
+    /* Hides the iframe toolbar */
+}
+
+/* Hide the specific banner frame */
+iframe.goog-te-banner-frame {
+    display: none !important;
+}
+
+/* Restore body position */
+body {
+    position: static !important;
+    top: 0 !important;
+}
+
+/* DISABLE HOVER TOOLTIP AND HIGHLIGHT */
+#goog-gt-tt {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+.goog-text-highlight {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
