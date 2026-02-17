@@ -62,15 +62,6 @@ const UserSchema = new mongoose.Schema({
     },
     last_login: {
         type: Date
-    },
-    // References to profiles
-    farmerProfile: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'FarmerProfile'
-    },
-    buyerProfile: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'BuyerProfile'
     }
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
@@ -105,6 +96,22 @@ UserSchema.pre('remove', async function () {
 // Virtual for 'id' to match frontend expectation
 UserSchema.virtual('id').get(function () {
     return this._id.toHexString();
+});
+
+// Virtual populate for farmerProfile
+UserSchema.virtual('farmerProfile', {
+    ref: 'FarmerProfile',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true
+});
+
+// Virtual populate for buyerProfile
+UserSchema.virtual('buyerProfile', {
+    ref: 'BuyerProfile',
+    localField: '_id',
+    foreignField: 'user',
+    justOne: true
 });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -238,7 +238,14 @@ exports.getCrops = async (req, res) => {
             .sort({ created_at: -1 })
             .skip(skip)
             .limit(limitInt)
-            .populate('farmer', 'name phone location')
+            .populate({
+                path: 'farmer',
+                select: 'name phone location',
+                populate: {
+                    path: 'farmerProfile',
+                    select: 'rating rating_count'
+                }
+            })
             // To get top 5 bids, Mongoose needs virtual populate or separate query
             // For simplicity, we won't embed top bids in listing view to save bandwidth
             // unless essential. If needed, we'd do aggregation.

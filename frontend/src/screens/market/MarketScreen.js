@@ -54,6 +54,20 @@ const MarketScreen = ({ navigation }) => {
                     <View style={styles.headerContent}>
                         <Text style={styles.cropName}>{item?.name || 'Unknown Crop'}</Text>
                         <Text style={styles.farmerName}>{t('by')}: {item?.farmer?.name || 'Unknown'}</Text>
+                        {item?.farmer?.farmerProfile && (
+                            <View style={styles.ratingContainer}>
+                                <Ionicons
+                                    name={item.farmer.farmerProfile.rating > 0 ? "star" : "star-outline"}
+                                    size={14}
+                                    color={item.farmer.farmerProfile.rating > 0 ? "#FFB800" : theme.colors.text.disabled}
+                                />
+                                <Text style={styles.ratingText}>
+                                    {item.farmer.farmerProfile.rating > 0
+                                        ? `${item.farmer.farmerProfile.rating.toFixed(1)} (${item.farmer.farmerProfile.rating_count})`
+                                        : 'No ratings yet'}
+                                </Text>
+                            </View>
+                        )}
                     </View>
                     <View style={styles.priceContainer}>
                         <Text style={styles.price}>₹{item?.current_price || item?.min_price}</Text>
@@ -224,6 +238,16 @@ const styles = StyleSheet.create({
     farmerName: {
         fontSize: 12,
         color: theme.colors.text.secondary
+    },
+    ratingContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 2
+    },
+    ratingText: {
+        fontSize: 11,
+        color: theme.colors.text.secondary,
+        marginLeft: 4
     },
     priceContainer: {
         alignItems: 'flex-end'
