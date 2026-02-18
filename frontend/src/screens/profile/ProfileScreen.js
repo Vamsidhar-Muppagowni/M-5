@@ -119,6 +119,16 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                     <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                 </TouchableOpacity>
+
+                <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('TransactionHistory')}>
+                    <View style={styles.optionLeft}>
+                        <View style={[styles.iconBox, { backgroundColor: '#e8f5e9' }]}>
+                            <Ionicons name="receipt-outline" size={22} color={theme.colors.success} />
+                        </View>
+                        <Text style={styles.optionText}>{t('transaction_history') || 'Transactions'}</Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
+                </TouchableOpacity>
             </View>
 
             {/* Logout Button */}

@@ -52,6 +52,7 @@ app.use('/api/market', require('./routes/market'));
 app.use('/api/ml', authMiddleware.authMiddleware, require('./routes/ml'));
 app.use('/api/government', authMiddleware.authMiddleware, require('./routes/government'));
 app.use('/api/logistics', authMiddleware.authMiddleware, require('./routes/logistics'));
+app.use('/api/transactions', require('./routes/transaction'));
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });

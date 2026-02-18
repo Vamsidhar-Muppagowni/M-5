@@ -36,6 +36,8 @@ import CommunityScreen from './src/screens/community/CommunityScreen';
 import PendingBidsScreen from './src/screens/farmer/PendingBidsScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
 import HelpSupportScreen from './src/screens/profile/HelpSupportScreen';
+import TransactionHistoryScreen from './src/screens/market/TransactionHistoryScreen';
+import PaymentScreen from './src/screens/market/PaymentScreen';
 
 // Import services
 import { initI18n } from './src/services/language';
@@ -247,6 +249,16 @@ export default function App() {
                                 <Stack.Screen
                                     name="HelpSupport"
                                     component={HelpSupportScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="TransactionHistory"
+                                    component={TransactionHistoryScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="Payment"
+                                    component={PaymentScreen}
                                     options={{ headerShown: false }}
                                 />
                             </Stack.Navigator>

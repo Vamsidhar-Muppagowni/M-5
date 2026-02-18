@@ -38,7 +38,31 @@ const MyBidsScreen = ({ navigation }) => {
         switch (status) {
             case 'accepted': return theme.colors.success;
             case 'rejected': return theme.colors.error;
+            case 'completed': return theme.colors.primary;
             default: return theme.colors.secondary;
+        }
+    };
+
+    const handlePaymentPress = async (bid) => {
+        try {
+            // check if transaction already exists
+            // For now, let's create it. The backend handles duplicate checks or we can check status.
+            setLoading(true);
+            const response = await api.post('/transactions', {
+                bid_id: bid._id
+            });
+            setLoading(false);
+            navigation.navigate('Payment', { transaction: response.data.transaction });
+        } catch (error) {
+            setLoading(false);
+            console.error("Create transaction error", error);
+            // If transaction already exists, we might want to navigate to it directly
+            // The backend returns 200 and the transaction if it exists, so we can handle it same way
+            if (error.response?.data?.transaction) {
+                navigation.navigate('Payment', { transaction: error.response.data.transaction });
+            } else {
+                alert("Failed to initiate payment");
+            }
         }
     };
 
@@ -76,6 +100,16 @@ const MyBidsScreen = ({ navigation }) => {
                     <Text style={styles.detailValue}>{new Date(item.created_at).toLocaleDateString()}</Text>
                 </View>
             </View>
+
+            {item.status === 'accepted' && (
+                <TouchableOpacity
+                    style={styles.payButton}
+                    onPress={() => handlePaymentPress(item)}
+                >
+                    <Text style={styles.payButtonText}>Proceed to Payment</Text>
+                    <Ionicons name="arrow-forward" size={16} color="#FFF" />
+                </TouchableOpacity>
+            )}
         </TouchableOpacity>
     );
 
@@ -226,6 +260,20 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: theme.colors.text.disabled,
         marginTop: 5
+    },
+    payButton: {
+        marginTop: 15,
+        backgroundColor: theme.colors.primary,
+        paddingVertical: 10,
+        borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    payButtonText: {
+        color: '#FFF',
+        fontWeight: 'bold',
+        marginRight: 8
     }
 });
 

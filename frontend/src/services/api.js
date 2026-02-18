@@ -1,10 +1,13 @@
 import axios from 'axios';
-import { Platform } from 'react-native';
+import {
+    Platform
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // USB Debugging Mode
 // When using 'adb reverse tcp:5000 tcp:5000', the phone can access the PC's localhost directly.
-const API_BASE_URL = 'http://localhost:5000/api';
+export const BASE_URL = 'http://localhost:5000';
+export const API_BASE_URL = `${BASE_URL}/api`;
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -34,7 +37,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // If token expired, try to refresh
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
@@ -74,23 +77,30 @@ export const authAPI = {
     verifyOTP: (data) => api.post('/auth/verify-otp', data),
     getProfile: () => api.get('/auth/profile'),
     updateProfile: (data) => api.put('/auth/profile', data),
-    changeLanguage: (language) => api.put('/auth/language', { language })
+    changeLanguage: (language) => api.put('/auth/language', {
+        language
+    })
 };
 
 export const marketAPI = {
-    getCrops: (params) => api.get('/market/crops', { params }),
+    getCrops: (params) => api.get('/market/crops', {
+        params
+    }),
     getCropDetails: (id) => api.get(`/market/crops/${id}`),
     listCrop: (data) => api.post('/market/crops/list', data),
     placeBid: (data) => api.post('/market/bids', data),
     respondToBid: (data) => api.post('/market/bids/respond', data),
-    getPriceHistory: (params) => api.get('/market/prices/history', { params }),
+    getPriceHistory: (params) => api.get('/market/prices/history', {
+        params
+    }),
     getPendingBids: () => api.get('/market/bids/received')
 };
 
 export const mlAPI = {
     getPricePrediction: (data) => api.post('/ml/predict-price', data),
     getMarketInsights: (data) => api.post('/ml/insights', data),
-    getCropRecommendation: (data) => api.post('/ml/recommend-crop', data)
+    getCropRecommendation: (data) => api.post('/ml/recommend-crop', data),
+    getRecommendedPrice: (data) => api.post('/ml/recommend-price', data)
 };
 
 export const governmentAPI = {
