@@ -1,18 +1,49 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Alert, Platform, ToastAndroid, KeyboardAvoidingView, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
+import React, {
+    useState
+} from 'react';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ScrollView,
+    TextInput,
+    TouchableOpacity,
+    Alert,
+    Platform,
+    ToastAndroid,
+    KeyboardAvoidingView,
+    Image
+} from 'react-native';
+import {
+    Picker
+} from '@react-native-picker/picker';
 import * as ImagePicker from 'expo-image-picker';
-import { marketAPI } from '../../services/api';
-import { theme } from '../../styles/theme';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import {
+    marketAPI,
+    mlAPI
+} from '../../services/api';
+import {
+    theme
+} from '../../styles/theme';
+import {
+    LinearGradient
+} from 'expo-linear-gradient';
+import {
+    Ionicons
+} from '@expo/vector-icons';
 import StyledInput from '../../components/StyledInput';
 import SuccessModal from '../../components/SuccessModal';
 import Tooltip from '../../components/Tooltip';
-import { useTranslation } from 'react-i18next';
+import {
+    useTranslation
+} from 'react-i18next';
 
-const CropListingScreen = ({ navigation }) => {
-    const { t } = useTranslation();
+const CropListingScreen = ({
+    navigation
+}) => {
+    const {
+        t
+    } = useTranslation();
     const [formData, setFormData] = useState({
         name: '',
         variety: '',
@@ -29,11 +60,14 @@ const CropListingScreen = ({ navigation }) => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [successModalVisible, setSuccessModalVisible] = useState(false);
+    const [isSuggesting, setIsSuggesting] = useState(false);
 
     const pickImages = async () => {
         try {
             // Request permission
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            const {
+                status
+            } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Permission Required', 'Please grant camera roll permissions to upload images.');
                 return;
@@ -53,7 +87,7 @@ const CropListingScreen = ({ navigation }) => {
                     uri: asset.uri,
                     base64: asset.base64 ? `data:image/jpeg;base64,${asset.base64}` : asset.uri
                 }));
-                
+
                 const totalImages = [...images, ...newImages];
                 if (totalImages.length > 10) {
                     Alert.alert('Limit Exceeded', 'You can upload a maximum of 10 images.');
@@ -70,7 +104,9 @@ const CropListingScreen = ({ navigation }) => {
 
     const takePhoto = async () => {
         try {
-            const { status } = await ImagePicker.requestCameraPermissionsAsync();
+            const {
+                status
+            } = await ImagePicker.requestCameraPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Permission Required', 'Please grant camera permissions to take photos.');
                 return;
@@ -86,7 +122,7 @@ const CropListingScreen = ({ navigation }) => {
                     uri: result.assets[0].uri,
                     base64: result.assets[0].base64 ? `data:image/jpeg;base64,${result.assets[0].base64}` : result.assets[0].uri
                 };
-                
+
                 if (images.length >= 10) {
                     Alert.alert('Limit Exceeded', 'You can upload a maximum of 10 images.');
                     return;
@@ -110,30 +146,30 @@ const CropListingScreen = ({ navigation }) => {
         if (!formData.quantity) tempErrors.quantity = t('fill_required');
         if (!formData.min_price) tempErrors.min_price = t('fill_required');
         if (!formData.location.district) tempErrors.district = t('fill_required');
-        
+
         // Price validation - reasonable limits based on unit
         if (formData.min_price) {
             const price = parseFloat(formData.min_price);
             const unit = formData.unit;
-            
+
             // Maximum reasonable prices per unit
             const maxPrices = {
-                'kg': 500,      // Max ₹500/kg (e.g., premium spices)
-                'quintal': 50000,  // Max ₹50,000/quintal
-                'ton': 500000   // Max ₹5,00,000/ton
+                'kg': 500, // Max ₹500/kg (e.g., premium spices)
+                'quintal': 50000, // Max ₹50,000/quintal
+                'ton': 500000 // Max ₹5,00,000/ton
             };
-            
+
             const maxPrice = maxPrices[unit] || 50000;
-            
+
             if (price > maxPrice) {
                 tempErrors.min_price = t('price_too_high') || `Price seems too high. Maximum ₹${maxPrice}/${unit}`;
             }
-            
+
             if (price < 1) {
                 tempErrors.min_price = t('price_too_low') || 'Price must be at least ₹1';
             }
         }
-        
+
         // Quantity validation
         if (formData.quantity) {
             const qty = parseFloat(formData.quantity);
@@ -144,10 +180,59 @@ const CropListingScreen = ({ navigation }) => {
                 tempErrors.quantity = t('quantity_too_high') || 'Quantity seems too high';
             }
         }
-        
+
         // Images are optional now
         setErrors(tempErrors);
         return Object.keys(tempErrors).length === 0;
+    };
+
+    const handleSuggestPrice = async () => {
+        if (!formData.name || !formData.location.district) {
+            Alert.alert('Missing Information', 'Please enter Crop Name and District to get a price suggestion.');
+            return;
+        }
+
+        setIsSuggesting(true);
+        try {
+            console.log("Requesting price suggestion...");
+            const response = await mlAPI.getRecommendedPrice({
+                crop: formData.name,
+                variety: formData.variety,
+                location: formData.location.district,
+                quality: formData.quality_grade,
+                quantity: parseFloat(formData.quantity) || 100
+            });
+
+            console.log("Price suggestion response:", response.data);
+
+            if (response.data && response.data.recommended_price) {
+                const price = response.data.recommended_price;
+
+                Alert.alert(
+                    'AI Price Suggestion',
+                    `Based on market trends and your crop details, our AI model suggests a price of ₹${price}/${formData.unit}. \n\nWould you like to use this price?`,
+                    [{
+                            text: 'Cancel',
+                            style: 'cancel'
+                        },
+                        {
+                            text: 'Use Price',
+                            onPress: () => setFormData({
+                                ...formData,
+                                min_price: price.toString()
+                            })
+                        }
+                    ]
+                );
+            } else {
+                Alert.alert('Suggestion Failed', 'Could not generate a price suggestion at this time.');
+            }
+        } catch (error) {
+            console.error('Price suggestion error:', error);
+            Alert.alert('Error', 'Failed to get price suggestion.');
+        } finally {
+            setIsSuggesting(false);
+        }
     };
 
     const handleSubmit = async () => {
@@ -166,7 +251,9 @@ const CropListingScreen = ({ navigation }) => {
                 quantity: parseFloat(formData.quantity),
                 min_price: parseFloat(formData.min_price),
                 // Ensure location is valid
-                location: formData.location || { district: 'Unknown' },
+                location: formData.location || {
+                    district: 'Unknown'
+                },
                 // Include images as base64 strings
                 images: images.map(img => img.base64)
             };
@@ -183,211 +270,588 @@ const CropListingScreen = ({ navigation }) => {
 
         } catch (error) {
             console.error("Submission Error:", error);
-            const errorMessage = error.response?.data?.error || error.message || 'Failed to list crop. Please try again.';
+            const errorMessage =
+                (error.response && error.response.data && error.response.data.error) ||
+                error.message ||
+                'Failed to list crop. Please try again.';
             Alert.alert('Error', errorMessage);
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
-                </TouchableOpacity>
-                <Text style={styles.headerTitle}>{t('list_new_crop')}</Text>
-                <View style={{ width: 24 }} />
-            </View>
+    return ( <
+        KeyboardAvoidingView style = {
+            styles.container
+        }
+        behavior = {
+            Platform.OS === "ios" ? "padding" : "height"
+        } >
+        <
+        View style = {
+            styles.header
+        } >
+        <
+        TouchableOpacity onPress = {
+            () => navigation.goBack()
+        }
+        style = {
+            styles.backButton
+        } >
+        <
+        Ionicons name = "arrow-back"
+        size = {
+            24
+        }
+        color = {
+            theme.colors.text.primary
+        }
+        /> < /
+        TouchableOpacity > <
+        Text style = {
+            styles.headerTitle
+        } > {
+            t('list_new_crop')
+        } < /Text> <
+        View style = {
+            {
+                width: 24
+            }
+        }
+        /> < /
+        View >
 
-            <ScrollView
-                style={styles.content}
-                contentContainerStyle={{ paddingBottom: 40 }}
-                showsVerticalScrollIndicator={false}
-            >
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>{t('crop_details')}</Text>
+        <
+        ScrollView style = {
+            styles.content
+        }
+        contentContainerStyle = {
+            {
+                paddingBottom: 40
+            }
+        }
+        showsVerticalScrollIndicator = {
+            false
+        } >
+        <
+        View style = {
+            styles.section
+        } >
+        <
+        Text style = {
+            styles.sectionTitle
+        } > {
+            t('crop_details')
+        } < /Text>
 
-                    {/* Image Upload Section */}
-                    <View style={styles.imageSection}>
-                        <View style={styles.labelWithTooltip}>
-                            <Text style={styles.label}>{t('crop_images') || 'Crop Images'} ({t('optional') || 'Optional'})</Text>
-                            <Tooltip text={t('image_tooltip') || 'Upload up to 10 clear photos of your crop. Good photos help buyers make decisions faster and can increase your chances of getting better bids.'} />
-                        </View>
-                        <Text style={styles.imageSubLabel}>{t('image_count_hint_optional') || `${images.length}/10 images uploaded`}</Text>
-                        
-                        <View style={styles.imageGrid}>
-                            {images.map((image, index) => (
-                                <View key={index} style={styles.imageContainer}>
-                                    <Image source={{ uri: image.uri }} style={styles.imagePreview} />
-                                    <TouchableOpacity 
-                                        style={styles.removeImageBtn}
-                                        onPress={() => removeImage(index)}
-                                    >
-                                        <Ionicons name="close-circle" size={24} color={theme.colors.error} />
-                                    </TouchableOpacity>
-                                </View>
-                            ))}
-                            
-                            {images.length < 10 && (
-                                <View style={styles.addImageButtons}>
-                                    <TouchableOpacity 
-                                        style={styles.addImageBtn}
-                                        onPress={pickImages}
-                                    >
-                                        <Ionicons name="images-outline" size={28} color={theme.colors.primary} />
-                                        <Text style={styles.addImageText}>{t('gallery') || 'Gallery'}</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity 
-                                        style={styles.addImageBtn}
-                                        onPress={takePhoto}
-                                    >
-                                        <Ionicons name="camera-outline" size={28} color={theme.colors.primary} />
-                                        <Text style={styles.addImageText}>{t('camera') || 'Camera'}</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </View>
-                        {errors.images && <Text style={styles.errorText}>{errors.images}</Text>}
-                    </View>
+        {
+            /* Image Upload Section */
+        } <
+        View style = {
+            styles.imageSection
+        } >
+        <
+        View style = {
+            styles.labelWithTooltip
+        } >
+        <
+        Text style = {
+            styles.label
+        } > {
+            t('crop_images') || 'Crop Images'
+        }({
+            t('optional') || 'Optional'
+        }) < /Text> <
+        Tooltip text = {
+            t('image_tooltip') || 'Upload up to 10 clear photos of your crop. Good photos help buyers make decisions faster and can increase your chances of getting better bids.'
+        }
+        /> < /
+        View > <
+        Text style = {
+            styles.imageSubLabel
+        } > {
+            t('image_count_hint_optional') || `${images.length}/10 images uploaded`
+        } < /Text>
 
-                    <StyledInput
-                        label={t('crop_name')}
-                        placeholder={t('crop_name_placeholder')}
-                        value={formData.name}
-                        onChangeText={(text) => setFormData({ ...formData, name: text })}
-                        icon="leaf-outline"
-                        error={errors.name}
-                        tooltip={t('crop_name_tooltip') || 'Enter the common name of your crop (e.g., Wheat, Rice, Cotton). This helps buyers find your listing.'}
-                    />
+        <
+        View style = {
+            styles.imageGrid
+        } > {
+            images.map((image, index) => ( <
+                View key = {
+                    index
+                }
+                style = {
+                    styles.imageContainer
+                } >
+                <
+                Image source = {
+                    {
+                        uri: image.uri
+                    }
+                }
+                style = {
+                    styles.imagePreview
+                }
+                /> <
+                TouchableOpacity style = {
+                    styles.removeImageBtn
+                }
+                onPress = {
+                    () => removeImage(index)
+                } >
+                <
+                Ionicons name = "close-circle"
+                size = {
+                    24
+                }
+                color = {
+                    theme.colors.error
+                }
+                /> < /
+                TouchableOpacity > <
+                /View>
+            ))
+        }
 
-                    <StyledInput
-                        label={t('variety')}
-                        placeholder={t('variety_placeholder')}
-                        value={formData.variety}
-                        onChangeText={(text) => setFormData({ ...formData, variety: text })}
-                        icon="pricetag-outline"
-                        tooltip={t('variety_tooltip') || 'Specify the variety or type (e.g., Basmati for rice). Different varieties have different market values.'}
-                    />
+        {
+            images.length < 10 && ( <
+                View style = {
+                    styles.addImageButtons
+                } >
+                <
+                TouchableOpacity style = {
+                    styles.addImageBtn
+                }
+                onPress = {
+                    pickImages
+                } >
+                <
+                Ionicons name = "images-outline"
+                size = {
+                    28
+                }
+                color = {
+                    theme.colors.primary
+                }
+                /> <
+                Text style = {
+                    styles.addImageText
+                } > {
+                    t('gallery') || 'Gallery'
+                } < /Text> < /
+                TouchableOpacity > <
+                TouchableOpacity style = {
+                    styles.addImageBtn
+                }
+                onPress = {
+                    takePhoto
+                } >
+                <
+                Ionicons name = "camera-outline"
+                size = {
+                    28
+                }
+                color = {
+                    theme.colors.primary
+                }
+                /> <
+                Text style = {
+                    styles.addImageText
+                } > {
+                    t('camera') || 'Camera'
+                } < /Text> < /
+                TouchableOpacity > <
+                /View>
+            )
+        } <
+        /View> {
+        errors.images && < Text style = {
+            styles.errorText
+        } > {
+            errors.images
+        } < /Text>} < /
+        View >
 
-                    <View style={styles.row}>
-                        <View style={styles.halfInput}>
-                            <StyledInput
-                                label={t('quantity')}
-                                placeholder="0.00"
-                                value={formData.quantity}
-                                onChangeText={(text) => setFormData({ ...formData, quantity: text })}
-                                keyboardType="numeric"
-                                icon="layers-outline"
-                                error={errors.quantity}
-                                tooltip={t('quantity_tooltip') || 'Enter the total quantity available for sale. Be accurate as this affects buyer decisions.'}
-                            />
-                        </View>
-                        <View style={styles.halfInput}>
-                            <Text style={styles.label}>{t('unit')}</Text>
-                            <View style={styles.pickerContainer}>
-                                <Picker
-                                    selectedValue={formData.unit}
-                                    onValueChange={(itemValue) => setFormData({ ...formData, unit: itemValue })}
-                                    style={styles.picker}
-                                >
-                                    <Picker.Item label="Kg" value="kg" />
-                                    <Picker.Item label="Quintal" value="quintal" />
-                                    <Picker.Item label="Ton" value="ton" />
-                                </Picker>
-                            </View>
-                        </View>
-                    </View>
+        <
+        StyledInput label = {
+            t('crop_name')
+        }
+        placeholder = {
+            t('crop_name_placeholder')
+        }
+        value = {
+            formData.name
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                name: text
+            })
+        }
+        icon = "leaf-outline"
+        error = {
+            errors.name
+        }
+        tooltip = {
+            t('crop_name_tooltip') || 'Enter the common name of your crop (e.g., Wheat, Rice, Cotton). This helps buyers find your listing.'
+        }
+        />
 
-                    <StyledInput
-                        label={t('expected_price')}
-                        placeholder={t('min_price_placeholder')}
-                        value={formData.min_price}
-                        onChangeText={(text) => setFormData({ ...formData, min_price: text })}
-                        keyboardType="numeric"
-                        icon="cash-outline"
-                        error={errors.min_price}
-                        tooltip={t('min_price_tooltip') || 'Set the minimum price you are willing to accept per unit. Buyers cannot bid below this amount.'}
-                    />
+        <
+        StyledInput label = {
+            t('variety')
+        }
+        placeholder = {
+            t('variety_placeholder')
+        }
+        value = {
+            formData.variety
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                variety: text
+            })
+        }
+        icon = "pricetag-outline"
+        tooltip = {
+            t('variety_tooltip') || 'Specify the variety or type (e.g., Basmati for rice). Different varieties have different market values.'
+        }
+        />
 
-                    <View style={styles.labelWithTooltip}>
-                        <Text style={styles.label}>{t('quality_grade')}</Text>
-                        <Tooltip text={t('quality_grade_tooltip') !== 'quality_grade_tooltip' ? t('quality_grade_tooltip') : 'Quality grades help buyers understand your crop condition. Grade A: Premium quality with no defects, commands highest prices. Grade B: Good quality with minor imperfections. Grade C: Standard/average quality. Grade D: Basic quality with more defects, lowest prices.'} />
-                    </View>
-                    <View style={styles.pickerContainer}>
-                        <Picker
-                            selectedValue={formData.quality_grade}
-                            onValueChange={(itemValue) => setFormData({ ...formData, quality_grade: itemValue })}
-                            style={styles.picker}
-                        >
-                            <Picker.Item label="Grade A (Best)" value="A" />
-                            <Picker.Item label="Grade B (Good)" value="B" />
-                            <Picker.Item label="Grade C (Average)" value="C" />
-                            <Picker.Item label="Grade D (Low)" value="D" />
-                        </Picker>
-                    </View>
+        <
+        View style = {
+            styles.row
+        } >
+        <
+        View style = {
+            styles.halfInput
+        } >
+        <
+        StyledInput label = {
+            t('quantity')
+        }
+        placeholder = "0.00"
+        value = {
+            formData.quantity
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                quantity: text
+            })
+        }
+        keyboardType = "numeric"
+        icon = "layers-outline"
+        error = {
+            errors.quantity
+        }
+        tooltip = {
+            t('quantity_tooltip') || 'Enter the total quantity available for sale. Be accurate as this affects buyer decisions.'
+        }
+        /> < /
+        View > <
+        View style = {
+            styles.halfInput
+        } >
+        <
+        Text style = {
+            styles.label
+        } > {
+            t('unit')
+        } < /Text> <
+        View style = {
+            styles.pickerContainer
+        } >
+        <
+        Picker selectedValue = {
+            formData.unit
+        }
+        onValueChange = {
+            (itemValue) => setFormData({
+                ...formData,
+                unit: itemValue
+            })
+        }
+        style = {
+            styles.picker
+        } >
+        <
+        Picker.Item label = "Kg"
+        value = "kg" / >
+        <
+        Picker.Item label = "Quintal"
+        value = "quintal" / >
+        <
+        Picker.Item label = "Ton"
+        value = "ton" / >
+        <
+        /Picker> < /
+        View > <
+        /View> < /
+        View >
 
-                    <View style={styles.labelWithTooltip}>
-                        <Text style={styles.label}>{t('description')}</Text>
-                        <Tooltip text={t('description_tooltip') || 'Provide details about your crop: growing conditions, harvest date, any certifications, or special characteristics that make your produce stand out.'} />
-                    </View>
-                    <TextInput
-                        style={[styles.textArea, { borderColor: theme.colors.border }]}
-                        value={formData.description}
-                        onChangeText={(text) => setFormData({ ...formData, description: text })}
-                        multiline
-                        numberOfLines={4}
-                        placeholder={t('description_placeholder')}
-                        placeholderTextColor={theme.colors.text.disabled}
-                    />
+        <
+        StyledInput label = {
+            t('expected_price')
+        }
+        placeholder = {
+            t('min_price_placeholder')
+        }
+        value = {
+            formData.min_price
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                min_price: text
+            })
+        }
+        keyboardType = "numeric"
+        icon = "cash-outline"
+        error = {
+            errors.min_price
+        }
+        tooltip = {
+            t('min_price_tooltip') || 'Set the minimum price you are willing to accept per unit. Buyers cannot bid below this amount.'
+        }
+        />
 
-                    <StyledInput
-                        label={t('district')}
-                        placeholder={t('district_placeholder')}
-                        value={formData.location.district}
-                        onChangeText={(text) => setFormData({ ...formData, location: { district: text } })}
-                        icon="location-outline"
-                        error={errors.district}
-                        tooltip={t('district_tooltip') || 'Enter your district or location. This helps buyers nearby find your crops and plan logistics.'}
-                    />
-                </View>
+        <
+        TouchableOpacity style = {
+            styles.suggestButton
+        }
+        onPress = {
+            handleSuggestPrice
+        }
+        disabled = {
+            isSuggesting
+        } > {
+            isSuggesting ? ( <
+                Text style = {
+                    styles.suggestButtonText
+                } > Analyzing Market... < /Text>
+            ) : ( <
+                View style = {
+                    {
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }
+                } >
+                <
+                Ionicons name = "sparkles"
+                size = {
+                    16
+                }
+                color = "#fff"
+                style = {
+                    {
+                        marginRight: 6
+                    }
+                }
+                /> <
+                Text style = {
+                    styles.suggestButtonText
+                } > Get AI Price Suggestion < /Text> < /
+                View >
+            )
+        } <
+        /TouchableOpacity>
 
-                <TouchableOpacity
-                    onPress={handleSubmit}
-                    disabled={loading}
-                    activeOpacity={0.8}
-                >
-                    <LinearGradient
-                        colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
-                        style={styles.button}
-                    >
-                        {loading ? (
-                            <Text style={styles.buttonText}>{t('listing')}</Text>
-                        ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Ionicons name="checkmark-circle-outline" size={24} color="#fff" style={{ marginRight: 8 }} />
-                                <Text style={styles.buttonText}>{t('list_crop_button')}</Text>
-                            </View>
-                        )}
-                    </LinearGradient>
-                </TouchableOpacity>
+        <
+        View style = {
+            styles.labelWithTooltip
+        } >
+        <
+        Text style = {
+            styles.label
+        } > {
+            t('quality_grade')
+        } < /Text> <
+        Tooltip text = {
+            t('quality_grade_tooltip') !== 'quality_grade_tooltip' ? t('quality_grade_tooltip') : 'Quality grades help buyers understand your crop condition. Grade A: Premium quality with no defects, commands highest prices. Grade B: Good quality with minor imperfections. Grade C: Standard/average quality. Grade D: Basic quality with more defects, lowest prices.'
+        }
+        /> < /
+        View > <
+        View style = {
+            styles.pickerContainer
+        } >
+        <
+        Picker selectedValue = {
+            formData.quality_grade
+        }
+        onValueChange = {
+            (itemValue) => setFormData({
+                ...formData,
+                quality_grade: itemValue
+            })
+        }
+        style = {
+            styles.picker
+        } >
+        <
+        Picker.Item label = "Grade A (Best)"
+        value = "A" / >
+        <
+        Picker.Item label = "Grade B (Good)"
+        value = "B" / >
+        <
+        Picker.Item label = "Grade C (Average)"
+        value = "C" / >
+        <
+        Picker.Item label = "Grade D (Low)"
+        value = "D" / >
+        <
+        /Picker> < /
+        View >
 
-                <SuccessModal
-                    visible={successModalVisible}
-                    title={t('crop_listed_success')}
-                    message={t('crop_listed_message')}
-                    onClose={() => {
-                        setSuccessModalVisible(false);
-                        navigation.goBack();
-                    }}
-                    buttonText={t('back_to_dashboard')}
-                />
+        <
+        View style = {
+            styles.labelWithTooltip
+        } >
+        <
+        Text style = {
+            styles.label
+        } > {
+            t('description')
+        } < /Text> <
+        Tooltip text = {
+            t('description_tooltip') || 'Provide details about your crop: growing conditions, harvest date, any certifications, or special characteristics that make your produce stand out.'
+        }
+        /> < /
+        View > <
+        TextInput style = {
+            [styles.textArea, {
+                borderColor: theme.colors.border
+            }]
+        }
+        value = {
+            formData.description
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                description: text
+            })
+        }
+        multiline numberOfLines = {
+            4
+        }
+        placeholder = {
+            t('description_placeholder')
+        }
+        placeholderTextColor = {
+            theme.colors.text.disabled
+        }
+        />
 
-            </ScrollView>
-        </KeyboardAvoidingView>
+        <
+        StyledInput label = {
+            t('district')
+        }
+        placeholder = {
+            t('district_placeholder')
+        }
+        value = {
+            formData.location.district
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                location: {
+                    district: text
+                }
+            })
+        }
+        icon = "location-outline"
+        error = {
+            errors.district
+        }
+        tooltip = {
+            t('district_tooltip') || 'Enter your district or location. This helps buyers nearby find your crops and plan logistics.'
+        }
+        /> < /
+        View >
+
+        <
+        TouchableOpacity onPress = {
+            handleSubmit
+        }
+        disabled = {
+            loading
+        }
+        activeOpacity = {
+            0.8
+        } >
+        <
+        LinearGradient colors = {
+            [theme.colors.gradientStart, theme.colors.gradientEnd]
+        }
+        style = {
+            styles.button
+        } > {
+            loading ? ( <
+                Text style = {
+                    styles.buttonText
+                } > {
+                    t('listing')
+                } < /Text>
+            ) : ( <
+                View style = {
+                    {
+                        flexDirection: 'row',
+                        alignItems: 'center'
+                    }
+                } >
+                <
+                Ionicons name = "checkmark-circle-outline"
+                size = {
+                    24
+                }
+                color = "#fff"
+                style = {
+                    {
+                        marginRight: 8
+                    }
+                }
+                /> <
+                Text style = {
+                    styles.buttonText
+                } > {
+                    t('list_crop_button')
+                } < /Text> < /
+                View >
+            )
+        } <
+        /LinearGradient> < /
+        TouchableOpacity >
+
+        <
+        SuccessModal visible = {
+            successModalVisible
+        }
+        title = {
+            t('crop_listed_success')
+        }
+        message = {
+            t('crop_listed_message')
+        }
+        onClose = {
+            () => {
+                setSuccessModalVisible(false);
+                navigation.goBack();
+            }
+        }
+        buttonText = {
+            t('back_to_dashboard')
+        }
+        />
+
+        <
+        /ScrollView> < /
+        KeyboardAvoidingView >
     );
 };
 
@@ -540,6 +1004,19 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold'
+    },
+    suggestButton: {
+        backgroundColor: theme.colors.secondary,
+        padding: 10,
+        borderRadius: theme.borderRadius.m,
+        alignItems: 'center',
+        marginBottom: 20,
+        marginTop: -10
+    },
+    suggestButtonText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 14
     }
 });
 
