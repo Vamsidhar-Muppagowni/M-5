@@ -12,18 +12,19 @@ const {
 
 const generateToken = (user) => {
     return jwt.sign({
-        id: user._id,
-        phone: user.phone,
-        user_type: user.user_type
-    },
+            id: user._id,
+            phone: user.phone,
+            user_type: user.user_type
+        },
         process.env.JWT_SECRET || 'your-secret-key', {
-        expiresIn: '7d'
-    }
+            expiresIn: '7d'
+        }
     );
 };
 
 exports.register = async (req, res) => {
     try {
+        console.log('Register Request Body:', req.body); // DEBUG LOG
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({
@@ -41,7 +42,9 @@ exports.register = async (req, res) => {
         } = req.body;
 
         // Check if user already exists
-        const existingUser = await User.findOne({ phone });
+        const existingUser = await User.findOne({
+            phone
+        });
         if (existingUser) {
             return res.status(400).json({
                 error: 'User already exists with this phone number'
@@ -113,7 +116,10 @@ exports.register = async (req, res) => {
 
 exports.verifyOTP = async (req, res) => {
     try {
-        const { phone, otp } = req.body;
+        const {
+            phone,
+            otp
+        } = req.body;
 
         const storedOTP = await redisClient.get(`otp:${phone}`);
 
@@ -130,7 +136,11 @@ exports.verifyOTP = async (req, res) => {
         }
 
         // Update verify status
-        await User.updateOne({ phone }, { is_verified: true });
+        await User.updateOne({
+            phone
+        }, {
+            is_verified: true
+        });
 
         await redisClient.del(`otp:${phone}`);
 
@@ -147,9 +157,14 @@ exports.verifyOTP = async (req, res) => {
 
 exports.login = async (req, res) => {
     try {
-        const { phone, password } = req.body;
+        const {
+            phone,
+            password
+        } = req.body;
 
-        const user = await User.findOne({ phone }).select('+password');
+        const user = await User.findOne({
+            phone
+        }).select('+password');
         if (!user) {
             return res.status(401).json({
                 error: 'Invalid credentials'
@@ -165,7 +180,9 @@ exports.login = async (req, res) => {
 
         // Update last login
         user.last_login = new Date();
-        await user.save({ validateBeforeSave: false });
+        await user.save({
+            validateBeforeSave: false
+        });
 
         const token = generateToken(user);
 
@@ -193,9 +210,13 @@ exports.login = async (req, res) => {
 
 exports.resendOTP = async (req, res) => {
     try {
-        const { phone } = req.body;
+        const {
+            phone
+        } = req.body;
 
-        const user = await User.findOne({ phone });
+        const user = await User.findOne({
+            phone
+        });
         if (!user) {
             return res.status(404).json({
                 error: 'User not found'
@@ -260,7 +281,9 @@ exports.updateProfile = async (req, res) => {
 exports.changeLanguage = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { language } = req.body;
+        const {
+            language
+        } = req.body;
 
         if (!language) {
             return res.status(400).json({
@@ -268,7 +291,9 @@ exports.changeLanguage = async (req, res) => {
             });
         }
 
-        await User.findByIdAndUpdate(userId, { language });
+        await User.findByIdAndUpdate(userId, {
+            language
+        });
 
         res.json({
             message: 'Language updated successfully',
@@ -304,7 +329,9 @@ exports.getProfile = async (req, res) => {
             });
         }
 
-        res.json({ user });
+        res.json({
+            user
+        });
     } catch (error) {
         console.error('Get profile error:', error);
         res.status(500).json({

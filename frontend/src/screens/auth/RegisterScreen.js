@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, {
+    useState
+} from 'react';
 import {
     View,
     Text,
@@ -8,18 +10,34 @@ import {
     ScrollView,
     useWindowDimensions
 } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { register } from '../../store/slices/authSlice';
-import { useTranslation } from 'react-i18next';
-import { LinearGradient } from 'expo-linear-gradient';
+import {
+    useDispatch
+} from 'react-redux';
+import {
+    register
+} from '../../store/slices/authSlice';
+import {
+    useTranslation
+} from 'react-i18next';
+import {
+    LinearGradient
+} from 'expo-linear-gradient';
 import CustomButton from '../../components/CustomButton';
 import StyledInput from '../../components/StyledInput';
 import Tooltip from '../../components/Tooltip';
-import { theme } from '../../styles/theme';
+import {
+    theme
+} from '../../styles/theme';
 
-const RegisterScreen = ({ navigation }) => {
-    const { t } = useTranslation();
-    const { width } = useWindowDimensions();
+const RegisterScreen = ({
+    navigation
+}) => {
+    const {
+        t
+    } = useTranslation();
+    const {
+        width
+    } = useWindowDimensions();
     const isDesktop = width >= 768;
     const [loading, setLoading] = useState(false);
     const [phoneError, setPhoneError] = useState('');
@@ -35,7 +53,10 @@ const RegisterScreen = ({ navigation }) => {
 
     const validatePhone = (value) => {
         const digitsOnly = value.replace(/[^0-9]/g, '');
-        setFormData({ ...formData, phone: digitsOnly });
+        setFormData({
+            ...formData,
+            phone: digitsOnly
+        });
         if (digitsOnly.length > 0 && digitsOnly.length !== 10) {
             setPhoneError(t('phone_invalid') || 'Phone number must be exactly 10 digits');
         } else {
@@ -44,7 +65,10 @@ const RegisterScreen = ({ navigation }) => {
     };
 
     const validateEmail = (value) => {
-        setFormData({ ...formData, email: value });
+        setFormData({
+            ...formData,
+            email: value
+        });
         if (value.length > 0) {
             // Standard email regex
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -86,7 +110,9 @@ const RegisterScreen = ({ navigation }) => {
 
             if (register.fulfilled.match(resultAction)) {
                 Alert.alert('Success', t('success_otp'));
-                navigation.navigate('OTPVerification', { phone: formData.phone });
+                navigation.navigate('OTPVerification', {
+                    phone: formData.phone
+                });
             } else {
                 Alert.alert('Registration Failed', resultAction.payload || 'Unknown error');
             }
@@ -97,105 +123,244 @@ const RegisterScreen = ({ navigation }) => {
         }
     };
 
-    return (
-        <LinearGradient
-            colors={[theme.colors.background, theme.colors.surface]}
-            style={{ flex: 1 }}
+    return ( <
+        LinearGradient colors = {
+            [theme.colors.background, theme.colors.surface]
+        }
+        style = {
+            {
+                flex: 1
+            }
+        } >
+        <
+        ScrollView contentContainerStyle = {
+            {
+                flexGrow: 1
+            }
+        } >
+        <
+        View style = {
+            [styles.container, isDesktop && styles.containerDesktop]
+        } >
+        <
+        View style = {
+            [styles.formCard, isDesktop && styles.formCardDesktop]
+        } >
+        <
+        View style = {
+            styles.headerContainer
+        } >
+        <
+        LinearGradient colors = {
+            [theme.colors.gradientStart, theme.colors.gradientEnd]
+        }
+        style = {
+            styles.logoPlaceholder
+        } >
+        <
+        Text style = {
+            styles.logoIcon
+        } > 🌱 < /Text> <
+        /LinearGradient> <
+        Text style = {
+            styles.title
+        } > {
+            t('register')
+        } < /Text> <
+        Text style = {
+            styles.subtitle
+        } > {
+            t('join_community') || 'Join our community of farmers and buyers'
+        } < /Text> <
+        /View>
+
+        <
+        View style = {
+            styles.labelRow
+        } >
+        <
+        Text style = {
+            styles.label
+        } > {
+            t('i_am_a') || 'I am a...'
+        } < /Text> <
+        Tooltip text = {
+            t('role_tooltip') || 'Select "Farmer" if you want to sell crops, or "Buyer" if you want to purchase crops from farmers.'
+        }
+        /> <
+        /View> <
+        View style = {
+            styles.roleSelector
+        } >
+        <
+        TouchableOpacity style = {
+            [
+                styles.roleButton,
+                formData.user_type === 'farmer' && styles.roleButtonActive
+            ]
+        }
+        onPress = {
+            () => setFormData({
+                ...formData,
+                user_type: 'farmer'
+            })
+        } >
+        <
+        Text style = {
+            [
+                styles.roleText,
+                formData.user_type === 'farmer' && styles.roleTextActive
+            ]
+        } > {
+            t('farmer') || 'Farmer'
+        } <
+        /Text> <
+        /TouchableOpacity>
+
+        <
+        TouchableOpacity style = {
+            [
+                styles.roleButton,
+                formData.user_type === 'buyer' && styles.roleButtonActive
+            ]
+        }
+        onPress = {
+            () => setFormData({
+                ...formData,
+                user_type: 'buyer'
+            })
+        } >
+        <
+        Text style = {
+            [
+                styles.roleText,
+                formData.user_type === 'buyer' && styles.roleTextActive
+            ]
+        } > {
+            t('buyer') || 'Buyer'
+        } <
+        /Text> <
+        /TouchableOpacity> <
+        /View>
+
+        <
+        StyledInput label = {
+            t('name_placeholder') || 'Full Name'
+        }
+        placeholder = "Enter your full name"
+        value = {
+            formData.name
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                name: text
+            })
+        }
+        icon = "👤" /
         >
-            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-                <View style={[styles.container, isDesktop && styles.containerDesktop]}>
-                    <View style={[styles.formCard, isDesktop && styles.formCardDesktop]}>
-                        <View style={styles.headerContainer}>
-                            <LinearGradient
-                                colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
-                                style={styles.logoPlaceholder}
-                            >
-                                <Text style={styles.logoIcon}>🌱</Text>
-                            </LinearGradient>
-                            <Text style={styles.title}>{t('register')}</Text>
-                            <Text style={styles.subtitle}>{t('join_community') || 'Join our community of farmers and buyers'}</Text>
-                        </View>
 
-                        <View style={styles.labelRow}>
-                            <Text style={styles.label}>{t('i_am_a') || 'I am a...'}</Text>
-                            <Tooltip text={t('role_tooltip') || 'Select "Farmer" if you want to sell crops, or "Buyer" if you want to purchase crops from farmers.'} />
-                        </View>
-                        <View style={styles.roleSelector}>
-                            {['farmer', 'buyer'].map((type) => (
-                                <TouchableOpacity
-                                    key={type}
-                                    style={[
-                                        styles.roleButton,
-                                        formData.user_type === type && styles.roleButtonActive
-                                    ]}
-                                    onPress={() => setFormData({ ...formData, user_type: type })}
-                                >
-                                    <Text style={[
-                                        styles.roleText,
-                                        formData.user_type === type && styles.roleTextActive
-                                    ]}>
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                                    </Text>
-                                </TouchableOpacity>
-                            ))}
-                        </View>
+        <
+        StyledInput label = {
+            t('phone_placeholder') || 'Phone Number'
+        }
+        placeholder = "Enter your phone number"
+        value = {
+            formData.phone
+        }
+        onChangeText = {
+            validatePhone
+        }
+        keyboardType = "phone-pad"
+        icon = "📞"
+        error = {
+            phoneError
+        }
+        tooltip = {
+            t('phone_tooltip') || 'Enter your 10-digit mobile number. This will be used for login and receiving notifications.'
+        }
+        />
 
-                        <StyledInput
-                            label={t('name_placeholder') || 'Full Name'}
-                            placeholder="Enter your full name"
-                            value={formData.name}
-                            onChangeText={(text) => setFormData({ ...formData, name: text })}
-                            icon="👤"
-                        />
+        <
+        StyledInput label = {
+            t('email_placeholder') || 'Email Address (Optional)'
+        }
+        placeholder = "name@example.com"
+        value = {
+            formData.email
+        }
+        onChangeText = {
+            validateEmail
+        }
+        keyboardType = "email-address"
+        icon = "✉️"
+        error = {
+            emailError
+        }
+        />
 
-                        <StyledInput
-                            label={t('phone_placeholder') || 'Phone Number'}
-                            placeholder="Enter your phone number"
-                            value={formData.phone}
-                            onChangeText={validatePhone}
-                            keyboardType="phone-pad"
-                            icon="📞"
-                            error={phoneError}
-                            tooltip={t('phone_tooltip') || 'Enter your 10-digit mobile number. This will be used for login and receiving notifications.'}
-                        />
+        <
+        StyledInput label = {
+            t('password_placeholder') || 'Password'
+        }
+        placeholder = "Create a password"
+        value = {
+            formData.password
+        }
+        onChangeText = {
+            (text) => setFormData({
+                ...formData,
+                password: text
+            })
+        }
+        secureTextEntry icon = "🔒"
+        tooltip = {
+            t('password_tooltip') || 'Create a strong password with at least 6 characters. Use a mix of letters and numbers.'
+        }
+        />
 
-                        <StyledInput
-                            label={t('email_placeholder') || 'Email Address (Optional)'}
-                            placeholder="name@example.com"
-                            value={formData.email}
-                            onChangeText={validateEmail}
-                            keyboardType="email-address"
-                            icon="✉️"
-                            error={emailError}
-                        />
+        <
+        CustomButton title = {
+            t('register_button')
+        }
+        onPress = {
+            handleRegister
+        }
+        loading = {
+            loading
+        }
+        style = {
+            {
+                marginTop: 16
+            }
+        }
+        />
 
-                        <StyledInput
-                            label={t('password_placeholder') || 'Password'}
-                            placeholder="Create a password"
-                            value={formData.password}
-                            onChangeText={(text) => setFormData({ ...formData, password: text })}
-                            secureTextEntry
-                            icon="🔒"
-                            tooltip={t('password_tooltip') || 'Create a strong password with at least 6 characters. Use a mix of letters and numbers.'}
-                        />
-
-                        <CustomButton
-                            title={t('register_button')}
-                            onPress={handleRegister}
-                            loading={loading}
-                            style={{ marginTop: 16 }}
-                        />
-
-                        <View style={styles.loginContainer}>
-                            <Text style={styles.loginText}>{t('have_account') || 'Already have an account?'} </Text>
-                            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                                <Text style={styles.loginLink}>{t('login_here') || 'Login Here'}</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                </View>
-            </ScrollView>
-        </LinearGradient>
+        <
+        View style = {
+            styles.loginContainer
+        } >
+        <
+        Text style = {
+            styles.loginText
+        } > {
+            t('have_account') || 'Already have an account?'
+        } < /Text> <
+        TouchableOpacity onPress = {
+            () => navigation.navigate('Login')
+        } >
+        <
+        Text style = {
+            styles.loginLink
+        } > {
+            t('login_here') || 'Login Here'
+        } < /Text> <
+        /TouchableOpacity> <
+        /View> <
+        /View> <
+        /View> <
+        /ScrollView> <
+        /LinearGradient>
     );
 };
 

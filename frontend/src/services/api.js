@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // USB Debugging Mode
 // When using 'adb reverse tcp:5000 tcp:5000', the phone can access the PC's localhost directly.
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://10.12.75.240:5000/api';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
