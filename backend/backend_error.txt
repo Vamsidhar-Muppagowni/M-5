@@ -1,0 +1,7 @@
+[2026-02-03T09:16:17.576Z] SequelizeValidationError: Validation error: Validation isEmail on email failed
+    at InstanceValidator._validate (C:\Users\vamsi\Desktop\DeepseekM5\backend\node_modules\sequelize\lib\instance-validator.js:50:13)
+    at async InstanceValidator._validateAndRunHooks (C:\Users\vamsi\Desktop\DeepseekM5\backend\node_modules\sequelize\lib\instance-validator.js:60:7)
+    at async InstanceValidator.validate (C:\Users\vamsi\Desktop\DeepseekM5\backend\node_modules\sequelize\lib\instance-validator.js:54:12)
+    at async model.save (C:\Users\vamsi\Desktop\DeepseekM5\backend\node_modules\sequelize\lib\model.js:2426:7)
+    at async user.create (C:\Users\vamsi\Desktop\DeepseekM5\backend\node_modules\sequelize\lib\model.js:1362:12)
+    at async exports.register (C:\Users\vamsi\Desktop\DeepseekM5\backend\controllers\authController.js:36:22)
