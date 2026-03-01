@@ -1,5 +1,7 @@
 import axios from 'axios';
-import { Platform } from 'react-native';
+import {
+    Platform
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // USB Debugging Mode
@@ -16,15 +18,15 @@ const api = axios.create({
 // Request interceptor to add token
 api.interceptors.request.use(
     async (config) => {
-        const token = await AsyncStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+            const token = await AsyncStorage.getItem('token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        },
+        (error) => {
+            return Promise.reject(error);
         }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
 );
 
 // Response interceptor to handle errors
@@ -34,7 +36,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // If token expired, try to refresh
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
@@ -74,16 +76,24 @@ export const authAPI = {
     verifyOTP: (data) => api.post('/auth/verify-otp', data),
     getProfile: () => api.get('/auth/profile'),
     updateProfile: (data) => api.put('/auth/profile', data),
-    changeLanguage: (language) => api.put('/auth/language', { language })
+    changeLanguage: (language) => api.put('/auth/language', {
+        language
+    })
 };
 
 export const marketAPI = {
-    getCrops: (params) => api.get('/market/crops', { params }),
+    getCrops: (params) => api.get('/market/crops', {
+        params
+    }),
     getCropDetails: (id) => api.get(`/market/crops/${id}`),
     listCrop: (data) => api.post('/market/crops/list', data),
+    deleteCrop: (id) => api.delete(`/market/crops/${id}`),
     placeBid: (data) => api.post('/market/bids', data),
     respondToBid: (data) => api.post('/market/bids/respond', data),
-    getPriceHistory: (params) => api.get('/market/prices/history', { params }),
+    getPriceHistory: (params) => api.get('/market/prices/history', {
+        params
+    }),
+    getRecentPrices: () => api.get('/market/prices/recent'),
     getPendingBids: () => api.get('/market/bids/received')
 };
 

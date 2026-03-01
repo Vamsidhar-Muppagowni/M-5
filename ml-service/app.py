@@ -6,6 +6,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+"""
+ML Service API
+
+A Flask-based microservice that:
+1. Exposes endpoints for price prediction.
+2. Serves as the interface for the trained ML models.
+3. Can be extended to run complex inference tasks not suitable for Node.js.
+"""
+
 app = Flask(__name__)
 CORS(app)
 

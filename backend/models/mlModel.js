@@ -1,6 +1,17 @@
-const { DataTypes } = require('sequelize');
+const {
+    DataTypes
+} = require('sequelize');
 const sequelize = require('../config/database');
 
+/**
+ * ML Model Metadata
+ * 
+ * Stores metadata about trained ML models such as:
+ * - Model type and version
+ * - Accuracy metrics
+ * - Path to the saved model file (e.g., in S3)
+ * Used to track model performance and manage deployments.
+ */
 const MLModel = sequelize.define('ml_model', {
     id: {
         type: DataTypes.UUID,

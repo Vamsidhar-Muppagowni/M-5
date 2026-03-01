@@ -7,6 +7,7 @@ const Transaction = require('./transaction');
 const Notification = require('./notification');
 const GovernmentScheme = require('./governmentScheme');
 const PriceHistory = require('./priceHistory');
+const PriceAlert = require('./priceAlert');
 
 module.exports = {
     User,
@@ -17,5 +18,6 @@ module.exports = {
     Transaction,
     Notification,
     GovernmentScheme,
-    PriceHistory
+    PriceHistory,
+    PriceAlert
 };

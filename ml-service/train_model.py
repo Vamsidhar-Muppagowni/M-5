@@ -4,6 +4,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 import joblib
 
+"""
+Model Training Script
+
+This script is responsible for:
+1. Loading historical price data.
+2. Preprocessing data (cleaning, feature engineering).
+3. Training the Random Forest Regressor model.
+4. Saving the trained model to a file for use by the API.
+"""
+
 def train_model():
     print("Loading data...")
     # Load dataset

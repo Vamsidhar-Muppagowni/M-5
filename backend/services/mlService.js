@@ -1,17 +1,40 @@
 const axios = require('axios');
 const redisClient = require('../config/redis');
-const { PriceHistory, Crop, Transaction } = require('../models');
+const {
+    PriceHistory,
+    Crop,
+    Transaction
+} = require('../models');
 // const { Op } = require('sequelize'); // Not needed for Mongoose
 
+/**
+ * ML Service
+ * 
+ * Encapsulates all logic related to Machine Learning and Data Analysis.
+ * - Predicts future crop prices using historical data or external ML API.
+ * - Generates market insights and trends.
+ * - Provides crop and price recommendations.
+ * - Implements caching (Redis) for predictions to improve performance.
+ * - Includes fallback mechanisms (local rules) if ML API is unavailable.
+ */
 class MLService {
     constructor() {
         this.predictionApi = process.env.ML_API_URL || 'http://localhost:5000';
         this.weatherApiKey = process.env.WEATHER_API_KEY;
     }
 
+    /**
+     * Predicts the potential price of a crop for upcoming days.
+     * Uses Redis for caching results.
+     * Falls back to local rule-based prediction if ML API fails.
+     */
     async predictPrice(params) {
         try {
-            const { crop, location, days = 7 } = params;
+            const {
+                crop,
+                location,
+                days = 7
+            } = params;
 
             // Try cache first
             const cacheKey = `price_prediction:${crop}:${location}:${days}`;
@@ -49,9 +72,18 @@ class MLService {
         }
     }
 
+    /**
+     * Recommends a selling price based on current market listings,
+     * quality, and quantity (bulk discounts/premiums).
+     */
     async getRecommendedPrice(params) {
         try {
-            const { crop, quality, location, quantity } = params;
+            const {
+                crop,
+                quality,
+                location,
+                quantity
+            } = params;
 
             // Get current market prices
             const query = {
@@ -64,15 +96,21 @@ class MLService {
 
             const currentPrices = await Crop.find(query)
                 .select('current_price quality_grade quantity')
-                .sort({ created_at: -1 })
+                .sort({
+                    created_at: -1
+                })
                 .limit(20);
 
             if (currentPrices.length === 0) {
                 // Use historical data
-                const histQuery = { crop_name: crop };
+                const histQuery = {
+                    cropName: (crop || '').trim().toLowerCase()
+                };
                 if (location) histQuery.region = location;
 
-                const historical = await PriceHistory.findOne(histQuery).sort({ date: -1 });
+                const historical = await PriceHistory.findOne(histQuery).sort({
+                    date: -1
+                });
 
                 return historical ? Number(historical.price) * 1.1 : null; // 10% markup
             }
@@ -102,9 +140,16 @@ class MLService {
         }
     }
 
+    /**
+     * Generates qualitative insights about the market.
+     * Analyzes price trends, supply levels, and buyer interest.
+     */
     async getMarketInsights(params) {
         try {
-            const { crop, location } = params;
+            const {
+                crop,
+                location
+            } = params;
 
             const insights = {
                 demand_trend: 'stable',
@@ -120,16 +165,24 @@ class MLService {
             // This is tricky in NoSQL if not denormalized. 
             // Workaround: Find Crops first, then Transactions for those crops.
 
-            const cropQuery = { name: crop };
+            const cropQuery = {
+                name: crop
+            };
             if (location) cropQuery['location.district'] = location;
 
             const relevantCrops = await Crop.find(cropQuery).select('_id');
             const cropIds = relevantCrops.map(c => c._id);
 
             const recentTransactions = await Transaction.find({
-                crop: { $in: cropIds },
-                created_at: { $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) }
-            }).sort({ created_at: -1 });
+                crop: {
+                    $in: cropIds
+                },
+                created_at: {
+                    $gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                }
+            }).sort({
+                created_at: -1
+            });
 
 
             if (recentTransactions.length > 0) {
@@ -162,7 +215,9 @@ class MLService {
             const currentListings = await Crop.countDocuments({
                 name: crop,
                 status: 'listed',
-                ...(location && { 'location.district': location })
+                ...(location && {
+                    'location.district': location
+                })
             });
 
             insights.supply_level = currentListings > 20 ? 'high' : currentListings > 10 ? 'medium' : 'low';
@@ -185,10 +240,14 @@ class MLService {
 
     async getCropRecommendation(params) {
         try {
-            const { location, soil_type, water_source, season } = params;
+            const {
+                location,
+                soil_type,
+                water_source,
+                season
+            } = params;
 
-            const recommendations = [
-                {
+            const recommendations = [{
                     crop: 'Rice',
                     suitability: 'high',
                     profit_margin: '15-20%',
@@ -244,10 +303,14 @@ class MLService {
 
     async getPriceHistory(params) {
         try {
-            const { crop, location, days = 30 } = params;
+            const {
+                crop,
+                location,
+                days = 30
+            } = params;
 
             const query = {
-                crop_name: crop,
+                cropName: (crop || '').trim().toLowerCase(),
                 date: {
                     $gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
                 }
@@ -255,7 +318,9 @@ class MLService {
             if (location) query.region = location;
 
             const history = await PriceHistory.find(query)
-                .sort({ date: 1 })
+                .sort({
+                    date: 1
+                })
                 .select('date price market_name quality');
 
             if (history.length === 0) {
@@ -339,10 +404,18 @@ class MLService {
 
     getUpcomingHolidays() {
         // Indian market holidays
-        return [
-            { date: '2024-01-26', name: 'Republic Day' },
-            { date: '2024-08-15', name: 'Independence Day' },
-            { date: '2024-10-02', name: 'Gandhi Jayanti' }
+        return [{
+                date: '2024-01-26',
+                name: 'Republic Day'
+            },
+            {
+                date: '2024-08-15',
+                name: 'Independence Day'
+            },
+            {
+                date: '2024-10-02',
+                name: 'Gandhi Jayanti'
+            }
         ];
     }
 
@@ -362,14 +435,16 @@ class MLService {
 
     async getHistoricalData(crop, location, days) {
         const query = {
-            crop_name: crop,
+            cropName: (crop || '').trim().toLowerCase(),
             date: {
                 $gte: new Date(Date.now() - days * 24 * 60 * 60 * 1000)
             }
         };
         if (location) query.region = location;
 
-        return await PriceHistory.find(query).sort({ date: 1 });
+        return await PriceHistory.find(query).sort({
+            date: 1
+        });
     }
 
     generateSyntheticPriceHistory(crop, days) {
@@ -394,13 +469,11 @@ class MLService {
 
     getFallbackPrediction(params) {
         return {
-            predictions: [
-                {
-                    date: new Date(Date.now() + 24 * 60 * 60 * 1000),
-                    predicted_price: 50.00,
-                    confidence: 0.5
-                }
-            ],
+            predictions: [{
+                date: new Date(Date.now() + 24 * 60 * 60 * 1000),
+                predicted_price: 50.00,
+                confidence: 0.5
+            }],
             trend: 'stable',
             recommendation: 'Limited data available'
         };
@@ -417,8 +490,7 @@ class MLService {
     }
 
     getDefaultRecommendations() {
-        return [
-            {
+        return [{
                 crop: 'Rice',
                 suitability: 'high',
                 profit_margin: '15-20%',
