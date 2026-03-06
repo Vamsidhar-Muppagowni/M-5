@@ -670,15 +670,15 @@ const PriceDashboard = ({ navigation }) => {
                   tooltipPos.x === data.x && tooltipPos.y === data.y;
                 isSamePoint
                   ? setTooltipPos((prev) => ({
-                      ...prev,
-                      visible: !prev.visible,
-                    }))
+                    ...prev,
+                    visible: !prev.visible,
+                  }))
                   : setTooltipPos({
-                      x: data.x,
-                      y: data.y,
-                      visible: true,
-                      value: data.value,
-                    });
+                    x: data.x,
+                    y: data.y,
+                    visible: true,
+                    value: data.value,
+                  });
               }}
               decorator={() => {
                 return tooltipPos.visible ? (
@@ -748,7 +748,7 @@ const PriceDashboard = ({ navigation }) => {
               </Text>{" "}
             </View>
           ))}{" "}
-          {recentPrices.length === 0 && (
+          {Array.isArray(recentPrices) && recentPrices.length === 0 && (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
                 {" "}

@@ -8,6 +8,8 @@ const Notification = require('./notification');
 const GovernmentScheme = require('./governmentScheme');
 const PriceHistory = require('./priceHistory');
 const PriceAlert = require('./priceAlert');
+const Issue = require('./issue');
+const Review = require('./review');
 
 module.exports = {
     User,
@@ -19,5 +21,7 @@ module.exports = {
     Notification,
     GovernmentScheme,
     PriceHistory,
-    PriceAlert
+    PriceAlert,
+    Issue,
+    Review
 };

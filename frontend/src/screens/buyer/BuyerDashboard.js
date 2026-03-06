@@ -17,7 +17,9 @@ const BuyerDashboard = ({ navigation }) => {
     const [stats, setStats] = useState({
         activeBids: 0,
         acceptedBids: 0,
-        pendingBids: 0
+        pendingBids: 0,
+        rating: 0,
+        rating_count: 0
     });
     const [refreshing, setRefreshing] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
@@ -47,7 +49,9 @@ const BuyerDashboard = ({ navigation }) => {
             setStats({
                 activeBids: bids.filter(b => b.status === 'pending').length,
                 acceptedBids: bids.filter(b => b.status === 'accepted').length,
-                pendingBids: bids.filter(b => b.status === 'pending').length
+                pendingBids: bids.filter(b => b.status === 'pending').length,
+                rating: response.data.rating || 0,
+                rating_count: response.data.rating_count || 0
             });
         } catch (error) {
             console.error("Failed to fetch stats", error);
@@ -82,11 +86,17 @@ const BuyerDashboard = ({ navigation }) => {
                     <Text style={styles.greetingTitle}>{user?.name?.split(' ')[0] || 'Buyer'} 👋</Text>
                     <Text style={styles.subtitle}>{t('marketplace_dashboard')}</Text>
                 </View>
+
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>
                         <Text style={styles.languageButtonText}>{i18n.language.toUpperCase()}</Text>
                         <Ionicons name="chevron-down" size={16} color={theme.colors.primary} style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
+
+                    <View style={{ alignItems: 'flex-end', marginRight: 10, justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.text.primary }}>⭐ {stats.rating > 0 ? stats.rating : 'New'}</Text>
+                        <Text style={{ fontSize: 10, color: theme.colors.text.secondary }}>({stats.rating_count} {t('ratings') || 'ratings'})</Text>
+                    </View>
 
                     <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
                         <LinearGradient
@@ -186,6 +196,12 @@ const BuyerDashboard = ({ navigation }) => {
                         title={t('check_prices')}
                         color={theme.colors.secondary}
                         onPress={() => navigation.navigate('Prices')}
+                    />
+                    <QuickAction
+                        icon="receipt"
+                        title={t('history') || 'Transactions'}
+                        color={theme.colors.success}
+                        onPress={() => navigation.navigate('TransactionHistory')}
                     />
                 </View>
 

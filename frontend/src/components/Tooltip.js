@@ -8,17 +8,24 @@ const Tooltip = ({ text, iconSize = 18, iconColor }) => {
     const [visible, setVisible] = useState(false);
     const { t } = useTranslation();
 
+    // Coerce to string — prevents .length crash when i18n returns undefined
+    // during the race condition on first web render
+    const safeText = text != null ? String(text) : '';
+
+    // Nothing to show — don't render the icon either
+    if (!safeText) return null;
+
     return (
         <View style={styles.container}>
-            <TouchableOpacity 
+            <TouchableOpacity
                 onPress={() => setVisible(true)}
                 style={styles.iconButton}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-                <Ionicons 
-                    name="help-circle-outline" 
-                    size={iconSize} 
-                    color={iconColor || theme.colors.primary} 
+                <Ionicons
+                    name="help-circle-outline"
+                    size={iconSize}
+                    color={iconColor || theme.colors.primary}
                 />
             </TouchableOpacity>
 
@@ -28,22 +35,22 @@ const Tooltip = ({ text, iconSize = 18, iconColor }) => {
                 animationType="fade"
                 onRequestClose={() => setVisible(false)}
             >
-                <Pressable 
+                <Pressable
                     style={styles.overlay}
                     onPress={() => setVisible(false)}
                 >
                     <View style={styles.tooltipContainer}>
                         <View style={styles.tooltipContent}>
                             <View style={styles.tooltipHeader}>
-                                <Ionicons 
-                                    name="information-circle" 
-                                    size={24} 
-                                    color={theme.colors.primary} 
+                                <Ionicons
+                                    name="information-circle"
+                                    size={24}
+                                    color={theme.colors.primary}
                                 />
                                 <Text style={styles.tooltipTitle}>{t('info_tooltip') || 'Info'}</Text>
                             </View>
-                            <Text style={styles.tooltipText}>{text}</Text>
-                            <TouchableOpacity 
+                            <Text style={styles.tooltipText}>{safeText}</Text>
+                            <TouchableOpacity
                                 style={styles.closeButton}
                                 onPress={() => setVisible(false)}
                             >

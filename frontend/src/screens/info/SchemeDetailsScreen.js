@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert, Share } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,6 +23,18 @@ const SchemeDetailsScreen = ({ route, navigation }) => {
             }
         } else {
             Alert.alert(t('scheme_details'), t('no_app_link') || 'No application link available for this scheme.');
+        }
+    };
+
+    const handleShare = async () => {
+        try {
+            const message = `Check out this government scheme: ${getSchemeName()}. Apply here: ${scheme.application_link || 'N/A'}`;
+            await Share.share({
+                message,
+                title: getSchemeName()
+            });
+        } catch (error) {
+            Alert.alert(t('error') || 'Error', t('share_error') || 'Failed to share the scheme.');
         }
     };
 
@@ -56,99 +68,120 @@ const SchemeDetailsScreen = ({ route, navigation }) => {
 
     // Get translated required documents
     const getRequiredDocuments = () => {
-        if (scheme.name === 'PM-KISAN') {
+        try {
+            if (!scheme) return [];
+            if (scheme.name === 'PM-KISAN') {
+                return [
+                    t('pmkisan_doc1'),
+                    t('pmkisan_doc2'),
+                    t('pmkisan_doc3'),
+                    t('pmkisan_doc4')
+                ].filter(Boolean);
+            }
+            if (scheme.name === 'KCC') {
+                return [
+                    t('kcc_doc1'),
+                    t('kcc_doc2'),
+                    t('kcc_doc3'),
+                    t('kcc_doc4'),
+                    t('kcc_doc5'),
+                    t('kcc_doc6')
+                ].filter(Boolean);
+            }
+            if (Array.isArray(scheme.required_documents) && scheme.required_documents.length > 0) {
+                return scheme.required_documents;
+            }
+            // Fallback for old data or missing fields
             return [
-                t('pmkisan_doc1'),
-                t('pmkisan_doc2'),
-                t('pmkisan_doc3'),
-                t('pmkisan_doc4')
+                t('doc_aadhaar') || 'Aadhaar Card (mandatory)',
+                t('doc_land_records') || 'Land ownership records / Patta',
+                t('doc_bank_details') || 'Bank account details with IFSC',
+                t('doc_photos') || 'Passport-size photographs (2 copies)',
+                t('doc_income_cert') || 'Income certificate from Tehsildar'
             ];
+        } catch (e) {
+            return [];
         }
-        if (scheme.name === 'KCC') {
-            return [
-                t('kcc_doc1'),
-                t('kcc_doc2'),
-                t('kcc_doc3'),
-                t('kcc_doc4'),
-                t('kcc_doc5'),
-                t('kcc_doc6')
-            ];
-        }
-        if (scheme.required_documents && scheme.required_documents.length > 0) return scheme.required_documents;
-        // Fallback for old data
-        return [
-            t('doc_aadhaar') || 'Aadhaar Card (mandatory)',
-            t('doc_land_records') || 'Land ownership records / Patta',
-            t('doc_bank_details') || 'Bank account details with IFSC',
-            t('doc_photos') || 'Passport-size photographs (2 copies)',
-            t('doc_income_cert') || 'Income certificate from Tehsildar'
-        ];
     };
 
     // Get translated how-to-apply steps
     const getHowToApply = () => {
-        if (scheme.name === 'PM-KISAN') {
+        try {
+            if (!scheme) return [];
+            if (scheme.name === 'PM-KISAN') {
+                return [
+                    t('pmkisan_step1'),
+                    t('pmkisan_step2'),
+                    t('pmkisan_step3'),
+                    t('pmkisan_step4'),
+                    t('pmkisan_step5'),
+                    t('pmkisan_step6'),
+                    t('pmkisan_step7'),
+                    t('pmkisan_step8')
+                ].filter(Boolean);
+            }
+            if (scheme.name === 'KCC') {
+                return [
+                    t('kcc_step1'),
+                    t('kcc_step2'),
+                    t('kcc_step3'),
+                    t('kcc_step4'),
+                    t('kcc_step5'),
+                    t('kcc_step6'),
+                    t('kcc_step7'),
+                    t('kcc_step8'),
+                    t('kcc_step9')
+                ].filter(Boolean);
+            }
+            if (Array.isArray(scheme.how_to_apply) && scheme.how_to_apply.length > 0) {
+                return scheme.how_to_apply;
+            }
+            // Fallback for old data
             return [
-                t('pmkisan_step1'),
-                t('pmkisan_step2'),
-                t('pmkisan_step3'),
-                t('pmkisan_step4'),
-                t('pmkisan_step5'),
-                t('pmkisan_step6'),
-                t('pmkisan_step7'),
-                t('pmkisan_step8')
+                t('apply_step_1') || 'Visit the official scheme website',
+                t('apply_step_2') || 'Click on "New Registration" or "Apply Online"',
+                t('apply_step_3') || 'Fill in your personal and land details',
+                t('apply_step_4') || 'Upload required documents',
+                t('apply_step_5') || 'Submit and note your application number',
+                t('apply_step_6') || 'Track status online using your application ID'
             ];
+        } catch (e) {
+            return [];
         }
-        if (scheme.name === 'KCC') {
-            return [
-                t('kcc_step1'),
-                t('kcc_step2'),
-                t('kcc_step3'),
-                t('kcc_step4'),
-                t('kcc_step5'),
-                t('kcc_step6'),
-                t('kcc_step7'),
-                t('kcc_step8'),
-                t('kcc_step9')
-            ];
-        }
-        if (scheme.how_to_apply && scheme.how_to_apply.length > 0) return scheme.how_to_apply;
-        // Fallback for old data
-        return [
-            t('apply_step_1') || 'Visit the official scheme website',
-            t('apply_step_2') || 'Click on "New Registration" or "Apply Online"',
-            t('apply_step_3') || 'Fill in your personal and land details',
-            t('apply_step_4') || 'Upload required documents',
-            t('apply_step_5') || 'Submit and note your application number',
-            t('apply_step_6') || 'Track status online using your application ID'
-        ];
     };
 
     // Get translated important dates
     const getImportantDates = () => {
-        if (scheme.name === 'PM-KISAN') {
+        try {
+            if (!scheme) return [];
+            if (scheme.name === 'PM-KISAN') {
+                return [
+                    { label: t('pmkisan_date1_label'), value: t('pmkisan_date1_value') },
+                    { label: t('pmkisan_date2_label'), value: t('pmkisan_date2_value') },
+                    { label: t('pmkisan_date3_label'), value: t('pmkisan_date3_value') },
+                    { label: t('pmkisan_date4_label'), value: t('pmkisan_date4_value') }
+                ];
+            }
+            if (scheme.name === 'KCC') {
+                return [
+                    { label: t('kcc_date1_label'), value: t('kcc_date1_value') },
+                    { label: t('kcc_date2_label'), value: t('kcc_date2_value') },
+                    { label: t('kcc_date3_label'), value: t('kcc_date3_value') },
+                    { label: t('kcc_date4_label'), value: t('kcc_date4_value') }
+                ];
+            }
+            if (Array.isArray(scheme.important_dates) && scheme.important_dates.length > 0) {
+                return scheme.important_dates;
+            }
+            // Fallback
             return [
-                { label: t('pmkisan_date1_label'), value: t('pmkisan_date1_value') },
-                { label: t('pmkisan_date2_label'), value: t('pmkisan_date2_value') },
-                { label: t('pmkisan_date3_label'), value: t('pmkisan_date3_value') },
-                { label: t('pmkisan_date4_label'), value: t('pmkisan_date4_value') }
+                { label: t('date_application') || 'Application Window', value: t('date_year_round') || 'Open year-round' },
+                { label: t('date_processing') || 'Processing Time', value: t('date_processing_value') || '30-45 working days' },
+                { label: t('date_disbursement') || 'Benefit Disbursement', value: t('date_disbursement_value') || 'Within 60 days of approval' }
             ];
+        } catch (e) {
+            return [];
         }
-        if (scheme.name === 'KCC') {
-            return [
-                { label: t('kcc_date1_label'), value: t('kcc_date1_value') },
-                { label: t('kcc_date2_label'), value: t('kcc_date2_value') },
-                { label: t('kcc_date3_label'), value: t('kcc_date3_value') },
-                { label: t('kcc_date4_label'), value: t('kcc_date4_value') }
-            ];
-        }
-        if (scheme.important_dates && scheme.important_dates.length > 0) return scheme.important_dates;
-        // Fallback
-        return [
-            { label: t('date_application') || 'Application Window', value: t('date_year_round') || 'Open year-round' },
-            { label: t('date_processing') || 'Processing Time', value: t('date_processing_value') || '30-45 working days' },
-            { label: t('date_disbursement') || 'Benefit Disbursement', value: t('date_disbursement_value') || 'Within 60 days of approval' }
-        ];
     };
 
     return (
@@ -293,6 +326,12 @@ const SchemeDetailsScreen = ({ route, navigation }) => {
                         <Ionicons name="open-outline" size={20} color="#fff" />
                         <Text style={styles.applyButtonText}>{t('apply_online')}</Text>
                     </LinearGradient>
+                </TouchableOpacity>
+
+                {/* Share Button */}
+                <TouchableOpacity style={styles.shareButton} onPress={handleShare}>
+                    <Ionicons name="share-social-outline" size={20} color={theme.colors.secondary} />
+                    <Text style={styles.shareButtonText}>{t('share_scheme') || 'Share Scheme'}</Text>
                 </TouchableOpacity>
 
                 {/* Application Link Info */}
@@ -513,6 +552,23 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+        marginLeft: 10
+    },
+    shareButton: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 14,
+        borderRadius: theme.borderRadius.m,
+        borderWidth: 1.5,
+        borderColor: theme.colors.secondary,
+        backgroundColor: 'transparent',
+        marginBottom: 12
+    },
+    shareButtonText: {
+        color: theme.colors.secondary,
+        fontSize: 16,
+        fontWeight: '600',
         marginLeft: 10
     },
     linkText: {

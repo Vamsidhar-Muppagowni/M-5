@@ -41,6 +41,16 @@ const FarmerProfileSchema = new mongoose.Schema({
         type: String,
         enum: ['pending', 'verified', 'rejected'],
         default: 'pending'
+    },
+    payment_methods: {
+        upi_id: { type: String, trim: true },
+        qr_code_image_url: { type: String },
+        bank_account: {
+            account_number: { type: String, trim: true },
+            ifsc_code: { type: String, trim: true },
+            bank_name: { type: String, trim: true },
+            account_holder_name: { type: String, trim: true }
+        }
     }
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

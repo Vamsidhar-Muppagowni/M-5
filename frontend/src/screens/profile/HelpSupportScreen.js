@@ -191,6 +191,32 @@ const HelpSupportScreen = ({ navigation }) => {
               </Text>{" "}
             </View>{" "}
           </TouchableOpacity>{" "}
+
+          <TouchableOpacity
+            style={styles.contactButton}
+            onPress={() => navigation.navigate("ReportIssue")}
+          >
+            <View
+              style={[
+                styles.iconBox,
+                {
+                  backgroundColor: "#ffebee",
+                },
+              ]}
+            >
+              <Ionicons name="warning" size={24} color="#d32f2f" />
+            </View>{" "}
+            <View>
+              <Text style={styles.contactMethod}>
+                {" "}
+                {t("report_issue_title") || "Report an Issue"}{" "}
+              </Text>{" "}
+              <Text style={styles.contactValue}>
+                {" "}
+                {t("report_issue_desc") || "Fraud, problems, etc."}{" "}
+              </Text>{" "}
+            </View>{" "}
+          </TouchableOpacity>{" "}
         </View>
         <Text style={styles.sectionTitle}>
           {" "}

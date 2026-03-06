@@ -68,6 +68,13 @@ router.post('/bids/respond', [
     body('action').isIn(['accept', 'reject', 'counter']).withMessage('Invalid action')
 ], marketController.respondToBid);
 
+// Checkout accepted bid
+router.post('/bids/checkout', [
+    authMiddleware,
+    body('bid_id').isMongoId().withMessage('Invalid bid ID'),
+    body('payment_method').isIn(['online', 'cod']).withMessage('Invalid payment method')
+], marketController.checkoutBid);
+
 // Get price analysis (Smart Advice)
 router.get('/prices/analysis', [
     query('crop').optional().isString()
