@@ -40,6 +40,14 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+// Handle JSON parsing errors so the server doesn't crash on bad JSON
+app.use((err, req, res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+        console.error('Bad JSON body from frontend:', err.message);
+        return res.status(400).send({ error: "Invalid JSON parsing error" });
+    }
+    next();
+});
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/uploads', express.static('uploads'));
@@ -52,6 +60,7 @@ app.use('/api/market', require('./routes/market'));
 app.use('/api/ml', authMiddleware.authMiddleware, require('./routes/ml'));
 app.use('/api/government', authMiddleware.authMiddleware, require('./routes/government'));
 app.use('/api/logistics', authMiddleware.authMiddleware, require('./routes/logistics'));
+app.use('/api/trust', authMiddleware.authMiddleware, require('./routes/trustRoutes'));
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'OK' });
@@ -74,8 +83,8 @@ const startServer = async () => {
         });
 
     } catch (error) {
-        console.error('❌ Server startup failed:', error);
-        process.exit(1);
+        console.error('❌ Critical Server startup error:', error);
+        // Do not exit, try to keep the server running
     }
 };
 

@@ -6,7 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // USB Debugging Mode
 // When using 'adb reverse tcp:5000 tcp:5000', the phone can access the PC's localhost directly.
-const API_BASE_URL = 'http://localhost:5000/api';
+const getApiBaseUrl = () => {
+    if (Platform.OS === 'web') {
+        return 'http://localhost:5000/api';
+    }
+    // For mobile, use the machine's IP (manually update if it changes)
+    return 'http://10.245.162.98:5000/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -18,15 +26,15 @@ const api = axios.create({
 // Request interceptor to add token
 api.interceptors.request.use(
     async (config) => {
-            const token = await AsyncStorage.getItem('token');
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-            return config;
-        },
-        (error) => {
-            return Promise.reject(error);
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
         }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
 );
 
 // Response interceptor to handle errors
@@ -94,7 +102,8 @@ export const marketAPI = {
         params
     }),
     getRecentPrices: () => api.get('/market/prices/recent'),
-    getPendingBids: () => api.get('/market/bids/received')
+    getPendingBids: () => api.get('/market/bids/received'),
+    checkoutBid: (data) => api.post('/market/bids/checkout', data)
 };
 
 export const mlAPI = {
@@ -106,4 +115,11 @@ export const mlAPI = {
 export const governmentAPI = {
     getSchemes: () => api.get('/government/schemes'),
     applyForScheme: (schemeId) => api.post(`/government/schemes/${schemeId}/apply`)
+};
+
+export const trustAPI = {
+    reportIssue: (data) => api.post('/trust/issue', data),
+    submitReview: (data) => api.post('/trust/review', data),
+    getUserReviews: (userId) => api.get(`/trust/review/${userId}`),
+    getTransactionHistory: () => api.get('/trust/transactions')
 };

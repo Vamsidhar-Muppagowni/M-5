@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../../services/api';
 import { theme } from '../../styles/theme';
+import RateUserModal from '../profile/RateUserModal';
 
 const MyBidsScreen = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
@@ -12,6 +13,13 @@ const MyBidsScreen = ({ navigation }) => {
     const [bids, setBids] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [rateModalVisible, setRateModalVisible] = useState(false);
+    const [targetUserId, setTargetUserId] = useState(null);
+
+    const openRateModal = (farmerId) => {
+        setTargetUserId(farmerId);
+        setRateModalVisible(true);
+    };
 
     const fetchBids = async () => {
         try {
@@ -53,7 +61,7 @@ const MyBidsScreen = ({ navigation }) => {
                 </View>
                 <View style={{ flex: 1 }}>
                     <Text style={styles.cropName}>{item.crop?.name}</Text>
-                    <Text style={styles.farmerName}>{t('farmer_colon') || 'Farmer:'} {item.crop?.farmer?.name}</Text>
+                    <Text style={styles.farmerName}>{t('farmer_colon') || 'Farmer:'} {item.crop?.farmer?.name || 'Unknown'}</Text>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) + '20' }]}>
                     <Text style={[styles.statusText, { color: getStatusColor(item.status) }]}>
@@ -76,6 +84,23 @@ const MyBidsScreen = ({ navigation }) => {
                     <Text style={styles.detailValue}>{new Date(item.created_at).toLocaleDateString()}</Text>
                 </View>
             </View>
+
+            {item.status === 'accepted' && (
+                <View style={{ marginTop: 15, flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <TouchableOpacity
+                        style={{ flex: 1, backgroundColor: theme.colors.success + '15', padding: 12, borderRadius: 8, alignItems: 'center', marginRight: 5 }}
+                        onPress={() => navigation.navigate('Checkout', { bid: item })}
+                    >
+                        <Text style={{ color: theme.colors.success, fontWeight: 'bold' }}>💳 {t('pay_now') || 'Proceed to Payment'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={{ flex: 1, backgroundColor: theme.colors.primary + '15', padding: 12, borderRadius: 8, alignItems: 'center', marginLeft: 5 }}
+                        onPress={() => openRateModal(item.crop?.farmer?._id || item.crop?.farmer?.id || item.crop?.farmer)}
+                    >
+                        <Text style={{ color: theme.colors.primary, fontWeight: 'bold' }}>⭐ {t('rate_farmer') || 'Rate Farmer'}</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
         </TouchableOpacity>
     );
 
@@ -108,6 +133,14 @@ const MyBidsScreen = ({ navigation }) => {
                     )
                 }
             />
+
+            {targetUserId && (
+                <RateUserModal
+                    visible={rateModalVisible}
+                    onClose={() => setRateModalVisible(false)}
+                    targetUserId={targetUserId}
+                />
+            )}
         </View>
     );
 };

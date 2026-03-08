@@ -36,6 +36,10 @@ import CommunityScreen from './src/screens/community/CommunityScreen';
 import PendingBidsScreen from './src/screens/farmer/PendingBidsScreen';
 import EditProfileScreen from './src/screens/profile/EditProfileScreen';
 import HelpSupportScreen from './src/screens/profile/HelpSupportScreen';
+import ReportIssueScreen from './src/screens/profile/ReportIssueScreen';
+import TransactionHistoryScreen from './src/screens/profile/TransactionHistoryScreen';
+import FarmerPaymentCredentialScreen from './src/screens/profile/FarmerPaymentCredentialScreen';
+import CheckoutScreen from './src/screens/buyer/CheckoutScreen';
 
 // Import services
 import { initI18n } from './src/services/language';
@@ -143,6 +147,51 @@ const BuyerTabs = () => {
     );
 };
 
+const linking = {
+    prefixes: ['http://localhost:19006', 'exp://', 'https://*'],
+    config: {
+        screens: {
+            Splash: 'splash',
+            Language: 'language',
+            Login: 'login',
+            Register: 'register',
+            OTPVerification: 'verify-otp',
+            FarmerTabs: {
+                path: 'farmer',
+                screens: {
+                    Dashboard: 'dashboard',
+                    Market: 'market',
+                    Prices: 'prices',
+                    Schemes: 'schemes',
+                    Profile: 'profile'
+                }
+            },
+            BuyerTabs: {
+                path: 'buyer',
+                screens: {
+                    Dashboard: 'dashboard',
+                    Browse: 'market',
+                    MyBids: 'bids',
+                    Prices: 'prices',
+                    Profile: 'profile'
+                }
+            },
+            CropListing: 'list-crop',
+            CropDetails: 'crop/:id',
+            MyCrops: 'my-crops',
+            Community: 'community',
+            PendingBids: 'pending-bids',
+            Checkout: 'checkout',
+            SchemeDetails: 'scheme/:id',
+            EditProfile: 'profile/edit',
+            HelpSupport: 'help',
+            ReportIssue: 'report',
+            TransactionHistory: 'transactions',
+            PaymentCredentials: 'payment-info'
+        }
+    }
+};
+
 export default function App() {
     console.log("App Component Rendering...");
 
@@ -164,6 +213,7 @@ export default function App() {
                 <Provider store={store}>
                     <SafeAreaProvider>
                         <NavigationContainer
+                            linking={linking}
                             onReady={() => console.log("Navigation Container Ready")}
                             fallback={<Text>Loading Navigation...</Text>}
                         >
@@ -233,6 +283,12 @@ export default function App() {
                                 />
 
                                 <Stack.Screen
+                                    name="Checkout"
+                                    component={CheckoutScreen}
+                                    options={{ headerShown: false }}
+                                />
+
+                                <Stack.Screen
                                     name="SchemeDetails"
                                     component={SchemeDetailsScreen}
                                     options={{ headerShown: false }}
@@ -247,6 +303,21 @@ export default function App() {
                                 <Stack.Screen
                                     name="HelpSupport"
                                     component={HelpSupportScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="ReportIssue"
+                                    component={ReportIssueScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="TransactionHistory"
+                                    component={TransactionHistoryScreen}
+                                    options={{ headerShown: false }}
+                                />
+                                <Stack.Screen
+                                    name="PaymentCredentials"
+                                    component={FarmerPaymentCredentialScreen}
                                     options={{ headerShown: false }}
                                 />
                             </Stack.Navigator>

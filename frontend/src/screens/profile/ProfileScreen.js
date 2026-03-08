@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Card, ProgressBar } from 'react-native-paper';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
@@ -15,6 +16,19 @@ const ProfileScreen = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
     const [modalVisible, setModalVisible] = useState(false);
     const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+
+    const calculateCompletion = () => {
+        let completion = 0;
+        if (user.name) completion += 0.25;
+        if (user.email) completion += 0.25;
+        if (user.location && (user.location.address_line1 || user.location.city)) completion += 0.25;
+        // For payment info, since it's fetched separately, we'll check if it's potentially there 
+        // or just use a dummy check for the UI demonstration if not available in Redux
+        if (user.is_verified || user.farmerProfile) completion += 0.25;
+        return completion;
+    };
+
+    const completionLevel = calculateCompletion();
 
     const performLogout = async () => {
         setLogoutModalVisible(false);
@@ -81,7 +95,68 @@ const ProfileScreen = ({ navigation }) => {
                             user.user_type === 'admin' ? t('role_admin') : t('unknown_role')}
                 </Text>
                 <Text style={styles.phone}>{user.phone}</Text>
+
+                {/* Profile Completion Progress */}
+                <View style={styles.completionContainer}>
+                    <View style={styles.completionHeader}>
+                        <Text style={styles.completionLabel}>Profile Completion</Text>
+                        <Text style={styles.completionPercent}>{Math.round(completionLevel * 100)}%</Text>
+                    </View>
+                    <ProgressBar
+                        progress={completionLevel}
+                        color={completionLevel === 1 ? theme.colors.success : theme.colors.secondary}
+                        style={styles.progressBar}
+                    />
+                </View>
             </LinearGradient>
+
+            {/* Farmer Statistics Section */}
+            {user.user_type === 'farmer' && (
+                <View style={styles.statsSection}>
+                    <Text style={styles.sectionTitle}>{t('farmer_stats') || 'Farmer Statistics'}</Text>
+                    <View style={styles.statsGrid}>
+                        <Card style={styles.statCard}>
+                            <Card.Content style={styles.statContent}>
+                                <View style={[styles.statIconBox, { backgroundColor: '#e8f5e9' }]}>
+                                    <Ionicons name="leaf" size={24} color="#2e7d32" />
+                                </View>
+                                <Text style={styles.statValue}>12</Text>
+                                <Text style={styles.statLabel}>{t('total_crops') || 'Total Crops Listed'}</Text>
+                            </Card.Content>
+                        </Card>
+
+                        <Card style={styles.statCard}>
+                            <Card.Content style={styles.statContent}>
+                                <View style={[styles.statIconBox, { backgroundColor: '#e3f2fd' }]}>
+                                    <Ionicons name="checkmark-circle" size={24} color="#1565c0" />
+                                </View>
+                                <Text style={styles.statValue}>45</Text>
+                                <Text style={styles.statLabel}>{t('successful_sales') || 'Successful Sales'}</Text>
+                            </Card.Content>
+                        </Card>
+
+                        <Card style={styles.statCard}>
+                            <Card.Content style={styles.statContent}>
+                                <View style={[styles.statIconBox, { backgroundColor: '#fff3e0' }]}>
+                                    <Ionicons name="hammer" size={24} color="#ef6c00" />
+                                </View>
+                                <Text style={styles.statValue}>8</Text>
+                                <Text style={styles.statLabel}>{t('active_bids') || 'Active Bids'}</Text>
+                            </Card.Content>
+                        </Card>
+
+                        <Card style={styles.statCard}>
+                            <Card.Content style={styles.statContent}>
+                                <View style={[styles.statIconBox, { backgroundColor: '#f3e5f5' }]}>
+                                    <Ionicons name="cash" size={24} color="#7b1fa2" />
+                                </View>
+                                <Text style={styles.statValue}>₹ 12.5k</Text>
+                                <Text style={styles.statLabel}>{t('total_earnings') || 'Total Earnings'}</Text>
+                            </Card.Content>
+                        </Card>
+                    </View>
+                </View>
+            )}
 
             {/* Settings Options */}
             <View style={styles.section}>
@@ -109,6 +184,18 @@ const ProfileScreen = ({ navigation }) => {
                     </View>
                     <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                 </TouchableOpacity>
+
+                {user.user_type === 'farmer' && (
+                    <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('PaymentCredentials')}>
+                        <View style={styles.optionLeft}>
+                            <View style={[styles.iconBox, { backgroundColor: '#e8f5e9' }]}>
+                                <Ionicons name="card-outline" size={22} color="#2e7d32" />
+                            </View>
+                            <Text style={styles.optionText}>Payment Info</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
+                    </TouchableOpacity>
+                )}
 
                 <TouchableOpacity style={styles.option} onPress={() => navigation.navigate('HelpSupport')}>
                     <View style={styles.optionLeft}>
@@ -395,6 +482,76 @@ const styles = StyleSheet.create({
     languageLabelActive: {
         fontWeight: 'bold',
         color: theme.colors.primary
+    },
+    // Stats Section Styles
+    statsSection: {
+        marginBottom: 10
+    },
+    statsGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20
+    },
+    statCard: {
+        width: '48%',
+        marginBottom: 15,
+        backgroundColor: theme.colors.surface,
+        borderRadius: 16,
+        elevation: 2,
+        ...theme.shadows.small
+    },
+    statContent: {
+        alignItems: 'center',
+        paddingVertical: 15
+    },
+    statIconBox: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 10
+    },
+    statValue: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.colors.text.primary,
+        marginBottom: 4
+    },
+    statLabel: {
+        fontSize: 12,
+        color: theme.colors.text.secondary,
+        textAlign: 'center'
+    },
+    // Completion Styles
+    completionContainer: {
+        width: '85%',
+        marginTop: 20,
+        backgroundColor: 'rgba(255,255,255,0.15)',
+        padding: 15,
+        borderRadius: 15,
+    },
+    completionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8
+    },
+    completionLabel: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: '600'
+    },
+    completionPercent: {
+        color: '#fff',
+        fontSize: 13,
+        fontWeight: 'bold'
+    },
+    progressBar: {
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'rgba(255,255,255,0.2)'
     }
 });
 

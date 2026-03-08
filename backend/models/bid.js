@@ -26,7 +26,7 @@ const BidSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['pending', 'accepted', 'rejected', 'countered'],
+        enum: ['pending', 'accepted', 'rejected', 'countered', 'completed', 'expired'],
         default: 'pending',
         index: true
     },
@@ -34,7 +34,12 @@ const BidSchema = new mongoose.Schema({
 
     // Counter offer details (optional, if status is countered)
     counter_amount: Number,
-    counter_message: String
+    counter_message: String,
+
+    // Payment details
+    payment_expires_at: {
+        type: Date
+    }
 
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },

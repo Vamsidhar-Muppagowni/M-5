@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Poster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Times+New+Roman&family=Arial:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .poster-container {
+            width: A0;
+            /* Standard poster size scaling */
+            max-width: 1200px;
+            /* height: 1697px; Approx proportion for A0 */
+            background-color: white;
+            border: 2px dashed red;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+        }
+
+        /* ----- TOP HEADER SECTION ----- */
+        .header-row {
+            display: flex;
+            height: 150px;
+            background-color: #1a3696;
+            /* Amrita Blue */
+            color: white;
+        }
+
+        .logo-box {
+            width: 300px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .logo-box img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .qr-box {
+            width: 150px;
+            background-color: black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .title-box {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+            position: relative;
+        }
+
+        .problem-complexity {
+            position: absolute;
+            left: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .project-title {
+            text-align: center;
+            width: 100%;
+            font-size: 28px;
+            font-weight: bold;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        /* ----- SECOND ROW: PROBLEM & TARGET USERS ----- */
+        .second-row {
+            display: flex;
+            height: 250px;
+            gap: 10px;
+        }
+
+        .box {
+            border: 3px solid #1a3696;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+        }
+
+        .box-title {
+            background-color: #1a3696;
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-weight: bold;
+            font-family: inherit;
+        }
+
+        .box-content {
+            flex-grow: 1;
+            padding: 15px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .problem-statement {
+            flex: 1.5;
+        }
+
+        .target-users {
+            flex: 1;
+        }
+
+        .side-qr-box {
+            width: 120px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .small-qr {
+            flex: 1;
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        /* ----- THIRD ROW: DIAGRAMS ----- */
+        .diagrams-row {
+            height: 500px;
+            border: 3px solid #1a3696;
+            display: flex;
+            flex-direction: column;
+            background-color: #555555;
+            /* Gray placeholder */
+            color: white;
+            text-align: center;
+        }
+
+        .diagrams-title {
+            background-color: #1a3696;
+            color: white;
+            padding: 8px;
+            font-weight: bold;
+        }
+
+        .diagrams-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .diagrams-content h2 {
+            font-family: "Times New Roman", Times, serif;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .diagrams-content p {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 20px;
+        }
+
+        /* ----- BOTTOM ROW: SOLUTION & INFO ----- */
+        .bottom-row {
+            display: flex;
+            height: 500px;
+            gap: 10px;
+        }
+
+        .solution-col {
+            flex: 2.5;
+            display: flex;
+            flex-direction: column;
+            border: 3px solid #1a3696;
+            background-color: #555555;
+            color: white;
+            text-align: center;
+        }
+
+        .solution-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            font-family: "Times New Roman", Times, serif;
+            font-size: 22px;
+        }
+
+        .info-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .future-enhancements {
+            flex: 1.5;
+            border: 3px solid #1a3696;
+        }
+
+        .team-details {
+            flex: 1;
+            border: 3px solid #1a3696;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="poster-container">
+
+        <!-- HEADER -->
+        <div class="header-row">
+            <div class="logo-box">
+                <!-- Replace src with your Amrita and SE Logo image path -->
+                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/87/Amrita_Vishwa_Vidyapeetham_Logo.svg/1200px-Amrita_Vishwa_Vidyapeetham_Logo.svg.png"
+                    alt="Amrita Logo">
+            </div>
+            <div class="qr-box">
+                <!-- Replace with actual QR Image -->
+                Feedback QR code<br><br>[Insert Image Here]
+            </div>
+            <div class="title-box">
+                <div class="problem-complexity">
+                    Problem<br>Complexity:<br>High
+                </div>
+                <div class="project-title">
+                    Multilingual Digital Marketplace and Decision Support Platform for Indian Farmers
+                </div>
+            </div>
+        </div>
+
+        <!-- SECOND ROW -->
+        <div class="second-row">
+            <div class="box problem-statement">
+                <div class="box-title">Problem Statement</div>
+                <div class="box-content">
+                    <ul>
+                        <li>Language barriers limit access for rural farmers across India.</li>
+                        <li>Extensive dependency on exploitative middlemen leads to reduced profit margins for farmers.
+                        </li>
+                        <li>Lack of real-time market insights and data-driven price predictions causes massive revenue
+                            loss.</li>
+                        <li>Complex checkout and trust mechanisms hinder direct B2B or B2C trade.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="box target-users">
+                <div class="box-title">Target Users</div>
+                <div class="box-content">
+                    <strong>Primary Users:</strong><br>
+                    Indian Farmers seeking direct access to national buyers, localized content, and fair trade.<br><br>
+                    <strong>Secondary Users:</strong><br>
+                    Buyers, Wholesalers, and Logistics partners seeking reliable supply lines and verified product
+                    quality.
+                </div>
+            </div>
+
+            <div class="side-qr-box">
+                <div class="small-qr">App QR code<br><br>[Image]</div>
+                <div class="small-qr">Github QR code<br><br>[Image]</div>
+            </div>
+        </div>
+
+        <!-- THIRD ROW (DIAGRAMS) -->
+        <div class="diagrams-row">
+            <div class="diagrams-title">Diagrams</div>
+            <div class="diagrams-content">
+                <h2>Mandatory - Architecture / System Diagram</h2>
+                <p>Suggestions - Use case, Data flow diagram or any other relevant diagrams that is justified</p>
+                <!-- YOU SHOULD INSERT YOUR GENERATED ARCHITECTURE DIAGRAM IMAGE HERE -->
+                <br>
+                <!-- Example: <img src="architecture.png" style="max-height: 80%; max-width: 90%;"> -->
+            </div>
+        </div>
+
+        <!-- BOTTOM ROW -->
+        <div class="bottom-row">
+            <div class="solution-col">
+                <div class="box-title">Proposed Solution</div>
+                <div class="solution-content">
+                    Provide screenshots of unique features in your product and explain where your idea stands out.
+                    <br><br>
+                    <!-- INSERT SCREENSHOTS HERE -->
+                    <div style="display: flex; gap: 20px; justify-content: center; width: 100%; margin-top: 20px;">
+                        <!-- Example screenshot placeholders -->
+                        <div
+                            style="width: 200px; height: 400px; border: 2px dashed white; display: flex; align-items: center; justify-content: center;">
+                            Screenshot 1 (Dashboard)</div>
+                        <div
+                            style="width: 200px; height: 400px; border: 2px dashed white; display: flex; align-items: center; justify-content: center;">
+                            Screenshot 2 (Checkout)</div>
+                        <div
+                            style="width: 200px; height: 400px; border: 2px dashed white; display: flex; align-items: center; justify-content: center;">
+                            Screenshot 3 (Price Prediction)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-col">
+                <div class="box future-enhancements">
+                    <div class="box-title">Future Enhancements</div>
+                    <div class="box-content">
+                        <ul>
+                            <li>Integration with Third-Party Logistics Providers.</li>
+                            <li>Direct integration for Government Scheme applications.</li>
+                            <li>Blockchain-backed supply chain traceability to ensure crop source verification.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="box team-details">
+                    <div class="box-title">Team Details</div>
+                    <div class="box-content">
+                        <strong>Student 1:</strong> Vamsidhar Muppagowni<br>
+                        <strong>Roll No:</strong> CB.EN.U4CYS22115<br><br>
+                        <!-- Add other members here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

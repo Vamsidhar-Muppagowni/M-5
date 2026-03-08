@@ -12,6 +12,10 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { theme } from '../../styles/theme';
 import Tooltip from '../../components/Tooltip';
 
+// ── Defensive helpers ─────────────────────────────────────────────────────────
+const safeArr = (v) => Array.isArray(v) ? v : [];
+const safeStr = (v) => (v != null ? String(v) : '');
+
 const FarmerDashboard = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
     const { t, i18n } = useTranslation();
@@ -21,7 +25,9 @@ const FarmerDashboard = ({ navigation }) => {
         activeListings: 0,
         totalSales: 0,
         pendingBids: 0,
-        earnings: 0
+        earnings: 0,
+        rating: 0,
+        rating_count: 0
     });
     const [refreshing, setRefreshing] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
@@ -101,7 +107,8 @@ const FarmerDashboard = ({ navigation }) => {
                         city = addr.city || addr.town || addr.village || addr.county || addr.suburb || addr.state_district || "Unknown Location";
                     } else {
                         let address = await Location.reverseGeocodeAsync({ latitude, longitude });
-                        if (address && address.length > 0) {
+                        // STEP 2: safeArr guard — address can be undefined on web reload
+                        if (safeArr(address).length > 0) {
                             const addr = address[0];
                             city = addr.city || addr.subregion || addr.district || addr.region || addr.name || "Unknown Location";
                         }
@@ -132,46 +139,64 @@ const FarmerDashboard = ({ navigation }) => {
         })();
     }, []);
 
+    const defaultStats = {
+        activeListings: 0,
+        totalSales: 0,
+        pendingBids: 0,
+        earnings: 0,
+        rating: 0,
+        rating_count: 0
+    };
+
     const fetchStats = async () => {
         try {
             const response = await api.get('/farmer/stats');
-            setStats(response.data);
+            // Guard: only use response if it's a plain object, not array/null
+            const data = response.data;
+            if (data && typeof data === 'object' && !Array.isArray(data)) {
+                setStats({ ...defaultStats, ...data });
+            }
 
-            // Fetch Price History (Default: Wheat)
+            // Fetch Price History for Wheat — endpoint returns object, not array
             setPriceLoading(true);
             try {
                 const historyRes = await marketAPI.getPriceHistory({ crop: 'Wheat', location: 'India' });
-                if (historyRes.data && historyRes.data.length > 0) {
-                    // Process for chart: Take last 7 days
-                    const last7 = historyRes.data.slice(-7);
+                const hData = historyRes?.data;
+
+                // PriceDashboard format: { labels:[], datasets:[{data:[]}] }
+                if (hData && Array.isArray(hData.datasets) && hData.datasets.length > 0) {
+                    const dataset = hData.datasets[0];
+                    const rawData = Array.isArray(dataset?.data) ? dataset.data : [];
+                    const labels = Array.isArray(hData.labels) ? hData.labels : rawData.map((_, i) => String(i + 1));
+                    if (rawData.length > 0) {
+                        setPriceHistory({ labels, datasets: [{ data: rawData }] });
+                    } else {
+                        setPriceHistory(null);
+                    }
+                    // Legacy array format: [{date, price}]
+                } else if (Array.isArray(hData) && hData.length > 0) {
+                    const last7 = hData.slice(-7);
                     setPriceHistory({
-                        labels: last7.map(h => new Date(h.date).getDate().toString()), // Day of month
-                        datasets: [{
-                            data: last7.map(h => parseFloat(h.price))
-                        }]
+                        labels: last7.map(h => new Date(h.date).getDate().toString()),
+                        datasets: [{ data: last7.map(h => parseFloat(h.price) || 0) }]
                     });
                 } else {
-                    // Fallback dummy data if empty
+                    // Fallback dummy data
                     setPriceHistory({
                         labels: ["1", "2", "3", "4", "5", "6", "7"],
-                        datasets: [{
-                            data: [2200, 2250, 2300, 2280, 2350, 2400, 2450]
-                        }]
+                        datasets: [{ data: [2200, 2250, 2300, 2280, 2350, 2400, 2450] }]
                     });
                 }
             } catch (chartErr) {
                 console.warn("Chart fetch error", chartErr);
-                // Fallback dummy data on error
                 setPriceHistory({
                     labels: ["1", "2", "3", "4", "5", "6", "7"],
-                    datasets: [{
-                        data: [2200, 2250, 2300, 2280, 2350, 2400, 2450]
-                    }]
+                    datasets: [{ data: [2200, 2250, 2300, 2280, 2350, 2400, 2450] }]
                 });
             }
             setPriceLoading(false);
         } catch (error) {
-            console.error(error);
+            console.error('fetchStats error:', error);
             setPriceLoading(false);
         }
     };
@@ -219,9 +244,15 @@ const FarmerDashboard = ({ navigation }) => {
 
                 <View style={styles.headerRight}>
                     <TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>
-                        <Text style={styles.languageButtonText}>{i18n.language.toUpperCase()}</Text>
+                        {/* STEP 4: i18n.language can be undefined during reload */}
+                        <Text style={styles.languageButtonText}>{safeStr(i18n?.language || 'en').toUpperCase()}</Text>
                         <Ionicons name="chevron-down" size={16} color={theme.colors.primary} style={{ marginLeft: 4 }} />
                     </TouchableOpacity>
+
+                    <View style={{ alignItems: 'flex-end', marginRight: 10, justifyContent: 'center' }}>
+                        <Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.text.primary }}>⭐ {stats.rating > 0 ? stats.rating : 'New'}</Text>
+                        <Text style={{ fontSize: 10, color: theme.colors.text.secondary }}>({stats.rating_count} {t('ratings') || 'ratings'})</Text>
+                    </View>
 
                     <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
                         <LinearGradient
@@ -309,8 +340,8 @@ const FarmerDashboard = ({ navigation }) => {
                         </View>
                         <Text style={styles.statValue}>{stats.activeListings}</Text>
                         <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('active_listings')}</Text>
-                            <Tooltip text={t('active_listings_tooltip') || 'Number of crops you currently have listed for sale in the marketplace.'} iconSize={14} />
+                            <Text style={styles.statLabel}>{t('active_listings') || 'Active Listings'}</Text>
+                            <Tooltip text={safeStr(t('active_listings_tooltip')) || 'Number of crops you currently have listed for sale.'} iconSize={14} />
                         </View>
                     </TouchableOpacity>
 
@@ -320,8 +351,8 @@ const FarmerDashboard = ({ navigation }) => {
                         </View>
                         <Text style={styles.statValue}>₹{stats.earnings}</Text>
                         <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('total_earnings')}</Text>
-                            <Tooltip text={t('total_earnings_tooltip') || 'Total amount you have earned from all completed crop sales.'} iconSize={14} />
+                            <Text style={styles.statLabel}>{t('total_earnings') || 'Total Earnings'}</Text>
+                            <Tooltip text={safeStr(t('total_earnings_tooltip')) || 'Total amount you have earned from all completed crop sales.'} iconSize={14} />
                         </View>
                     </TouchableOpacity>
 
@@ -331,8 +362,8 @@ const FarmerDashboard = ({ navigation }) => {
                         </View>
                         <Text style={styles.statValue}>{stats.pendingBids}</Text>
                         <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('pending_bids')}</Text>
-                            <Tooltip text={t('pending_bids_tooltip') || 'Bids from buyers waiting for your review. Tap to view and respond.'} iconSize={14} />
+                            <Text style={styles.statLabel}>{t('pending_bids') || 'Pending Bids'}</Text>
+                            <Tooltip text={safeStr(t('pending_bids_tooltip')) || 'Bids from buyers waiting for your review.'} iconSize={14} />
                         </View>
                     </TouchableOpacity>
 
@@ -342,8 +373,8 @@ const FarmerDashboard = ({ navigation }) => {
                         </View>
                         <Text style={styles.statValue}>{stats.totalSales}</Text>
                         <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('completed_sales')}</Text>
-                            <Tooltip text={t('completed_sales_tooltip') || 'Total number of successful crop sales you have completed.'} iconSize={14} />
+                            <Text style={styles.statLabel}>{t('completed_sales') || 'Completed Sales'}</Text>
+                            <Tooltip text={safeStr(t('completed_sales_tooltip')) || 'Total number of successful crop sales you have completed.'} iconSize={14} />
                         </View>
                     </TouchableOpacity>
                 </View>
@@ -405,8 +436,8 @@ const FarmerDashboard = ({ navigation }) => {
                         </View>
                         <View style={styles.actionTextContainer}>
                             <View style={styles.actionTitleRow}>
-                                <Text style={styles.actionTitle}>{t('list_new_crop')}</Text>
-                                <Tooltip text={t('list_new_crop_tooltip') || 'Create a new listing to sell your crops. Add details like crop name, quantity, quality grade, and your expected price. Buyers will be able to see your listing and place bids.'} iconSize={14} />
+                                <Text style={styles.actionTitle}>{t('list_new_crop') || 'List New Crop'}</Text>
+                                <Tooltip text={safeStr(t('list_new_crop_tooltip')) || 'Create a new listing to sell your crops.'} iconSize={14} />
                             </View>
                             <Text style={styles.actionDesc}>{t('list_crop_desc')}</Text>
                         </View>
@@ -419,14 +450,27 @@ const FarmerDashboard = ({ navigation }) => {
                         </View>
                         <View style={styles.actionTextContainer}>
                             <View style={styles.actionTitleRow}>
-                                <Text style={styles.actionTitle}>{t('check_prices')}</Text>
-                                <Tooltip text={t('check_prices_tooltip') || 'View current market prices and 6-month trends for different crops. Compare prices across mandis to decide the best time to sell your produce and set competitive prices.'} iconSize={14} />
+                                <Text style={styles.actionTitle}>{t('check_prices') || 'Check Prices'}</Text>
+                                <Tooltip text={safeStr(t('check_prices_tooltip')) || 'View current market prices and trends for different crops.'} iconSize={14} />
                             </View>
                             <Text style={styles.actionDesc}>{t('check_prices_desc')}</Text>
                         </View>
                         <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
                     </TouchableOpacity>
 
+                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('TransactionHistory')}>
+                        <View style={[styles.actionIcon, { backgroundColor: theme.colors.success }]}>
+                            <Ionicons name="wallet" size={24} color="#fff" />
+                        </View>
+                        <View style={styles.actionTextContainer}>
+                            <View style={styles.actionTitleRow}>
+                                <Text style={styles.actionTitle}>{t('earnings') || 'Earnings & History'}</Text>
+                                <Tooltip text={safeStr(t('earnings_history_tooltip')) || 'View all your completed sales and track earnings over time.'} iconSize={14} />
+                            </View>
+                            <Text style={styles.actionDesc}>{t('earnings_desc') || 'View historical transaction data'}</Text>
+                        </View>
+                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
+                    </TouchableOpacity>
 
                 </View>
 
