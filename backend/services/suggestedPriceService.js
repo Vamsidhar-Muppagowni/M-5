@@ -16,7 +16,7 @@ const generateSuggestedPrice = ({
     } // else Stable: suggestedPrice = currentPrice
 
     // Adjust slightly based on volatility
-    if (volatility === 'High Volatility') {
+    if (volatility && volatility.level === 'High') {
         // If high volatility, we reduce suggestion slightly to be safer (e.g. 1% lower)
         suggestedPrice = suggestedPrice * 0.99;
     }
