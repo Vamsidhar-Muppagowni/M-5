@@ -41,7 +41,7 @@ const en = {
     welcome_subtitle: 'Welcome to your dashboard',
     partly_cloudy: 'Partly Cloudy',
     your_location: 'Your Location',
-    
+
     // Tab Navigation
     dashboard_tab: 'Dashboard',
     market_tab: 'Market',
@@ -50,7 +50,7 @@ const en = {
     profile_tab: 'Profile',
     browse_tab: 'Browse',
     my_bids_tab: 'My Bids',
-    
+
     // Weather
     weather_clear: 'Clear Sky',
     weather_cloudy: 'Partly Cloudy',
@@ -59,14 +59,14 @@ const en = {
     weather_thunder: 'Thunderstorm',
     weather_fog: 'Foggy',
     weather_loading: 'Loading Weather...',
-    
+
     // Profile
     profile_title: 'Profile Settings',
     edit_profile: 'Edit Profile',
     change_language: 'Change Language',
     help_support: 'Help & Support',
     logout_confirm: 'Are you sure you want to logout?',
-    
+
     // Buyer Dashboard
     welcome_back: 'Welcome back',
     marketplace_dashboard: 'Marketplace Dashboard',
@@ -147,6 +147,9 @@ const en = {
     details: 'Details',
     by: 'By',
     grade: 'Grade',
+    unknown_crop: 'Unknown Crop',
+    unknown_farmer: 'Unknown Farmer',
+    not_available: 'N/A',
 
     // Price Dashboard
     market_price_trends: 'Market Price Trends',
@@ -202,6 +205,7 @@ const en = {
     bid_placed: 'Bid Placed!',
     bid_placed_msg: 'You successfully placed a bid of ₹{amount} for {crop}.',
     enter_bid_error: 'Enter bid amount',
+    bid_amount_min_error: 'Bid amount must be at least ₹{min}',
     bid_failed: 'Failed to place bid',
     load_failed: 'Failed to load details',
     crop_not_found: 'Crop not found',
@@ -221,7 +225,7 @@ const en = {
     call_helpline: 'Call Helpline',
     email_support: 'Email Support',
     faq_title: 'Frequently Asked Questions',
-    
+
     // FAQ Questions and Answers
     faq_q1: 'How do I list my crops?',
     faq_a1: 'Go to the dashboard and click on "List New Crop". Fill in the details like crop name, quantity, and price, then upload a photo. Your listing will be visible to buyers immediately.',
@@ -253,7 +257,7 @@ const en = {
     how_to_apply: 'How to Apply',
     important_dates: 'Important Dates',
     scheme_coverage: 'Scheme Coverage',
-    
+
     // PM-KISAN Scheme Translations
     pmkisan_name: 'PM-KISAN',
     pmkisan_description: 'Pradhan Mantri Kisan Samman Nidhi - Direct income support scheme providing financial assistance to farmer families across India.',
@@ -279,7 +283,7 @@ const en = {
     pmkisan_date3_value: 'August - November',
     pmkisan_date4_label: 'Installment 3',
     pmkisan_date4_value: 'December - March',
-    
+
     // KCC Scheme Translations
     kcc_name: 'KCC',
     kcc_description: 'Kisan Credit Card Scheme - Provides affordable credit to farmers for agricultural needs, purchase of inputs, and other farm expenses.',
@@ -308,7 +312,7 @@ const en = {
     kcc_date3_value: '5 years (annual renewal)',
     kcc_date4_label: 'Interest Subvention',
     kcc_date4_value: 'Up to ₹3 lakh loans',
-    
+
     // Scheme Coverage translations
     coverage_target: 'Target',
     coverage_target_value: 'Small & Marginal Farmers',
@@ -327,20 +331,20 @@ const en = {
     login_header: 'Login',
     join_community: 'Join our community of farmers and buyers',
     login_here: 'Login Here',
-    
+
     // Image upload
     gallery: 'Gallery',
     camera: 'Camera',
     image_count_hint_optional: 'images uploaded (optional)',
-    
+
     // ============ COMPREHENSIVE TOOLTIPS ============
-    
+
     // Dashboard Stat Card Tooltips
     active_listings_tooltip: 'This shows the number of crops you currently have listed for sale in the marketplace. Active listings are visible to buyers who can place bids on them.',
     total_earnings_tooltip: 'Your total earnings from all completed sales on the platform. This includes only successfully completed transactions where payment has been received.',
     pending_bids_tooltip: 'Number of bids from buyers waiting for your response. Review these bids and accept, reject, or counter-offer to negotiate the best price for your crops.',
     completed_sales_tooltip: 'Total number of successful transactions you have completed. A sale is marked complete when the buyer receives the crop and payment is finalized.',
-    
+
     // Crop Listing Tooltips
     image_tooltip: 'Upload up to 10 clear photos of your crop. Good photos help buyers make decisions faster and can increase your chances of getting better bids. Show different angles and quality of your produce.',
     description_tooltip: 'Provide helpful details about your crop: growing conditions, harvest date, any organic certifications, storage conditions, or special characteristics that make your produce stand out from others.',
@@ -351,52 +355,52 @@ const en = {
     quality_grade_tooltip: 'Select the quality grade of your crop. Grade A is premium quality, B is good, C is standard, D is basic. Higher grades typically get better prices.',
     quality_tooltip: 'Quality grades help buyers understand your crop condition. Grade A: Premium quality with no defects. Grade B: Good quality with minor imperfections. Grade C: Standard/average quality. Grade D: Basic quality with more defects. Higher grades typically fetch better market prices.',
     district_tooltip: 'Enter your district or location. This helps buyers nearby find your crops and plan logistics for pickup or delivery.',
-    
+
     // Market & Bidding Tooltips
     grade_tooltip: 'Quality grades indicate crop condition: Grade A (Premium - top quality, no defects), Grade B (Good - minor imperfections), Grade C (Standard - acceptable quality), Grade D (Basic - lower quality). Higher grades command better market prices.',
     current_price_tooltip: 'This is the current highest bid or asking price for the crop. It may change as buyers place new bids.',
     place_bid_tooltip: 'Enter your bid amount to make an offer on this crop. Your bid must be at least the minimum price set by the farmer. The farmer will review and respond to your bid.',
     market_description: 'Browse crops listed by farmers. Tap any listing to view details and place your bid. The farmer will review your bid and respond.',
-    
+
     // Price Dashboard Tooltips  
     select_crop_tooltip: 'Choose a crop from the dropdown to view its price trends and market analysis. The chart will show price movements over the past 6 months to help you decide the best time to sell.',
     six_month_tooltip: 'This analysis shows the overall price movement over 6 months. Green percentage indicates price increase (good time to sell), red indicates decrease. Use this to plan when to list your crops.',
     price_chart_tooltip: 'This chart displays monthly average prices for the selected crop. Look for upward trends before selling and consider holding if prices are rising.',
     recent_updates_tooltip: 'Latest price updates from major mandis across India. These prices are updated daily and help you understand current market rates for different crops. Use this information to set competitive prices for your produce.',
-    
+
     // Registration Tooltips
     role_tooltip: 'Select "Farmer" if you want to list and sell crops. Select "Buyer" if you want to browse and purchase crops from farmers. You can only have one role per account.',
     phone_tooltip: 'Enter your 10-digit mobile number. This will be used for login and receiving important notifications about bids and transactions.',
     password_tooltip: 'Create a strong password with at least 6 characters. Use a mix of letters and numbers for better security.',
-    
+
     // Buyer Dashboard Tooltips
     active_bids_tooltip: 'Number of bids you have placed that are still pending response from farmers. Check back regularly as farmers may accept, reject, or counter your offers.',
     accepted_bids_tooltip: 'Bids that farmers have accepted. You should proceed to complete these transactions by arranging payment and pickup.',
     browse_market_tooltip: 'Explore all available crops listed by farmers. You can search, filter by quality, location, and price to find the best deals.',
-    
+
     // Quick Actions Tooltips
     list_new_crop_tooltip: 'Create a new listing to sell your crops. Add details like crop name, quantity, quality grade, and your expected price. Buyers will be able to see your listing and place bids.',
     check_prices_tooltip: 'View current market prices and 6-month trends for different crops. Compare prices across mandis to decide the best time to sell your produce and set competitive prices.',
-    
+
     // Scheme Details Tooltips
     scheme_benefits_tooltip: 'These are the financial benefits and support you will receive if your application is approved. Benefits are typically credited directly to your bank account.',
     eligibility_tooltip: 'Check if you meet these requirements before applying. Applications from ineligible persons may be rejected.',
     documents_tooltip: 'Gather all these documents before starting your application. Having complete documents speeds up the approval process.',
-    
+
     // Weather & Location
     weather_tooltip: 'Current weather at your location. Weather conditions can affect crop prices and demand in the market.',
-    
+
     // General
     info_tooltip: 'Tap for more information',
     got_it: 'Got it',
-    
+
     // Scheme document translations (fallbacks)
     doc_aadhaar: 'Aadhaar Card (mandatory)',
     doc_land_records: 'Land ownership records / Patta',
     doc_bank_details: 'Bank account details with IFSC',
     doc_photos: 'Passport-size photographs (2 copies)',
     doc_income_cert: 'Income certificate from Tehsildar',
-    
+
     // Scheme apply steps (fallbacks)
     apply_step_1: 'Visit the official scheme website',
     apply_step_2: 'Click on "New Registration" or "Apply Online"',
@@ -404,7 +408,7 @@ const en = {
     apply_step_4: 'Upload required documents',
     apply_step_5: 'Submit and note your application number',
     apply_step_6: 'Track status online using your application ID',
-    
+
     // Important dates (fallbacks)
     date_application: 'Application Window',
     date_year_round: 'Open year-round',

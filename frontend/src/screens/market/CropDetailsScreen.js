@@ -55,7 +55,7 @@ const CropDetailsScreen = ({ route, navigation }) => {
         if (crop && crop.min_price && numericBid < crop.min_price) {
             Alert.alert(
                 t('crop_details') || 'Error',
-                `Bid amount must be at least ₹${crop.min_price}`
+                t('bid_amount_min_error')?.replace('{min}', crop.min_price) || `Bid amount must be at least ₹${crop.min_price}`
             );
             return;
         }
@@ -137,8 +137,8 @@ const CropDetailsScreen = ({ route, navigation }) => {
                             }}
                             renderItem={({ item, index }) => (
                                 <View style={styles.imageSlide}>
-                                    <Image 
-                                        source={{ uri: item }} 
+                                    <Image
+                                        source={{ uri: item }}
                                         style={styles.cropImage}
                                         resizeMode="contain"
                                     />
@@ -149,12 +149,12 @@ const CropDetailsScreen = ({ route, navigation }) => {
                         {crop.images.length > 1 && (
                             <View style={styles.paginationDots}>
                                 {crop.images.map((_, index) => (
-                                    <View 
-                                        key={index} 
+                                    <View
+                                        key={index}
                                         style={[
                                             styles.dot,
                                             index === activeImageIndex && styles.activeDot
-                                        ]} 
+                                        ]}
                                     />
                                 ))}
                             </View>
@@ -168,7 +168,7 @@ const CropDetailsScreen = ({ route, navigation }) => {
                     <View style={styles.grid}>
                         <View style={styles.gridItem}>
                             <View style={styles.infoRow}>
-                                <Ionicons name="scale-outline" size={16} color={theme.colors.text.secondary} />
+                                <Ionicons name="cube-outline" size={16} color={theme.colors.text.secondary} />
                                 <Text style={styles.label}>{t('quantity') || 'Quantity'}</Text>
                             </View>
                             <Text style={styles.value}>{crop.quantity} {crop.unit}</Text>
@@ -186,7 +186,7 @@ const CropDetailsScreen = ({ route, navigation }) => {
                         <Ionicons name="leaf-outline" size={16} color={theme.colors.text.secondary} />
                         <Text style={styles.label}>{t('variety_label') || 'Variety'}</Text>
                     </View>
-                    <Text style={styles.value}>{crop.variety || 'N/A'}</Text>
+                    <Text style={styles.value}>{crop.variety || t('not_available')}</Text>
 
                     <View style={styles.infoRow}>
                         <Ionicons name="document-text-outline" size={16} color={theme.colors.text.secondary} />
@@ -198,13 +198,13 @@ const CropDetailsScreen = ({ route, navigation }) => {
                         <Ionicons name="location-outline" size={16} color={theme.colors.text.secondary} />
                         <Text style={styles.label}>{t('location') || 'Location'}</Text>
                     </View>
-                    <Text style={styles.value}>{crop.location?.district || crop.location?.city || crop.location?.state || t('not_specified') || 'Not specified'}</Text>
+                    <Text style={styles.value}>{crop.location?.district || crop.location?.city || crop.location?.state || t('not_specified')}</Text>
 
                     <View style={styles.infoRow}>
                         <Ionicons name="person-outline" size={16} color={theme.colors.text.secondary} />
                         <Text style={styles.label}>{t('farmer_label') || 'Farmer'}</Text>
                     </View>
-                    <Text style={styles.value}>{crop.farmer?.name || t('not_specified') || 'Not specified'}</Text>
+                    <Text style={styles.value}>{crop.farmer?.name || t('not_specified')}</Text>
                 </View>
 
                 {user?.user_type === 'buyer' && crop.status === 'listed' && (

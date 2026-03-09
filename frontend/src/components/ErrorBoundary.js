@@ -32,30 +32,18 @@ class ErrorBoundary extends React.Component {
 
     render() {
         if (this.state.hasError) {
-            return ( <
-                View style = {
-                    styles.container
-                } >
-                <
-                ScrollView style = {
-                    styles.scrollView
-                } >
-                <
-                Text style = {
-                    styles.title
-                } > Something went wrong. < /Text> <
-                Text style = {
-                    styles.errorText
-                } > {
-                    this.state.error && this.state.error.toString()
-                } < /Text> <
-                Text style = {
-                    styles.stackText
-                } > {
-                    this.state.errorInfo && this.state.errorInfo.componentStack
-                } < /Text> <
-                /ScrollView> <
-                /View>
+            return (
+                <View style={styles.container}>
+                    <ScrollView style={styles.scrollView}>
+                        <Text style={styles.title}>Something went wrong.</Text>
+                        <Text style={styles.errorText}>
+                            {this.state.error && this.state.error.toString()}
+                        </Text>
+                        <Text style={styles.stackText}>
+                            {this.state.errorInfo && this.state.errorInfo.componentStack}
+                        </Text>
+                    </ScrollView>
+                </View>
             );
         }
 

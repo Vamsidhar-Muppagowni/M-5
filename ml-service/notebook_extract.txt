@@ -1,0 +1,1100 @@
+Total code cells: 50
+
+=== Code Cell 3 ===
+# Core data manipulation libraries
+import pandas as pd
+import numpy as np
+
+# Visualization libraries
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+import seaborn as sns
+
+# Statistical functions
+from scipy.stats import skew
+
+# Display utilities for Jupyter notebooks
+from IPython.display import display
+
+# Machine learning preprocessing and modeling
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.metrics import log_loss, accuracy_score
+import xgboost as xgb
+
+# Suppress warnings for cleaner output
+import warnings
+warnings.filterwarnings("ignore")
+
+
+=== Code Cell 5 ===
+# Load the datasets
+train_data = pd.read_csv('/kaggle/input/playground-series-s5e6/train.csv')
+test_data = pd.read_csv('/kaggle/input/playground-series-s5e6/test.csv')
+sample_data = pd.read_csv('/kaggle/input/playground-series-s5e6/sample_submission.csv')
+original_data = pd.read_csv('/kaggle/input/fertilizer-prediction/Fertilizer Prediction.csv')
+
+# Verify shapes
+print("Train Data Shape:", train_data.shape)
+print("\nOriginal Data Shape:", original_data.shape)
+print("\nTest Data Shape:", test_data.shape)
+
+=== Code Cell 7 ===
+# Display few rows of each dataset
+print("Train Data Preview:")
+display(train_data.tail())
+
+print("\nOriginal Data Preview:")
+display(original_data.head())
+
+print("\nTest Data Preview:")
+display(test_data.head())
+
+=== Code Cell 8 ===
+# Display information about the DataFrames
+print("Train Data Info:")
+train_data.info()
+
+print("\nOriginal Data Info:")
+original_data.info()
+
+print("\nTest Data Info:")
+test_data.info()
+
+=== Code Cell 10 ===
+# Exclude 'id' and display descriptive statistics for each dataset
+
+# Train Data
+train_desc = train_data.drop(columns=['id'], errors='ignore').describe().T
+print("Train Data Describe:")
+display(train_desc.style.background_gradient(cmap='RdYlGn'))
+
+# Original Data
+original_desc = original_data.describe().T
+print("\nOriginal Data Describe:")
+display(original_desc.style.background_gradient(cmap='RdYlGn'))
+
+# Test Data
+test_desc = test_data.drop(columns=['id'], errors='ignore').describe().T
+print("\nTest Data Describe:")
+display(test_desc.style.background_gradient(cmap='RdYlGn'))
+
+
+=== Code Cell 12 ===
+def print_unique_values(df, categorical_columns, dataset_name="Dataset"):
+    print("\n" + "=" * 50)
+    print(f"Unique values in {dataset_name} categorical features")
+    print("=" * 50)
+    for col in categorical_columns:
+        unique_vals = sorted(df[col].unique())
+        value_counts = df[col].value_counts()
+        top_value = value_counts.index[0]
+        top_freq = value_counts.iloc[0]
+        print(f"{col} - Number of unique values: {len(unique_vals)}")
+        print(f"Unique values: {unique_vals}")
+        print(f"Top value: '{top_value}' (Frequency: {top_freq})\n")
+
+train_cat_cols = ['Soil Type', 'Crop Type', 'Fertilizer Name']
+original_cat_cols = ['Soil Type', 'Crop Type', 'Fertilizer Name']
+test_cat_cols = ['Soil Type', 'Crop Type']
+
+print_unique_values(train_data, train_cat_cols, "Train Data")
+print_unique_values(original_data, original_cat_cols, "Original Data")
+print_unique_values(test_data, test_cat_cols, "Test Data")
+
+=== Code Cell 15 ===
+def missing_values_report(df, dataset_name):
+    missing_count = df.isnull().sum().sum()
+    rows = len(df)
+    
+    print("=" * 40)
+    print(f"{dataset_name} Missing Value Analysis")
+    print("=" * 40)
+    
+    if missing_count == 0:
+        print(f"✅ No missing values detected in {rows:,} rows")
+    else:
+        print(f"⚠️  {missing_count} missing values found in {rows:,} rows")
+
+datasets = {
+    "Training Data": train_data,
+    "Test Data": test_data,
+    "Original Data": original_data
+}
+
+for name, data in datasets.items():
+    missing_values_report(data, name)
+    print()  
+
+
+=== Code Cell 16 ===
+def check_duplicates_report(df, dataset_name):
+    duplicates_count = df.duplicated().sum()
+    total_rows = len(df)
+    
+    print("=" * 40)
+    print(f"🔍 {dataset_name} Duplicate Analysis")
+    print("=" * 40)
+    
+    if duplicates_count == 0:
+        print(f"✅ No duplicates found in {total_rows:,} rows")
+    else:
+        print(f"⚠️  {duplicates_count} duplicates found ({duplicates_count/total_rows:.2%})")
+        print(f"    Total rows affected: {duplicates_count:,}/{total_rows:,}")
+
+datasets = {
+    "Training Data": train_data,
+    "Test Data": test_data,
+    "Original Data": original_data
+}
+
+duplicate_summary = {}
+for name, data in datasets.items():
+    check_duplicates_report(data, name)
+    duplicate_summary[name] = {
+        'duplicates': data.duplicated().sum(),
+        'total_rows': len(data)
+    }
+    print()
+
+
+=== Code Cell 20 ===
+# Set target variable
+target_variable = 'Fertilizer Name'
+
+fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+datasets = [('Train Data', train_data), ('Original Data', original_data)]
+
+for i, (title, data) in enumerate(datasets):
+    ax = axes[i, 0]
+    sns.countplot(y=target_variable, data=data, ax=ax, palette='RdYlGn')
+    ax.set_title(f'Count Plot of Fertilizer Names in {title}', pad=20)
+    ax.set_ylabel('Fertilizer Name')
+    ax.set_xlabel('Count')
+    ax.grid(axis='x', color='gray', linestyle=':', linewidth=0.7)
+
+    sns.despine(ax=ax, top=True, right=True, left=False, bottom=False)
+
+    for p in ax.patches:
+        width = p.get_width()
+        y = p.get_y() + p.get_height() / 2
+        ax.text(width + max(data[target_variable].value_counts())*0.01, y,
+                f'{int(width)}', 
+                ha='left', va='center', fontsize=10, fontweight='bold', color='black')
+
+    fertilizer_counts = data[target_variable].value_counts().sort_index()
+    wedges, texts, autotexts = axes[i, 1].pie(
+        fertilizer_counts,
+        labels=fertilizer_counts.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=sns.color_palette("RdYlGn", len(fertilizer_counts)),
+        wedgeprops=dict(width=0.4, edgecolor='w'),
+        radius=1.2
+    )
+    
+    for text in texts + autotexts:
+        text.set_fontsize(10)
+        text.set_fontweight('bold')
+    
+    centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+    axes[i, 1].add_artist(centre_circle)
+    axes[i, 1].set_title(f'Fertilizer Distribution in {title}', pad=25)
+    axes[i, 1].axis('equal') 
+
+plt.tight_layout()
+plt.subplots_adjust(hspace=0.3, wspace=0.2)
+plt.show()
+
+
+=== Code Cell 23 ===
+def plot_numerical_features(train_data, test_data, original_data, numerical_features):
+    colors = sns.color_palette('RdYlGn', 3)
+    fig, axes = plt.subplots(len(numerical_features), 2, figsize=(12, len(numerical_features)*4))
+    axes = np.atleast_2d(axes)
+
+    for i, feature in enumerate(numerical_features):
+        sns.histplot(train_data[feature], color=colors[0], label='Train Data', bins=20, kde=True, ax=axes[i, 0])
+        sns.histplot(test_data[feature], color=colors[1], label='Test Data', bins=20, kde=True, ax=axes[i, 0])
+        sns.histplot(original_data[feature], color=colors[2], label='Original Data', bins=20, kde=True, ax=axes[i, 0])
+        axes[i, 0].set_title(f'Histogram of {feature}')
+        axes[i, 0].legend()
+        axes[i, 0].set_facecolor("lightgray")
+        axes[i, 0].grid(color='gray', linestyle=':', linewidth=0.7)
+
+        sns.boxplot(data=[train_data[feature], test_data[feature], original_data[feature]],
+                    palette=colors, orient='h', ax=axes[i, 1])
+        axes[i, 1].set_title(f'Horizontal Boxplot of {feature}')
+        axes[i, 1].set_yticklabels(['Train Data', 'Test Data', 'Original Data'])
+        axes[i, 1].set_xlabel(feature)
+        axes[i, 1].set_facecolor("lightgray")
+        axes[i, 1].grid(axis='x', color='gray', linestyle=':', linewidth=0.7)
+
+    plt.tight_layout()
+    plt.show()
+
+numerical_features = ['Temparature', 'Humidity', 'Moisture', 'Nitrogen', 'Potassium', 'Phosphorous']
+
+plot_numerical_features(train_data, test_data, original_data, numerical_features)
+
+
+=== Code Cell 24 ===
+def check_skewness(data, dataset_name, highlight=True, sort=True):
+    skewness_dict = {}
+    for feature in data.select_dtypes(include=[np.number]).columns:
+        skew = data[feature].skew(skipna=True)
+        skewness_dict[feature] = skew
+
+    skew_df = pd.DataFrame.from_dict(skewness_dict, orient='index', columns=['Skewness'])
+    if sort:
+        skew_df = skew_df.reindex(skew_df['Skewness'].abs().sort_values(ascending=False).index)
+    
+    print(f"\n🔍 Skewness for {dataset_name}:")
+    print("-"*55)
+    print(f"{'Feature':<18} | {'Skewness':<10} | {'Remark'}")
+    print("-"*55)
+    for feature, row in skew_df.iterrows():
+        skew = row['Skewness']
+        abs_skew = abs(skew)
+        if abs_skew > 1:
+            remark = "Highly skewed"
+            color = '\033[91m'  
+        elif abs_skew > 0.5:
+            remark = "Moderately skewed"
+            color = '\033[93m'  
+        else:
+            remark = "Approximately symmetric"
+            color = ''
+        endc = '\033[0m' if color else ''
+        if highlight and color:
+            print(f"{color}{feature:<18} | {skew:>+9.4f} | {remark}{endc}")
+        else:
+            print(f"{feature:<18} | {skew:>+9.4f} | {remark}")
+    print("-"*55)
+    return skew_df
+
+skew_original = check_skewness(original_data, "Original Data")
+skew_train = check_skewness(train_data, "Train Data")
+skew_test = check_skewness(test_data, "Test Data")
+
+
+=== Code Cell 27 ===
+numerical_features = ['Temparature', 'Humidity', 'Moisture', 'Nitrogen', 'Phosphorous', 'Potassium']
+
+datasets = {
+    "Train Data": train_data,
+    "Original Data": original_data,
+    "Test Data": test_data
+}
+
+fig, axes = plt.subplots(ncols=3, figsize=(20, 6))  
+axs = axes.ravel() 
+
+for i, (name, df) in enumerate(datasets.items()):
+    available_features = [f for f in numerical_features if f in df.columns]
+    df_subset = df[available_features]
+    
+    corr = df_subset.corr()
+    
+    sns.heatmap(
+        corr,
+        annot=True,
+        fmt=".2f",
+        cmap="RdYlGn_r",   
+        linewidths=0.5,
+        square=True,
+        cbar_kws={"shrink": .7},
+        ax=axs[i]
+    )
+    axs[i].set_title(f'Correlation Heatmap of {name}', fontsize=14)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 30 ===
+def plot_categorical_distribution_across_datasets(train_data, original_data, test_data, feature):
+    custom_palette = sns.color_palette("RdYlGn", n_colors=train_data[feature].nunique())
+    dataset_names = ['Train', 'Original', 'Test']
+    datasets = [train_data, original_data, test_data]
+
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+
+    for i, (data, name) in enumerate(zip(datasets, dataset_names)):
+        order = data[feature].value_counts().index
+        sns.countplot(y=feature, data=data, ax=axes[0, i], palette=custom_palette, order=order)
+        axes[0, i].set_title(f'{name} Data: {feature} Counts')
+        axes[0, i].set_xlabel('Count')
+        axes[0, i].set_ylabel(feature)
+        
+        for p in axes[0, i].patches:
+            axes[0, i].annotate(f'{int(p.get_width())}', 
+                               (p.get_width(), p.get_y() + p.get_height() / 2), 
+                               ha='left', va='center', 
+                               color='black', fontsize=12)
+        axes[0, i].set_axisbelow(True)
+        axes[0, i].grid(axis='x', color='gray', linestyle=':', linewidth=0.7)
+        sns.despine(left=True, bottom=True, ax=axes[0, i])
+
+    for i, (data, name) in enumerate(zip(datasets, dataset_names)):
+        counts = data[feature].value_counts()
+        wedges, texts, autotexts = axes[1, i].pie(
+            counts,
+            labels=counts.index,
+            autopct='%1.1f%%',
+            startangle=90,
+            colors=custom_palette,
+            textprops={'fontsize': 12}
+        )
+        centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+        axes[1, i].add_artist(centre_circle)
+        axes[1, i].set_title(f'{name} Data: {feature} Distribution (%)')
+        axes[1, i].axis('equal')
+
+    plt.tight_layout()
+    plt.subplots_adjust(hspace=0.3)  
+    plt.show()
+
+
+plot_categorical_distribution_across_datasets(train_data, original_data, test_data, 'Soil Type')
+
+
+=== Code Cell 31 ===
+plot_categorical_distribution_across_datasets(train_data, original_data, test_data, 'Crop Type')
+
+
+=== Code Cell 34 ===
+# Define feature groups
+
+env_features = ['Temparature', 'Humidity', 'Moisture']
+soil_feature = 'Soil Type'
+crop_feature = 'Crop Type'
+nutrient_features = ['Nitrogen', 'Phosphorous', 'Potassium']
+
+=== Code Cell 36 ===
+mean_env = train_data.groupby(target_variable)[env_features].mean().reset_index()
+mean_env_melted = mean_env.melt(id_vars=target_variable, var_name='Environmental Feature', value_name='Mean Value')
+
+fig, ax = plt.subplots(figsize=(14, 6))
+sns.barplot(data=mean_env_melted, x=target_variable, y='Mean Value', hue='Environmental Feature', palette='RdYlGn', ax=ax)
+ax.set_title(f'Average Environmental Feature Levels by {target_variable}')
+ax.set_xlabel(target_variable)
+ax.set_ylabel('Average Value')
+ax.tick_params(axis='x', rotation=45)
+ax.legend(title='Environmental Feature')
+ax.set_facecolor('lightgray') 
+ax.grid(color='gray', linestyle=':', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 37 ===
+def env_summary_by_fertilizer(df, target_variable, env_features):
+    print("=" * 65)
+    print(f"Summary Statistics of Environmental Features by {target_variable}")
+    print("=" * 65)
+    
+    for feature in env_features:
+        summary_stats = df.groupby(target_variable)[feature].describe().round(2)
+        print(f"\n--- {feature} ---\n")
+        display(summary_stats)
+
+env_summary_by_fertilizer(train_data, 'Fertilizer Name', env_features)
+
+
+=== Code Cell 38 ===
+custom_palette = sns.color_palette("RdYlGn", len(train_data[target_variable].unique()))
+
+for feature in env_features:
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    sns.boxplot(x=target_variable, y=feature, data=train_data, 
+                palette=custom_palette, ax=axes[0])
+    axes[0].set_title(f'{feature} Distribution by Fertilizer Name', pad=15)
+    axes[0].set_xlabel('Fertilizer Name', labelpad=10)
+    axes[0].set_ylabel(feature, labelpad=10)
+    axes[0].tick_params(axis='x', rotation=45)
+    axes[0].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+    
+    sns.histplot(data=train_data, x=feature, hue=target_variable, 
+                 bins=20, palette=custom_palette, ax=axes[1], kde=True)
+    axes[1].set_title(f'{feature} Distribution by Fertilizer Class', pad=15)
+    axes[1].set_xlabel(feature, labelpad=10)
+    axes[1].set_ylabel('Frequency', labelpad=10)
+    axes[1].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.show()
+
+
+=== Code Cell 41 ===
+custom_palette = sns.color_palette("RdYlGn", n_colors=train_data[target_variable].nunique())
+
+def plot_categorical_vs_target(data, category_feature, target_feature, palette):
+    plt.figure(figsize=(14, 7))
+    ax = sns.countplot(x=category_feature, hue=target_feature, data=data, palette=palette)
+    plt.title(f'{category_feature} Distribution by {target_feature}', fontsize=16)
+    plt.xlabel(category_feature)
+    plt.ylabel('Count')
+    plt.xticks(rotation=45)
+    plt.grid(axis='y', linestyle=':', alpha=0.7)
+    
+    plt.legend(title=target_feature, bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    plt.show()
+
+# Plot Soil Type vs Fertilizer Name
+plot_categorical_vs_target(train_data, soil_feature, target_variable, custom_palette)
+
+=== Code Cell 42 ===
+def plot_soil_type_distribution_by_fertilizer(data, fertilizer_class):
+    filtered_data = data[data['Fertilizer Name'] == fertilizer_class]
+    
+    soil_order = filtered_data['Soil Type'].value_counts().index.tolist()
+    
+    palette = sns.color_palette("RdYlGn", n_colors=len(soil_order))
+    color_mapping = dict(zip(soil_order, palette))
+    
+    fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+    
+    sns.countplot(y='Soil Type', data=filtered_data, order=soil_order, 
+                  palette=color_mapping, ax=ax[0])
+    ax[0].set_title(f'Soil Type Counts for Fertilizer: {fertilizer_class}')
+    ax[0].set_xlabel('Count')
+    ax[0].set_ylabel('Soil Type')
+    
+    for p in ax[0].patches:
+        ax[0].annotate(f'{int(p.get_width())}',
+                       (p.get_width(), p.get_y() + p.get_height() / 2),
+                       ha='left', va='center',
+                       fontsize=10, color='black')
+    ax[0].grid(axis='x', linestyle=':', alpha=0.7)
+    sns.despine(left=True, bottom=True, ax=ax[0])
+    
+    soil_counts = filtered_data['Soil Type'].value_counts().reindex(soil_order)
+    wedges, texts, autotexts = ax[1].pie(
+        soil_counts,
+        labels=soil_counts.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=[color_mapping[soil] for soil in soil_counts.index],
+        textprops={'fontsize': 12}
+    )
+    centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+    ax[1].add_artist(centre_circle)
+    ax[1].set_title(f'Soil Type Distribution (%) for Fertilizer: {fertilizer_class}')
+    ax[1].axis('equal')
+    
+    plt.tight_layout()
+    plt.show()
+
+unique_fertilizers = train_data['Fertilizer Name'].unique()
+for fertilizer in unique_fertilizers:
+    plot_soil_type_distribution_by_fertilizer(train_data, fertilizer)
+
+=== Code Cell 43 ===
+# Calculate cross tabulation of Soil Type vs Fertilizer Name
+soil_fertilizer_crosstab = pd.crosstab(train_data['Soil Type'], train_data['Fertilizer Name'])
+
+plt.figure(figsize=(14, 7))
+
+heatmap = sns.heatmap(
+    soil_fertilizer_crosstab,
+    annot=True,
+    fmt='d',
+    cmap='RdYlGn',
+    linewidths=0.5,
+    linecolor='gray',
+    annot_kws={"size": 12, "weight": "bold"}  
+)
+
+heatmap.set_xticklabels(heatmap.get_xmajorticklabels(), fontsize=12, rotation=45)
+heatmap.set_yticklabels(heatmap.get_ymajorticklabels(), fontsize=12, rotation=0)
+
+plt.title('Heatmap of Soil Type Distribution Across Fertilizer Classes', fontsize=16, pad=20)
+plt.xlabel('Fertilizer Name', fontsize=14, labelpad=15)
+plt.ylabel('Soil Type', fontsize=14, labelpad=15)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 46 ===
+# Plot Crop Type vs Fertilizer Name
+plot_categorical_vs_target(train_data, crop_feature, target_variable, custom_palette)
+
+
+=== Code Cell 47 ===
+def plot_crop_type_distribution_by_fertilizer(data, fertilizer_class):
+    filtered_data = data[data['Fertilizer Name'] == fertilizer_class]
+    
+    crop_order = filtered_data['Crop Type'].value_counts().index.tolist()
+    
+    palette = sns.color_palette("RdYlGn", n_colors=len(crop_order))
+    color_mapping = dict(zip(crop_order, palette))
+    
+    fig, ax = plt.subplots(1, 2, figsize=(14, 5))
+    
+    sns.countplot(y='Crop Type', data=filtered_data, order=crop_order, 
+                  palette=color_mapping, ax=ax[0])
+    ax[0].set_title(f'Crop Type Counts for Fertilizer: {fertilizer_class}')
+    ax[0].set_xlabel('Count')
+    ax[0].set_ylabel('Crop Type')
+    
+    for p in ax[0].patches:
+        ax[0].annotate(f'{int(p.get_width())}',
+                       (p.get_width(), p.get_y() + p.get_height() / 2),
+                       ha='left', va='center',
+                       fontsize=10, color='black')
+    ax[0].grid(axis='x', linestyle=':', alpha=0.7)
+    sns.despine(left=True, bottom=True, ax=ax[0])
+    
+    crop_counts = filtered_data['Crop Type'].value_counts().reindex(crop_order)
+    wedges, texts, autotexts = ax[1].pie(
+        crop_counts,
+        labels=crop_counts.index,
+        autopct='%1.1f%%',
+        startangle=90,
+        colors=[color_mapping[crop] for crop in crop_counts.index],
+        textprops={'fontsize': 12}
+    )
+    centre_circle = plt.Circle((0, 0), 0.70, fc='white')
+    ax[1].add_artist(centre_circle)
+    ax[1].set_title(f'Crop Type Distribution (%) for Fertilizer: {fertilizer_class}')
+    ax[1].axis('equal')
+    
+    plt.tight_layout()
+    plt.show()
+
+unique_fertilizers = train_data['Fertilizer Name'].unique()
+for fertilizer in unique_fertilizers:
+    plot_crop_type_distribution_by_fertilizer(train_data, fertilizer)
+
+
+=== Code Cell 48 ===
+# Calculate cross tabulation of Crop Type vs Fertilizer Name
+crop_fertilizer_crosstab = pd.crosstab(train_data['Crop Type'], train_data['Fertilizer Name'])
+
+plt.figure(figsize=(14, 10))
+
+heatmap = sns.heatmap(
+    crop_fertilizer_crosstab,
+    annot=True,
+    fmt='d',
+    cmap='RdYlGn',
+    linewidths=0.5,
+    linecolor='gray',
+    annot_kws={"size": 12, "weight": "bold"}  
+)
+
+heatmap.set_xticklabels(heatmap.get_xmajorticklabels(), fontsize=12, rotation=45)
+heatmap.set_yticklabels(heatmap.get_ymajorticklabels(), fontsize=12, rotation=0)
+
+plt.title('Heatmap of Crop Type Distribution Across Fertilizer Classes', fontsize=16, pad=20)
+plt.xlabel('Fertilizer Name', fontsize=14, labelpad=15)
+plt.ylabel('Crop Type', fontsize=14, labelpad=15)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 51 ===
+mean_nutrients = train_data.groupby(target_variable)[nutrient_features].mean().reset_index()
+mean_nutrients_melted = mean_nutrients.melt(id_vars=target_variable, var_name='Nutrient', value_name='Mean Level')
+
+fig, ax = plt.subplots(figsize=(14, 6))
+sns.barplot(data=mean_nutrients_melted, x=target_variable, y='Mean Level', hue='Nutrient', palette='RdYlGn', ax=ax)
+ax.set_title(f'Average Nutrient Levels by {target_variable}')
+ax.set_xlabel(target_variable)
+ax.set_ylabel('Average Nutrient Level')
+ax.tick_params(axis='x', rotation=45)
+ax.legend(title='Nutrient')
+ax.set_facecolor('lightgray')
+ax.grid(color='gray', linestyle=':', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 52 ===
+def nutrient_summary_by_target(df, target_variable, nutrient_features):
+    print("=" * 60)
+    print(f"Summary Statistics of Nutrients by {target_variable}")
+    print("=" * 60)
+    
+    for feature in nutrient_features:
+        summary_stats = df.groupby(target_variable)[feature].describe().round(2)
+        print(f"\n--- {feature} ---\n")
+        display(summary_stats)
+
+nutrient_summary_by_target(train_data, target_variable, nutrient_features)
+
+
+=== Code Cell 53 ===
+custom_palette = sns.color_palette("RdYlGn", len(train_data[target_variable].unique()))
+
+for feature in nutrient_features:
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    sns.boxplot(x=target_variable, y=feature, data=train_data, 
+                palette=custom_palette, ax=axes[0])
+    axes[0].set_title(f'{feature} Distribution by {target_variable}', pad=15)
+    axes[0].set_xlabel(target_variable, labelpad=10)
+    axes[0].set_ylabel(feature, labelpad=10)
+    axes[0].tick_params(axis='x', rotation=45)
+    axes[0].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+    
+    sns.histplot(data=train_data, x=feature, hue=target_variable, 
+                 bins=20, palette=custom_palette, ax=axes[1], kde=True)
+    axes[1].set_title(f'{feature} Distribution by {target_variable} Class', pad=15)
+    axes[1].set_xlabel(feature, labelpad=10)
+    axes[1].set_ylabel('Frequency', labelpad=10)
+    axes[1].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.show()
+
+
+=== Code Cell 56 ===
+mean_nutrients = train_data.groupby('Soil Type')[nutrient_features].mean().reset_index()
+mean_nutrients_melted = mean_nutrients.melt(id_vars='Soil Type', var_name='Nutrient', value_name='Mean Level')
+
+fig, ax = plt.subplots(figsize=(14, 6))
+sns.barplot(data=mean_nutrients_melted, x='Soil Type', y='Mean Level', hue='Nutrient', palette='RdYlGn', ax=ax)
+ax.set_title('Average Nutrient Levels by Soil Type')
+ax.set_xlabel('Soil Type')
+ax.set_ylabel('Average Nutrient Level')
+ax.legend(title='Nutrient')
+ax.set_facecolor('lightgray')
+ax.grid(color='gray', linestyle=':', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 57 ===
+def nutrient_summary_by_soil(df, soil_feature, nutrient_features):
+    print("=" * 55)
+    print(f"Summary Statistics of Nutrients by {soil_feature}")
+    print("=" * 55)
+    
+    for nutrient in nutrient_features:
+        summary_stats = df.groupby(soil_feature)[nutrient].describe().round(2)
+        print(f"\n--- {nutrient} ---\n")
+        display(summary_stats)
+
+nutrient_summary_by_soil(train_data, soil_feature, nutrient_features)
+
+
+=== Code Cell 58 ===
+custom_palette_soil = sns.color_palette("RdYlGn", len(train_data[soil_feature].unique()))
+
+for feature in nutrient_features:
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    sns.boxplot(x=soil_feature, y=feature, data=train_data, 
+                palette=custom_palette_soil, ax=axes[0])
+    axes[0].set_title(f'{feature} Distribution by {soil_feature}', pad=15)
+    axes[0].set_xlabel(soil_feature, labelpad=10)
+    axes[0].set_ylabel(feature, labelpad=10)
+    axes[0].tick_params(axis='x', rotation=45)
+    axes[0].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+
+    sns.histplot(data=train_data, x=feature, hue=soil_feature, 
+                 bins=20, palette=custom_palette_soil, ax=axes[1], kde=True)
+    axes[1].set_title(f'{feature} Distribution by {soil_feature} Class', pad=15)
+    axes[1].set_xlabel(feature, labelpad=10)
+    axes[1].set_ylabel('Frequency', labelpad=10)
+    axes[1].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.show()
+
+
+=== Code Cell 61 ===
+mean_nutrients_crop = train_data.groupby('Crop Type')[nutrient_features].mean().reset_index()
+mean_nutrients_crop_melted = mean_nutrients_crop.melt(id_vars='Crop Type', var_name='Nutrient', value_name='Mean Level')
+
+fig, ax = plt.subplots(figsize=(16, 7))
+sns.barplot(data=mean_nutrients_crop_melted, x='Crop Type', y='Mean Level', hue='Nutrient', palette='RdYlGn', ax=ax)
+ax.set_title('Average Nutrient Levels by Crop Type')
+ax.set_xlabel('Crop Type')
+ax.set_ylabel('Average Nutrient Level')
+ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+ax.legend(title='Nutrient')
+ax.set_facecolor('lightgray')
+ax.grid(color='gray', linestyle=':', alpha=0.7)
+
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 62 ===
+def nutrient_summary_by_crop(df, crop_feature, nutrient_features):
+    print("=" * 55)
+    print(f"Summary Statistics of Nutrients by {crop_feature}")
+    print("=" * 55)
+    
+    for nutrient in nutrient_features:
+        summary_stats = df.groupby(crop_feature)[nutrient].describe().round(2)
+        print(f"\n--- {nutrient} ---\n")
+        display(summary_stats)
+
+nutrient_summary_by_crop(train_data, crop_feature, nutrient_features)
+
+
+=== Code Cell 63 ===
+custom_palette_crop = sns.color_palette("RdYlGn", len(train_data[crop_feature].unique()))
+
+for feature in nutrient_features:
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    
+    sns.boxplot(x=crop_feature, y=feature, data=train_data, 
+                palette=custom_palette_crop, ax=axes[0])
+    axes[0].set_title(f'{feature} Distribution by {crop_feature}', pad=15)
+    axes[0].set_xlabel(crop_feature, labelpad=10)
+    axes[0].set_ylabel(feature, labelpad=10)
+    axes[0].tick_params(axis='x', rotation=45)
+    axes[0].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+
+    sns.histplot(data=train_data, x=feature, hue=crop_feature, 
+                 bins=20, palette=custom_palette_crop, ax=axes[1], kde=True)
+    axes[1].set_title(f'{feature} Distribution by {crop_feature} Class', pad=15)
+    axes[1].set_xlabel(feature, labelpad=10)
+    axes[1].set_ylabel('Frequency', labelpad=10)
+    axes[1].grid(axis='y', color='gray', linestyle=':', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.show()
+
+=== Code Cell 67 ===
+# Drop 'id' column from train_data to align columns
+train_data_aligned = train_data.drop(columns=['id'])
+
+# Concatenate train_data_aligned and original_data
+combined_data = pd.concat([train_data_aligned, original_data], ignore_index=True)
+
+print(f"Combined dataset shape: {combined_data.shape}")
+
+
+=== Code Cell 70 ===
+# target_variable = 'Fertilizer Name'
+categorical_features = ['Soil Type', 'Crop Type']
+
+# Encode categorical features
+label_encoders = {}
+for col in categorical_features:
+    le = LabelEncoder()
+    combined_data[col + '_Encoded'] = le.fit_transform(combined_data[col])
+    label_encoders[col] = le
+    
+    test_data[col + '_Encoded'] = test_data[col].map(lambda x: le.transform([x])[0] if x in le.classes_ else -1)
+
+    print(f"\nEncoding mapping for {col}:")
+    for cat, code in zip(le.classes_, le.transform(le.classes_)):
+        print(f"  {cat} --> {code}")
+
+# Encode target variable
+target_le = LabelEncoder()
+combined_data[target_variable + '_Encoded'] = target_le.fit_transform(combined_data[target_variable])
+
+print("\nTarget encoding mapping:")
+for cat, code in zip(target_le.classes_, target_le.transform(target_le.classes_)):
+    print(f"  {cat} --> {code}")
+
+# Drop original categorical columns after encoding
+combined_data.drop(columns=categorical_features, inplace=True)
+test_data.drop(columns=categorical_features, inplace=True)
+
+# drop original target column 
+combined_data.drop(columns=[target_variable], inplace=True)
+
+
+=== Code Cell 73 ===
+# Remove whitespaces in feature names for combined_data and test_data
+combined_data.columns = combined_data.columns.str.replace(' ', '_', regex=True)
+test_data.columns = test_data.columns.str.replace(' ', '_', regex=True)
+
+print("Updated Feature Names in combined_data:")
+print(combined_data.columns)
+
+print("\nUpdated Feature Names in test_data:")
+print(test_data.columns)
+
+=== Code Cell 76 ===
+combined_data_types = pd.DataFrame({
+    'Column Name': combined_data.columns,
+    'Combined Data Type': combined_data.dtypes.astype(str)  
+})
+
+test_data_types = pd.DataFrame({
+    'Column Name': test_data.columns,
+    'Test Data Type': test_data.dtypes.astype(str)
+})
+
+data_types_comparison = pd.merge(
+    combined_data_types,
+    test_data_types,
+    on='Column Name',
+    how='outer'  
+)
+
+print("Data Types Comparison of Combined and Test Datasets:\n")
+display(data_types_comparison)
+
+
+=== Code Cell 79 ===
+numerical_features = combined_data.select_dtypes(include=['int64']).columns.tolist()
+
+corr_matrix = combined_data[numerical_features].corr().round(2)
+
+plt.figure(figsize=(14, 10))
+sns.heatmap(
+    corr_matrix,
+    annot=True,
+    cmap='RdYlGn_r',
+    fmt='.2f',
+    linewidths=0.5,
+    cbar_kws={'shrink': 0.8}
+)
+
+plt.title('Correlation Heatmap of Numerical Features in Combined Data', fontsize=16, pad=20)
+plt.xticks(rotation=45, ha='right')
+plt.yticks(rotation=0)
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 82 ===
+# Select features and target
+feature_columns = [
+    'Temparature', 'Humidity', 'Moisture', 'Nitrogen', 'Phosphorous', 'Potassium',
+    'Soil_Type_Encoded', 'Crop_Type_Encoded'
+]
+target_column = 'Fertilizer_Name_Encoded'
+
+# Set Training and Test Dataset (no scaling)
+X = combined_data[feature_columns]
+y = combined_data[target_column]
+test_X = test_data[feature_columns]
+
+=== Code Cell 85 ===
+# MAP@3 Metric
+def mapk(actual, predicted, k=3):
+    def apk(a, p, k):
+        if len(p) > k:
+            p = p[:k]
+        score = 0.0
+        num_hits = 0.0
+        for i, pred in enumerate(p):
+            if pred == a and pred not in p[:i]:
+                num_hits += 1.0
+                score += num_hits / (i + 1.0)
+        return score
+    return np.mean([apk(a, p, k) for a, p in zip(actual, predicted)])
+
+=== Code Cell 89 ===
+# Best XGBoost parameters from previous Optuna run
+best_params = {
+    'max_depth': 7,
+    'learning_rate': 0.05635134330984224,
+    'subsample': 0.5605235929333594,
+    'colsample_bytree': 0.5594578346445631,
+    'min_child_weight': 6,
+    'gamma': 0.35819323772520817,
+    'reg_alpha': 0.9747714669120731,
+    'reg_lambda': 0.7061465594372847,
+    'objective': 'multi:softprob',
+    'num_class': 7,
+    'eval_metric': 'mlogloss',
+    'tree_method': 'gpu_hist',
+    'verbosity': 0,
+    'n_estimators': 1000
+}
+
+=== Code Cell 92 ===
+# Training and predictions
+skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+oof_preds = np.zeros((X.shape[0], len(np.unique(y))))
+test_preds = np.zeros((test_X.shape[0], len(np.unique(y))))
+oof_true = []
+oof_top3_preds = []
+
+fold_loglosses = []
+fold_map3s = []
+
+for fold, (train_idx, valid_idx) in enumerate(skf.split(X, y)):
+    print(f"Fold {fold+1}")
+    X_train, X_valid = X.iloc[train_idx], X.iloc[valid_idx]
+    y_train, y_valid = y.iloc[train_idx], y.iloc[valid_idx]
+
+    model = xgb.XGBClassifier(**best_params, use_label_encoder=False)
+    model.fit(
+        X_train, y_train,
+        eval_set=[(X_valid, y_valid)],
+        early_stopping_rounds=10,
+        verbose=False
+    )
+
+    oof_preds[valid_idx] = model.predict_proba(X_valid)
+    fold_logloss = log_loss(y_valid, oof_preds[valid_idx])
+    fold_loglosses.append(fold_logloss)
+
+    top3_preds = np.argsort(oof_preds[valid_idx], axis=1)[:, -3:][:, ::-1]
+    fold_map3 = mapk(y_valid.tolist(), [list(p) for p in top3_preds], k=3)
+    fold_map3s.append(fold_map3)
+
+    print(f"  Fold {fold+1} Log Loss: {fold_logloss:.5f}")
+    print(f"  Fold {fold+1} MAP@3: {fold_map3:.5f}")
+
+    oof_true.extend(y_valid)
+    oof_top3_preds.extend(top3_preds)
+    test_preds += model.predict_proba(test_X) / skf.n_splits
+
+# Overall MAP@3
+map3_score = mapk(oof_true, [list(p) for p in oof_top3_preds], k=3)
+print(f"\nOverall OOF MAP@3 Score: {map3_score:.5f}")
+
+=== Code Cell 95 ===
+# Fold-wise Log Loss and MAP@3
+colors = sns.color_palette('RdYlGn', 5)
+folds = list(range(1, 6))
+fig, ax1 = plt.subplots(figsize=(12, 6))
+ax1.set_title('Fold-wise Log Loss and MAP@3')
+ax1.plot(folds, fold_loglosses, marker='o', color=colors[0], label='Log Loss')
+ax1.set_xlabel('Fold')
+ax1.set_ylabel('Log Loss', color=colors[0])
+ax1.tick_params(axis='y', labelcolor=colors[0])
+ax1.grid(color='gray', linestyle=':', linewidth=0.7)
+
+ax2 = ax1.twinx()
+ax2.plot(folds, fold_map3s, marker='o', color=colors[4], label='MAP@3')
+ax2.set_ylabel('MAP@3', color=colors[4])
+ax2.tick_params(axis='y', labelcolor=colors[4])
+ax2.grid(color='gray', linestyle=':', linewidth=0.7)
+plt.tight_layout()
+plt.show()
+
+=== Code Cell 96 ===
+# MAP@3 per Fold Bar Chart
+plt.figure(figsize=(12, 6))
+sns.barplot(x=folds, y=fold_map3s, palette='RdYlGn')
+plt.title('MAP@3 Score per Fold')
+plt.xlabel('Fold')
+plt.ylabel('MAP@3 Score')
+plt.ylim(0.34, 0.36)
+plt.grid(color='gray', linestyle=':', linewidth=0.7)
+plt.tight_layout()
+plt.show()
+
+=== Code Cell 99 ===
+# Extract feature importances from the trained model (last fold)
+feature_importance = model.feature_importances_
+
+importance_df = pd.DataFrame({
+    'Feature': feature_columns,
+    'Importance': feature_importance
+})
+
+importance_df = importance_df.sort_values(by='Importance', ascending=False)
+
+print("Feature Importances:")
+print(importance_df)
+
+plt.figure(figsize=(12, 6))
+sns.barplot(
+    x='Importance', 
+    y='Feature', 
+    data=importance_df, 
+    palette='RdYlGn'
+)
+plt.title('Feature Importance (Last Fold XGBoost Model)')
+plt.xlabel('Importance Score')
+plt.ylabel('Feature')
+plt.grid(color='gray', linestyle=':', linewidth=0.7)
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 102 ===
+# Fertilizer decoder
+fertilizer_decoder = dict(zip(target_le.transform(target_le.classes_), target_le.classes_))
+test_top3_preds = np.argsort(test_preds, axis=1)[:, -3:][:, ::-1]
+
+submission_labels = []
+for row in test_top3_preds:
+    labels = [fertilizer_decoder[i] for i in row]
+    submission_labels.append(' '.join(labels))
+
+submission_df = pd.DataFrame({
+    'id': test_data['id'],
+    'Fertilizer Name': submission_labels
+})
+submission_df.to_csv('submission.csv', index=False)
+print("\nSubmission file saved!")
+
+=== Code Cell 104 ===
+# Confusion Matrix of OOF Predictions
+oof_pred_top1 = np.argmax(oof_preds, axis=1)
+cm = pd.crosstab(pd.Series(oof_true), pd.Series(oof_pred_top1))
+cm.index = [fertilizer_decoder[i] for i in cm.index]
+cm.columns = [fertilizer_decoder[i] for i in cm.columns]
+
+plt.figure(figsize=(12, 6))
+sns.heatmap(cm, annot=True, fmt='d', cmap='RdYlGn')
+plt.title('Confusion Matrix (OOF Predictions)')
+plt.xlabel('Predicted')
+plt.ylabel('Actual')
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 106 ===
+# Top-1 Fertilizer Predictions Count
+top1_preds = np.argmax(test_preds, axis=1)
+
+top1_labels = [fertilizer_decoder[i] for i in top1_preds]
+
+top1_counts = pd.Series(top1_labels).value_counts().reset_index()
+top1_counts.columns = ['Fertilizer', 'Count']
+
+print("Top-1 Fertilizer Prediction Counts:")
+print(top1_counts)
+
+plt.figure(figsize=(12, 6))
+sns.barplot(data=top1_counts, x='Count', y='Fertilizer', palette='RdYlGn')
+plt.title('Top-1 Predicted Fertilizer Distribution')
+plt.xlabel('Count')
+plt.ylabel('Fertilizer Name')
+plt.grid(color='gray', linestyle=':', linewidth=0.7)
+plt.tight_layout()
+plt.show()
+
+
+=== Code Cell 107 ===
+# Class Distribution in Predictions vs. Actual
+oof_pred_top1_names = [fertilizer_decoder[i] for i in oof_pred_top1]
+oof_true_names = [fertilizer_decoder[i] for i in oof_true]
+
+actual_dist = pd.Series(oof_true_names).value_counts().sort_index()
+predicted_dist = pd.Series(oof_pred_top1_names).value_counts().sort_index()
+
+dist_df = pd.DataFrame({
+    'Actual': actual_dist,
+    'Predicted': predicted_dist
+}).fillna(0)
+
+dist_df.plot(kind='bar', figsize=(12, 6), colormap='RdYlGn')
+plt.title('Class Distribution: Actual vs. Predicted (OOF)')
+plt.xlabel('Fertilizer Class')
+plt.ylabel('Count')
+plt.xticks(rotation=45)
+plt.grid(color='gray', linestyle=':', linewidth=0.7)
+plt.tight_layout()
+plt.show()
+
+=== Code Cell 109 ===
+# Print Submission preview
+print(submission_df.head(10))
+

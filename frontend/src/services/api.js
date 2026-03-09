@@ -11,7 +11,7 @@ const getApiBaseUrl = () => {
         return 'http://localhost:5000/api';
     }
     // For mobile, use the machine's IP (manually update if it changes)
-    return 'http://10.245.162.98:5000/api';
+    return 'http://10.12.226.49:5000/api';
 };
 
 const API_BASE_URL = getApiBaseUrl();

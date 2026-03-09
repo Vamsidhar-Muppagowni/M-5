@@ -5,8 +5,6 @@ import { Ionicons } from '@expo/vector-icons';
 import { marketAPI } from '../../services/api';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from '@react-navigation/native';
-import { theme } from '../../styles/theme';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const MyCropsScreen = ({ navigation }) => {
     const { user } = useSelector(state => state.auth);
@@ -47,27 +45,27 @@ const MyCropsScreen = ({ navigation }) => {
 
     const handleDelete = (cropId) => {
         Alert.alert(
-            t('delete_listing'),
-            t('delete_confirm'),
+            "Delete Listing",
+            "Are you sure you want to remove this crop from the market?",
             [{
-                text: t('cancel'),
-                style: "cancel"
-            },
-            {
-                text: t('delete'),
-                style: "destructive",
-                onPress: async () => {
-                    Alert.alert("Info", t('delete_soon'));
+                    text: "Cancel",
+                    style: "cancel"
+                },
+                {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                        Alert.alert("Info", "Delete feature coming soon");
+                    }
                 }
-            }
             ]
         );
     };
 
     const renderCropItem = ({ item }) => (
-        <TouchableOpacity
+        <TouchableOpacity 
             style={styles.card}
-            onPress={() => navigation.navigate('CropDetails', { id: item.id || item._id })}
+            onPress={() => navigation.navigate('CropDetails', { cropId: item.id })}
             activeOpacity={0.9}
         >
             <View style={styles.cardHeader}>
@@ -81,13 +79,13 @@ const MyCropsScreen = ({ navigation }) => {
                     </View>
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: item.status === 'listed' ? '#e8f5e9' : '#fff3e0' }]}>
-                    <Ionicons
+                    <Ionicons 
                         name={item.status === 'listed' ? 'checkmark-circle' : 'time'}
                         size={12}
-                        color={item.status === 'listed' ? theme.colors.success : theme.colors.secondary}
+                        color={item.status === 'listed' ? '#2e7d32' : '#ef6c00'}
                         style={{ marginRight: 4 }}
                     />
-                    <Text style={[styles.statusText, { color: item.status === 'listed' ? theme.colors.success : theme.colors.secondary }]}>
+                    <Text style={[styles.statusText, { color: item.status === 'listed' ? '#2e7d32' : '#ef6c00' }]}>
                         {item.status.toUpperCase()}
                     </Text>
                 </View>
@@ -98,30 +96,30 @@ const MyCropsScreen = ({ navigation }) => {
             <View style={styles.cardBody}>
                 <View style={styles.infoColumn}>
                     <View style={styles.infoRow}>
-                        <Ionicons name="cube-outline" size={16} color={theme.colors.text.secondary} />
+                        <Ionicons name="scale-outline" size={16} color="#666" />
                         <Text style={styles.infoText}>{item.quantity} {item.unit}</Text>
                     </View>
                     <View style={styles.infoRow}>
-                        <Ionicons name="pricetag-outline" size={16} color={theme.colors.text.secondary} />
+                        <Ionicons name="pricetag-outline" size={16} color="#666" />
                         <Text style={styles.infoText}>₹{item.min_price}/{item.unit}</Text>
                     </View>
                 </View>
                 <View style={styles.infoColumn}>
                     <View style={styles.infoRow}>
-                        <Ionicons name="eye-outline" size={16} color={theme.colors.text.secondary} />
-                        <Text style={styles.infoText}>{item.view_count || 0} {t('views')}</Text>
+                        <Ionicons name="eye-outline" size={16} color="#666" />
+                        <Text style={styles.infoText}>{item.view_count || 0} Views</Text>
                     </View>
                     <View style={styles.infoRow}>
-                        <Ionicons name="hammer-outline" size={16} color={theme.colors.text.secondary} />
-                        <Text style={styles.infoText}>{item.bid_count || 0} {t('bids')}</Text>
+                        <Ionicons name="hammer-outline" size={16} color="#666" />
+                        <Text style={styles.infoText}>{item.bid_count || 0} Bids</Text>
                     </View>
                 </View>
             </View>
 
             <View style={styles.cardFooter}>
-                <Text style={styles.dateText}>{t('listed_date')} {new Date(item.created_at).toLocaleDateString()}</Text>
-                <TouchableOpacity style={styles.actionButton} onPress={() => handleDelete(item.id || item._id)}>
-                    <Ionicons name="trash-outline" size={18} color={theme.colors.error} />
+                <Text style={styles.dateText}>Listed {new Date(item.created_at).toLocaleDateString()}</Text>
+                <TouchableOpacity style={styles.actionButton} onPress={() => handleDelete(item.id)}>
+                    <Ionicons name="trash-outline" size={18} color="#d32f2f" />
                 </TouchableOpacity>
             </View>
         </TouchableOpacity>
@@ -131,60 +129,46 @@ const MyCropsScreen = ({ navigation }) => {
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                    <Ionicons name="arrow-back" size={24} color={theme.colors.text.primary} />
+                    <Ionicons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>
-                <Text style={styles.title}>{t('my_active_listings')}</Text>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => navigation.navigate('CropListing')}
-                    activeOpacity={0.8}
-                >
-                    <LinearGradient
-                        colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
-                        style={styles.addButtonGradient}
-                    >
-                        <Ionicons name="add" size={24} color="#fff" />
-                    </LinearGradient>
+                <Text style={styles.title}>{t('active_listings')}</Text>
+                <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CropListing')}>
+                    <Ionicons name="add" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
 
             {loading ? (
                 <View style={styles.center}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                    <Text style={{ marginTop: 10, color: theme.colors.text.secondary }}>{t('loading_market')}</Text>
+                    <ActivityIndicator size="large" color="#2e7d32" />
+                    <Text style={{ marginTop: 10, color: '#666' }}>Loading your crops...</Text>
                 </View>
             ) : (
                 <FlatList
                     data={crops}
                     renderItem={renderCropItem}
-                    keyExtractor={item => (item.id || item._id || '').toString()}
+                    keyExtractor={item => item.id}
                     contentContainerStyle={styles.list}
                     showsVerticalScrollIndicator={false}
                     refreshControl={
                         <RefreshControl
                             refreshing={refreshing}
                             onRefresh={onRefresh}
-                            colors={[theme.colors.primary]}
+                            colors={['#2e7d32']}
                         />
                     }
                     ListEmptyComponent={
                         <View style={styles.emptyContainer}>
                             <View style={styles.emptyIconContainer}>
-                                <Ionicons name="leaf-outline" size={64} color={theme.colors.text.disabled} />
+                                <Ionicons name="leaf-outline" size={64} color="#ccc" />
                             </View>
-                            <Text style={styles.emptyTitle}>{t('no_active_listings')}</Text>
-                            <Text style={styles.emptyText}>{t('no_active_listings_desc')}</Text>
-                            <TouchableOpacity
+                            <Text style={styles.emptyTitle}>No Active Listings</Text>
+                            <Text style={styles.emptyText}>You haven't listed any crops for sale yet.</Text>
+                            <TouchableOpacity 
+                                style={styles.primaryButton}
                                 onPress={() => navigation.navigate('CropListing')}
-                                activeOpacity={0.8}
                             >
-                                <LinearGradient
-                                    colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
-                                    style={styles.primaryButton}
-                                >
-                                    <Text style={styles.primaryButtonText}>{t('list_first_crop')}</Text>
-                                    <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
-                                </LinearGradient>
+                                <Text style={styles.primaryButtonText}>List Your First Crop</Text>
+                                <Ionicons name="arrow-forward" size={18} color="#fff" style={{ marginLeft: 8 }} />
                             </TouchableOpacity>
                         </View>
                     }
@@ -197,7 +181,7 @@ const MyCropsScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.background
+        backgroundColor: '#f5f7fa'
     },
     header: {
         flexDirection: 'row',
@@ -206,46 +190,54 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 50,
         paddingBottom: 15,
-        backgroundColor: theme.colors.surface,
+        backgroundColor: '#fff',
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.border,
-        ...theme.shadows.small
+        borderBottomColor: '#eee',
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3
     },
     backButton: {
         padding: 8,
         borderRadius: 20,
-        backgroundColor: theme.colors.background
+        backgroundColor: '#f5f5f5'
     },
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        color: theme.colors.primary
+        color: '#2e7d32'
     },
     addButton: {
         width: 40,
         height: 40,
         borderRadius: 20,
-        ...theme.shadows.medium
-    },
-    addButtonGradient: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        backgroundColor: '#2e7d32',
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: '#2e7d32',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
+        elevation: 5
     },
     list: {
         padding: 20,
         paddingBottom: 40
     },
     card: {
-        backgroundColor: theme.colors.surface,
-        borderRadius: theme.borderRadius.m,
+        backgroundColor: '#fff',
+        borderRadius: 16,
         padding: 16,
         marginBottom: 16,
-        ...theme.shadows.small,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
         borderWidth: 1,
-        borderColor: theme.colors.border
+        borderColor: '#f0f0f0'
     },
     cardHeader: {
         flexDirection: 'row',
@@ -269,7 +261,7 @@ const styles = StyleSheet.create({
     iconText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: theme.colors.primary
+        color: '#2e7d32'
     },
     titleContainer: {
         justifyContent: 'center'
@@ -277,11 +269,11 @@ const styles = StyleSheet.create({
     cropName: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: theme.colors.text.primary
+        color: '#333'
     },
     cropVariety: {
         fontSize: 13,
-        color: theme.colors.text.secondary,
+        color: '#888',
         marginTop: 2
     },
     statusBadge: {
@@ -297,7 +289,7 @@ const styles = StyleSheet.create({
     },
     divider: {
         height: 1,
-        backgroundColor: theme.colors.border,
+        backgroundColor: '#f0f0f0',
         marginVertical: 10
     },
     cardBody: {
@@ -316,7 +308,7 @@ const styles = StyleSheet.create({
     infoText: {
         marginLeft: 8,
         fontSize: 14,
-        color: theme.colors.text.primary,
+        color: '#555',
         fontWeight: '500'
     },
     cardFooter: {
@@ -327,7 +319,7 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 12,
-        color: theme.colors.text.disabled,
+        color: '#999',
         fontStyle: 'italic'
     },
     actionButton: {
@@ -349,7 +341,7 @@ const styles = StyleSheet.create({
         width: 120,
         height: 120,
         borderRadius: 60,
-        backgroundColor: theme.colors.background,
+        backgroundColor: '#f5f5f5',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20
@@ -357,23 +349,28 @@ const styles = StyleSheet.create({
     emptyTitle: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: theme.colors.text.primary,
+        color: '#333',
         marginBottom: 10
     },
     emptyText: {
         fontSize: 15,
-        color: theme.colors.text.secondary,
+        color: '#888',
         textAlign: 'center',
         marginBottom: 30,
         lineHeight: 22
     },
     primaryButton: {
         flexDirection: 'row',
+        backgroundColor: '#2e7d32',
         paddingHorizontal: 25,
         paddingVertical: 15,
         borderRadius: 30,
         alignItems: 'center',
-        ...theme.shadows.medium
+        shadowColor: '#2e7d32',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6
     },
     primaryButtonText: {
         color: '#fff',

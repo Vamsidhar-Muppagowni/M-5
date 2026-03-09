@@ -40,6 +40,8 @@ import ReportIssueScreen from './src/screens/profile/ReportIssueScreen';
 import TransactionHistoryScreen from './src/screens/profile/TransactionHistoryScreen';
 import FarmerPaymentCredentialScreen from './src/screens/profile/FarmerPaymentCredentialScreen';
 import CheckoutScreen from './src/screens/buyer/CheckoutScreen';
+import FertilizerAdvisor from './src/screens/decision/FertilizerAdvisor';
+import CropAdvisorScreen from './src/screens/decision/CropAdvisor';
 
 // Import services
 import { initI18n } from './src/services/language';
@@ -52,12 +54,12 @@ const Tab = createBottomTabNavigator();
 import { theme } from './src/styles/theme';
 
 // Farmer Tab Navigator
-const FarmerTabs = () => {
+const FarmerTabs = () =>{
     const { t } = useTranslation();
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size }) => {
+                tabBarIcon: ({ focused, color, size }) =>{
                     let iconName;
                     if (route.name === 'Dashboard') {
                         iconName = focused ? 'home' : 'home-outline';
@@ -89,23 +91,17 @@ const FarmerTabs = () => {
                 },
                 headerShown: false
             })}
-        >
-            <Tab.Screen name="Dashboard" component={FarmerDashboard} options={{ tabBarLabel: t('dashboard_tab') }} />
-            <Tab.Screen name="Market" component={MarketScreen} options={{ tabBarLabel: t('market_tab') }} />
-            <Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} />
-            <Tab.Screen name="Schemes" component={GovernmentSchemes} options={{ tabBarLabel: t('schemes_tab') }} />
-            <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} />
-        </Tab.Navigator>
+        ><Tab.Screen name="Dashboard" component={FarmerDashboard} options={{ tabBarLabel: t('dashboard_tab') }} /><Tab.Screen name="Market" component={MarketScreen} options={{ tabBarLabel: t('market_tab') }} /><Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} /><Tab.Screen name="Schemes" component={GovernmentSchemes} options={{ tabBarLabel: t('schemes_tab') }} /><Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} /></Tab.Navigator>
     );
 };
 
 // Buyer Tab Navigator
-const BuyerTabs = () => {
+const BuyerTabs = () =>{
     const { t } = useTranslation();
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
-                tabBarIcon: ({ focused, color, size }) => {
+                tabBarIcon: ({ focused, color, size }) =>{
                     let iconName;
                     if (route.name === 'Dashboard') {
                         iconName = focused ? 'home' : 'home-outline';
@@ -137,13 +133,7 @@ const BuyerTabs = () => {
                 },
                 headerShown: false
             })}
-        >
-            <Tab.Screen name="Dashboard" component={BuyerDashboard} options={{ tabBarLabel: t('dashboard_tab') }} />
-            <Tab.Screen name="Browse" component={MarketScreen} options={{ tabBarLabel: t('browse_tab') }} />
-            <Tab.Screen name="MyBids" component={MyBidsScreen} options={{ tabBarLabel: t('my_bids_tab') }} />
-            <Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} />
-            <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} />
-        </Tab.Navigator>
+        ><Tab.Screen name="Dashboard" component={BuyerDashboard} options={{ tabBarLabel: t('dashboard_tab') }} /><Tab.Screen name="Browse" component={MarketScreen} options={{ tabBarLabel: t('browse_tab') }} /><Tab.Screen name="MyBids" component={MyBidsScreen} options={{ tabBarLabel: t('my_bids_tab') }} /><Tab.Screen name="Prices" component={PriceDashboard} options={{ tabBarLabel: t('prices_tab') }} /><Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: t('profile_tab') }} /></Tab.Navigator>
     );
 };
 
@@ -195,7 +185,7 @@ const linking = {
 export default function App() {
     console.log("App Component Rendering...");
 
-    useEffect(() => {
+    useEffect(() =>{
         // Initialize services
         try {
             console.log("Initializing services...");
@@ -209,129 +199,100 @@ export default function App() {
 
     try {
         return (
-            <ErrorBoundary>
-                <Provider store={store}>
-                    <SafeAreaProvider>
-                        <NavigationContainer
+            <ErrorBoundary><Provider store={store}><SafeAreaProvider><NavigationContainer
                             linking={linking}
                             onReady={() => console.log("Navigation Container Ready")}
                             fallback={<Text>Loading Navigation...</Text>}
-                        >
-                            <StatusBar style="auto" />
-                            <Stack.Navigator initialRouteName="Splash">
-                                <Stack.Screen
+                        ><StatusBar style="auto" /><Stack.Navigator initialRouteName="Splash"><Stack.Screen
                                     name="Splash"
                                     component={SplashScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="Language"
                                     component={LanguageScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="Login"
                                     component={LoginScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="Register"
                                     component={RegisterScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="OTPVerification"
                                     component={OTPVerificationScreen}
                                     options={{ headerShown: false }}
-                                />
-
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="FarmerTabs"
                                     component={FarmerTabs}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="CropListing"
                                     component={CropListingScreen}
                                     options={{ title: 'List Your Crop' }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="CropDetails"
                                     component={CropDetailsScreen}
                                     options={{ title: 'Crop Details' }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="MyCrops"
                                     component={MyCropsScreen}
                                     options={{ title: 'My Active Listings' }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
+                                    name="FertilizerAdvisor"
+                                    component={FertilizerAdvisor}
+                                    options={{ headerShown: false }}
+                                /><Stack.Screen
+                                    name="CropAdvisor"
+                                    component={CropAdvisorScreen}
+                                    options={{ headerShown: false }}
+                                /><Stack.Screen
                                     name="Community"
                                     component={CommunityScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="PendingBids"
                                     component={PendingBidsScreen}
                                     options={{ headerShown: false }}
-                                />
-
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="BuyerTabs"
                                     component={BuyerTabs}
                                     options={{ headerShown: false }}
-                                />
-
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="Checkout"
                                     component={CheckoutScreen}
                                     options={{ headerShown: false }}
-                                />
-
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="SchemeDetails"
                                     component={SchemeDetailsScreen}
                                     options={{ headerShown: false }}
-                                />
-
-
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="EditProfile"
                                     component={EditProfileScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="HelpSupport"
                                     component={HelpSupportScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="ReportIssue"
                                     component={ReportIssueScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="TransactionHistory"
                                     component={TransactionHistoryScreen}
                                     options={{ headerShown: false }}
-                                />
-                                <Stack.Screen
+                                /><Stack.Screen
                                     name="PaymentCredentials"
                                     component={FarmerPaymentCredentialScreen}
                                     options={{ headerShown: false }}
-                                />
-                            </Stack.Navigator>
-                        </NavigationContainer>
-                    </SafeAreaProvider>
-                </Provider>
-            </ErrorBoundary>
+                                /></Stack.Navigator></NavigationContainer></SafeAreaProvider></Provider></ErrorBoundary>
         );
     } catch (renderError) {
         console.error("App Render Error:", renderError);
         return (
-            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Text>App Crashed: {renderError.message}</Text>
-            </View>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}><Text>App Crashed: {renderError.message}</Text></View>
         );
     }
 }
