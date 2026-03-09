@@ -21,20 +21,47 @@ const determineTrendLabel = (trendPercentage) => {
 };
 
 const calculateVolatility = (priceHistory) => {
-    if (!priceHistory || priceHistory.length < 2) return 'Stable Market';
+    if (!priceHistory || priceHistory.length < 2) return {
+        percent: 0,
+        level: 'No data'
+    };
 
-    const prices = priceHistory.map(p => p.price);
-    const mean = prices.reduce((acc, p) => acc + p, 0) / prices.length;
+    const sorted = [...priceHistory].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const recent = sorted.slice(0, 30);
 
-    const variance = prices.reduce((acc, p) => acc + Math.pow(p - mean, 2), 0) / prices.length;
-    const stdDev = Math.sqrt(variance);
+    if (recent.length < 2) return {
+        percent: 0,
+        level: 'No data'
+    };
 
-    // Threshold for volatility (e.g., 5% of mean)
-    if (stdDev > mean * 0.05) {
-        return 'High Volatility';
+    const prices = recent.map(p => p.price).filter(p => p > 0);
+    if (prices.length === 0) return {
+        percent: 0,
+        level: 'No data'
+    };
+
+    const maxPrice = Math.max(...prices);
+    const minPrice = Math.min(...prices);
+    const averagePrice = prices.reduce((acc, p) => acc + p, 0) / prices.length;
+
+    if (averagePrice === 0) return {
+        percent: 0,
+        level: 'No data'
+    };
+
+    const volatility = ((maxPrice - minPrice) / averagePrice) * 100;
+
+    let classification = 'Low';
+    if (volatility >= 15) {
+        classification = 'High';
+    } else if (volatility >= 5) {
+        classification = 'Moderate';
     }
 
-    return 'Stable Market';
+    return {
+        percent: parseFloat(volatility.toFixed(1)),
+        level: classification
+    };
 };
 
 const calculateConfidence = (priceHistory, volatility) => {
@@ -48,7 +75,7 @@ const calculateConfidence = (priceHistory, volatility) => {
     }
 
     // Penalty for high volatility
-    if (volatility === 'High Volatility') {
+    if (volatility && volatility.level === 'High') {
         baseConfidence -= 15;
     }
 

@@ -177,15 +177,15 @@ exports.getCrops = async (req, res) => {
 
         const {
             page = 1,
-            limit = 10,
-            search,
-            crop_name,
-            min_price,
-            max_price,
-            quality,
-            location,
-            farmer_id,
-            status = 'listed'
+                limit = 10,
+                search,
+                crop_name,
+                min_price,
+                max_price,
+                quality,
+                location,
+                farmer_id,
+                status = 'listed'
         } = req.query;
 
         const limitInt = parseInt(limit) || 10;
@@ -199,23 +199,23 @@ exports.getCrops = async (req, res) => {
         // Apply filters
         if (search) {
             query.$or = [{
-                name: {
-                    $regex: search,
-                    $options: 'i'
+                    name: {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                },
+                {
+                    description: {
+                        $regex: search,
+                        $options: 'i'
+                    }
+                },
+                {
+                    variety: {
+                        $regex: search,
+                        $options: 'i'
+                    }
                 }
-            },
-            {
-                description: {
-                    $regex: search,
-                    $options: 'i'
-                }
-            },
-            {
-                variety: {
-                    $regex: search,
-                    $options: 'i'
-                }
-            }
             ];
         }
 
@@ -341,8 +341,8 @@ exports.getCropDetails = async (req, res) => {
 
         // Get bids separately to sort and limit
         const bids = await Bid.find({
-            crop: id
-        })
+                crop: id
+            })
             .sort({
                 amount: -1
             })
@@ -587,13 +587,17 @@ exports.checkoutBid = async (req, res) => {
         // Check if the payment time has expired
         if (bid.payment_expires_at && Date.now() > new Date(bid.payment_expires_at).getTime()) {
             bid.status = 'expired';
-            await bid.save({ session });
+            await bid.save({
+                session
+            });
 
             // Optionally, un-reserve the crop so it can be bid on again
             const cropToRelease = await Crop.findById(bid.crop._id).session(session);
             if (cropToRelease && cropToRelease.status === 'reserved') {
                 cropToRelease.status = 'listed';
-                await cropToRelease.save({ session });
+                await cropToRelease.save({
+                    session
+                });
             }
 
             await session.commitTransaction();
@@ -613,16 +617,22 @@ exports.checkoutBid = async (req, res) => {
             payment_method,
             payment_status: payment_method === 'online' ? 'completed' : 'pending',
             status: 'completed'
-        }], { session });
+        }], {
+            session
+        });
 
         // Update bid status
         bid.status = 'completed';
-        await bid.save({ session });
+        await bid.save({
+            session
+        });
 
         // Update crop status
         const crop = await Crop.findById(bid.crop._id).session(session);
         crop.status = 'sold';
-        await crop.save({ session });
+        await crop.save({
+            session
+        });
 
         await session.commitTransaction();
         session.endSession();
@@ -731,8 +741,8 @@ exports.getPriceHistory = async (req, res) => {
 
         // STEP 1: Fetch all recent price history to calculate metrics strictly per crop
         const recentRecords = await PriceHistory.find({
-            cropName: normalizedName
-        })
+                cropName: normalizedName
+            })
             .sort({
                 date: -1
             })
@@ -747,16 +757,16 @@ exports.getPriceHistory = async (req, res) => {
         const momentumObj = priceAnalysisService.calculateMomentum(history);
 
         // STEP 2: Compute currentPrice, 30DayAverage
+        // Current price should be the latest available price.
         const currentPrice = recentRecords.length > 0 ? recentRecords[0].price : 0;
 
         // 30-Day Average
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        const last30Days = recentRecords.filter(p => new Date(p.date) >= thirtyDaysAgo);
+        // Average should be calculated using the last 30 price records.
+        const last30Prices = recentRecords.slice(0, 30);
 
         let thirtyDayAverage = 0;
-        if (last30Days.length > 0) {
-            thirtyDayAverage = last30Days.reduce((acc, p) => acc + p.price, 0) / last30Days.length;
+        if (last30Prices.length > 0) {
+            thirtyDayAverage = last30Prices.reduce((acc, p) => acc + p.price, 0) / last30Prices.length;
         } else if (currentPrice > 0) {
             thirtyDayAverage = currentPrice;
         }
@@ -826,8 +836,8 @@ exports.getSuggestedPrice = async (req, res) => {
 
         // Fetch recent crop price history
         const recentRecords = await PriceHistory.find({
-            cropName: normalizedName
-        })
+                cropName: normalizedName
+            })
             .sort({
                 date: -1
             })
@@ -888,37 +898,37 @@ exports.getRecentPrices = async (req, res) => {
     try {
         // Step 1: Sort by date desc, group by crop name to remove duplicates, and pick first
         const recent = await PriceHistory.aggregate([{
-            $sort: {
-                date: -1
-            }
-        },
-        {
-            $group: {
-                _id: {
-                    $trim: {
-                        input: {
-                            $toLower: "$cropName"
-                        }
-                    }
-                }, // fully distinct crop grouping resilient to case/whitespace
-                latestDoc: {
-                    $first: '$$ROOT'
+                $sort: {
+                    date: -1
                 }
+            },
+            {
+                $group: {
+                    _id: {
+                        $trim: {
+                            input: {
+                                $toLower: "$cropName"
+                            }
+                        }
+                    }, // fully distinct crop grouping resilient to case/whitespace
+                    latestDoc: {
+                        $first: '$$ROOT'
+                    }
+                }
+            },
+            {
+                $replaceRoot: {
+                    newRoot: '$latestDoc'
+                }
+            },
+            {
+                $sort: {
+                    date: -1
+                }
+            },
+            {
+                $limit: 10
             }
-        },
-        {
-            $replaceRoot: {
-                newRoot: '$latestDoc'
-            }
-        },
-        {
-            $sort: {
-                date: -1
-            }
-        },
-        {
-            $limit: 10
-        }
         ]);
 
         const formatted = recent.map(p => ({
@@ -947,9 +957,9 @@ exports.getFarmerReceivedBids = async (req, res) => {
     try {
         const farmerId = req.user.id;
         const bids = await Bid.find({
-            farmer: farmerId,
-            status: 'pending'
-        })
+                farmer: farmerId,
+                status: 'pending'
+            })
             .sort({
                 created_at: -1
             })
@@ -971,8 +981,8 @@ exports.getBuyerBids = async (req, res) => {
     try {
         const buyerId = req.user.id;
         const bids = await Bid.find({
-            buyer: buyerId
-        })
+                buyer: buyerId
+            })
             .sort({
                 created_at: -1
             })
@@ -1096,8 +1106,8 @@ exports.getBuyerBids = async (req, res) => {
     try {
         const buyerId = req.user.id;
         const bids = await Bid.find({
-            buyer: buyerId
-        })
+                buyer: buyerId
+            })
             .sort({
                 created_at: -1
             })
