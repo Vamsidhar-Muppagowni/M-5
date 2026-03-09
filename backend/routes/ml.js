@@ -16,5 +16,6 @@ router.post('/predict-price', mlController.predictPrice);
 router.post('/insights', mlController.getMarketInsights);
 router.post('/recommend-crop', mlController.recommendCrop);
 router.post('/recommend-price', mlController.recommendPrice);
+router.post('/recommend-fertilizer', mlController.recommendFertilizer);
 
 module.exports = router;

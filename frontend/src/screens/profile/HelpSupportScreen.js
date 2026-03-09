@@ -98,14 +98,14 @@ const HelpSupportScreen = ({ navigation }) => {
         activeOpacity={0.8}
       >
         <View style={styles.faqHeader}>
-          <Text style={styles.question}> {question} </Text>{" "}
+          <Text style={styles.question}> {question} </Text>
           <Ionicons
             name={isExpanded ? "chevron-up" : "chevron-down"}
             size={20}
             color={theme.colors.text.secondary}
-          />{" "}
-        </View>{" "}
-        {isExpanded && <Text style={styles.answer}> {answer} </Text>}{" "}
+          />
+        </View>
+        {isExpanded && <Text style={styles.answer}> {answer} </Text>}
       </TouchableOpacity>
     );
   };
@@ -121,28 +121,28 @@ const HelpSupportScreen = ({ navigation }) => {
             name="arrow-back"
             size={24}
             color={theme.colors.text.primary}
-          />{" "}
-        </TouchableOpacity>{" "}
+          />
+        </TouchableOpacity>
         <Text style={styles.headerTitle}>
-          {" "}
-          {t("help_support") || "Help & Support"}{" "}
-        </Text>{" "}
+          
+          {t("help_support") || "Help & Support"}
+        </Text>
         <View
           style={{
             width: 24,
           }}
-        />{" "}
+        />
       </View>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.contactCard}>
           <Text style={styles.contactTitle}>
-            {" "}
-            {t("need_help") || "Need immediate help?"}{" "}
-          </Text>{" "}
+            
+            {t("need_help") || "Need immediate help?"}
+          </Text>
           <Text style={styles.contactSubtitle}>
-            {" "}
+            
             {t("support_available") ||
-              "Our support team is available 24/7"}{" "}
+              "Our support team is available 24/7"}
           </Text>
           <TouchableOpacity
             style={styles.contactButton}
@@ -157,14 +157,14 @@ const HelpSupportScreen = ({ navigation }) => {
               ]}
             >
               <Ionicons name="call" size={24} color="#1565c0" />
-            </View>{" "}
+            </View>
             <View>
               <Text style={styles.contactMethod}>
-                {" "}
-                {t("call_helpline") || "Call Helpline"}{" "}
-              </Text>{" "}
-              <Text style={styles.contactValue}> 8247483075 </Text>{" "}
-            </View>{" "}
+                
+                {t("call_helpline") || "Call Helpline"}
+              </Text>
+              <Text style={styles.contactValue}> 8247483075 </Text>
+            </View>
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.contactButton}
@@ -179,18 +179,18 @@ const HelpSupportScreen = ({ navigation }) => {
               ]}
             >
               <Ionicons name="mail" size={24} color="#2e7d32" />
-            </View>{" "}
+            </View>
             <View>
               <Text style={styles.contactMethod}>
-                {" "}
-                {t("email_support") || "Email Support"}{" "}
-              </Text>{" "}
+                
+                {t("email_support") || "Email Support"}
+              </Text>
               <Text style={styles.contactValue}>
-                {" "}
-                kgssiddhu @gmail.com{" "}
-              </Text>{" "}
-            </View>{" "}
-          </TouchableOpacity>{" "}
+                
+                kgssiddhu @gmail.com
+              </Text>
+            </View>
+          </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.contactButton}
@@ -205,22 +205,22 @@ const HelpSupportScreen = ({ navigation }) => {
               ]}
             >
               <Ionicons name="warning" size={24} color="#d32f2f" />
-            </View>{" "}
+            </View>
             <View>
               <Text style={styles.contactMethod}>
-                {" "}
-                {t("report_issue_title") || "Report an Issue"}{" "}
-              </Text>{" "}
+                
+                {t("report_issue_title") || "Report an Issue"}
+              </Text>
               <Text style={styles.contactValue}>
-                {" "}
-                {t("report_issue_desc") || "Fraud, problems, etc."}{" "}
-              </Text>{" "}
-            </View>{" "}
-          </TouchableOpacity>{" "}
+                
+                {t("report_issue_desc") || "Fraud, problems, etc."}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
         <Text style={styles.sectionTitle}>
-          {" "}
-          {t("faq_title") || "Frequently Asked Questions"}{" "}
+          
+          {t("faq_title") || "Frequently Asked Questions"}
         </Text>
         {faqs.map((faq, index) => (
           <FAQItem
@@ -234,8 +234,8 @@ const HelpSupportScreen = ({ navigation }) => {
           style={{
             height: 30,
           }}
-        />{" "}
-      </ScrollView>{" "}
+        />
+      </ScrollView>
     </View>
   );
 };

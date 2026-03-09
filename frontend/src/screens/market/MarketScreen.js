@@ -53,8 +53,8 @@ const MarketScreen = ({ navigation }) => {
                         <Text style={styles.iconText}>{item?.name?.charAt(0).toUpperCase()}</Text>
                     </View>
                     <View style={styles.headerContent}>
-                        <Text style={styles.cropName}>{item?.name || 'Unknown Crop'}</Text>
-                        <Text style={styles.farmerName}>{t('by')}: {item?.farmer?.name || 'Unknown'}</Text>
+                        <Text style={styles.cropName}>{item?.name || t('unknown_crop')}</Text>
+                        <Text style={styles.farmerName}>{t('by')}: {item?.farmer?.name || t('unknown_farmer')}</Text>
                     </View>
                     <View style={styles.priceContainer}>
                         <Text style={styles.price}>₹{item?.current_price || item?.min_price}</Text>
@@ -67,7 +67,7 @@ const MarketScreen = ({ navigation }) => {
                 <View style={styles.cardBody}>
                     <View style={styles.detailRow}>
                         <Ionicons name="location-outline" size={16} color={theme.colors.text.secondary} />
-                        <Text style={styles.detailText}>{item?.location?.district || 'N/A'}</Text>
+                        <Text style={styles.detailText}>{item?.location?.district || t('not_available')}</Text>
                     </View>
                     <View style={styles.detailRow}>
                         <Ionicons name="ribbon-outline" size={16} color={theme.colors.text.secondary} />
@@ -75,7 +75,7 @@ const MarketScreen = ({ navigation }) => {
                         <Tooltip text={t('grade_tooltip') || 'Quality grades: A (Premium), B (Good), C (Standard), D (Basic). Higher grades command better prices.'} iconSize={14} />
                     </View>
                     <View style={styles.detailRow}>
-                        <Ionicons name="scale-outline" size={16} color={theme.colors.text.secondary} />
+                        <Ionicons name="cube-outline" size={16} color={theme.colors.text.secondary} />
                         <Text style={styles.detailText}>{item?.quantity} {item?.unit}</Text>
                     </View>
                 </View>
@@ -128,7 +128,7 @@ const MarketScreen = ({ navigation }) => {
             {/* Market Description Banner */}
             <View style={styles.descriptionBanner}>
                 <View style={styles.descriptionIconBox}>
-                    <Ionicons name="storefront-outline" size={20} color={theme.colors.primary} />
+                    <Ionicons name="basket-outline" size={20} color={theme.colors.primary} />
                 </View>
                 <Text style={styles.descriptionText}>
                     {t('market_description') || 'Browse crops listed by farmers. Tap any listing to view details and place your bid. The farmer will review your bid and respond.'}
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
-        backgroundColor: '#e8f5e9',
+        backgroundColor: theme.colors.p20,
         justifyContent: 'center',
         alignItems: 'center',
         marginRight: 12

@@ -194,23 +194,8 @@ const GovernmentSchemes = ({ navigation }) => {
         }
     };
 
-    return (
-        <View style={styles.container}>
-
-            {/* Header */}
-            <LinearGradient
-                colors={[theme.colors.primary, theme.colors.primaryDark]}
-                style={styles.header}
-            >
-                <View style={styles.headerContent}>
-                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                        <Ionicons name="arrow-back" size={24} color="#fff" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Government Schemes</Text>
-                    <View style={{ width: 24 }} />
-                </View>
-            </LinearGradient>
-
+    const ListHeader = () => (
+        <>
             {/* Search */}
             <View style={styles.searchContainer}>
                 <View style={styles.searchBox}>
@@ -250,8 +235,6 @@ const GovernmentSchemes = ({ navigation }) => {
                     />
                     <Text style={[styles.tabText, activeTab === 'saved' && styles.tabTextActive]}>Saved</Text>
                 </TouchableOpacity>
-
-                {/* Filter toggle button */}
                 <TouchableOpacity
                     style={[styles.tabBtn, { marginLeft: 'auto', flexDirection: 'row' }, hasActiveFilter && styles.tabBtnActive]}
                     onPress={() => setFilterOpen(prev => !prev)}
@@ -268,10 +251,9 @@ const GovernmentSchemes = ({ navigation }) => {
                 </TouchableOpacity>
             </View>
 
-            {/* STEP 4 & 5 — Lenovo-style filter panel */}
+            {/* Filter panel */}
             {filterOpen && (
                 <View style={styles.filterPanel}>
-                    {/* Category */}
                     <View style={styles.filterGroup}>
                         <Text style={styles.filterGroupLabel}>Category</Text>
                         <View style={styles.filterOptions}>
@@ -292,10 +274,7 @@ const GovernmentSchemes = ({ navigation }) => {
                             })}
                         </View>
                     </View>
-
                     <View style={styles.filterDivider} />
-
-                    {/* Coverage */}
                     <View style={styles.filterGroup}>
                         <Text style={styles.filterGroupLabel}>Coverage</Text>
                         <View style={styles.filterOptions}>
@@ -316,8 +295,6 @@ const GovernmentSchemes = ({ navigation }) => {
                             })}
                         </View>
                     </View>
-
-                    {/* STEP 6 — Clear Filters */}
                     {hasActiveFilter && (
                         <TouchableOpacity style={styles.clearBtn} onPress={clearFilters}>
                             <Ionicons name="close-circle-outline" size={16} color={theme.colors.primary} style={{ marginRight: 6 }} />
@@ -334,11 +311,7 @@ const GovernmentSchemes = ({ navigation }) => {
                         <Ionicons name="star" size={20} color={theme.colors.secondary} />
                         <Text style={styles.sectionTitle}>Saved Schemes</Text>
                     </View>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.savedList}
-                    >
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.savedList}>
                         {savedList.map(item => (item ? (
                             <TouchableOpacity
                                 key={itemId(item) || Math.random().toString()}
@@ -365,11 +338,7 @@ const GovernmentSchemes = ({ navigation }) => {
                         <Ionicons name="sparkles" size={18} color={theme.colors.primary} />
                         <Text style={styles.sectionTitle}>Recommended for You</Text>
                     </View>
-                    <ScrollView
-                        horizontal
-                        showsHorizontalScrollIndicator={false}
-                        contentContainerStyle={styles.recommendedList}
-                    >
+                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.recommendedList}>
                         {recommendedSchemes.map(item => (item ? (
                             <TouchableOpacity
                                 key={itemId(item) || Math.random().toString()}
@@ -411,14 +380,33 @@ const GovernmentSchemes = ({ navigation }) => {
                     </TouchableOpacity>
                 )}
             </View>
+        </>
+    );
 
-            {/* STEP 7 — Main list, always safeArr */}
+    return (
+        <View style={styles.container}>
+            {/* Header — stays fixed above the scrollable list */}
+            <LinearGradient
+                colors={[theme.colors.primary, theme.colors.primaryDark]}
+                style={styles.header}
+            >
+                <View style={styles.headerContent}>
+                    <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+                        <Ionicons name="arrow-back" size={24} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Government Schemes</Text>
+                    <View style={{ width: 24 }} />
+                </View>
+            </LinearGradient>
+
+            {/* FlatList contains everything else so the entire page scrolls */}
             <FlatList
                 data={safeArr(filteredSchemes)}
                 keyExtractor={item => safeStr(itemId(item) || Math.random())}
                 renderItem={renderScheme}
                 contentContainerStyle={styles.list}
                 showsVerticalScrollIndicator={false}
+                ListHeaderComponent={<ListHeader />}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
                 }

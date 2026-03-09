@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card, ProgressBar } from 'react-native-paper';
 import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, Alert, Platform } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
@@ -35,12 +36,12 @@ const ProfileScreen = ({ navigation }) => {
         try {
             await AsyncStorage.clear();
             dispatch(logout());
-            const parent = navigation.getParent();
-            if (parent) {
-                parent.reset({ index: 0, routes: [{ name: 'Login' }] });
-            } else {
-                navigation.replace('Login');
-            }
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }]
+                })
+            );
         } catch (e) {
             console.error("Logout Error:", e);
             navigation.navigate('Login');

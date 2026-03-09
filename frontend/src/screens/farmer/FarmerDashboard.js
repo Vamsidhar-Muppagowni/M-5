@@ -16,7 +16,7 @@ import Tooltip from '../../components/Tooltip';
 const safeArr = (v) => Array.isArray(v) ? v : [];
 const safeStr = (v) => (v != null ? String(v) : '');
 
-const FarmerDashboard = ({ navigation }) => {
+const FarmerDashboard = ({ navigation }) =>{
     const { user } = useSelector(state => state.auth);
     const { t, i18n } = useTranslation();
     const { width } = useWindowDimensions();
@@ -44,7 +44,7 @@ const FarmerDashboard = ({ navigation }) => {
         color: '#ccc'
     });
 
-    const getWeatherIcon = (code) => {
+    const getWeatherIcon = (code) =>{
         // WMO Weather interpretation codes (WW)
         if (code === 0) return { name: 'sunny', color: '#fdd835', key: 'weather_clear' };
         if ([1, 2, 3].includes(code)) return { name: 'partly-sunny', color: '#ffb74d', key: 'weather_cloudy' };
@@ -55,8 +55,8 @@ const FarmerDashboard = ({ navigation }) => {
         return { name: 'cloud-outline', color: '#ccc', key: 'weather_cloudy' };
     };
 
-    useEffect(() => {
-        (async () => {
+    useEffect(() =>{
+        (async () =>{
             try {
                 let { status } = await Location.requestForegroundPermissionsAsync();
                 if (status !== 'granted') {
@@ -70,7 +70,7 @@ const FarmerDashboard = ({ navigation }) => {
                 }
 
                 // Add timeout to prevent hanging
-                const getLocationPromise = (async () => {
+                const getLocationPromise = (async () =>{
                     // Try last known position first (faster)
                     let lastKnown = await Location.getLastKnownPositionAsync({});
                     if (lastKnown) return lastKnown;
@@ -148,7 +148,7 @@ const FarmerDashboard = ({ navigation }) => {
         rating_count: 0
     };
 
-    const fetchStats = async () => {
+    const fetchStats = async () =>{
         try {
             const response = await api.get('/farmer/stats');
             // Guard: only use response if it's a plain object, not array/null
@@ -201,7 +201,7 @@ const FarmerDashboard = ({ navigation }) => {
         }
     };
 
-    const onRefresh = useCallback(async () => {
+    const onRefresh = useCallback(async () =>{
         setRefreshing(true);
         await fetchStats();
         setRefreshing(false);
@@ -209,7 +209,7 @@ const FarmerDashboard = ({ navigation }) => {
 
     // Use useFocusEffect to refresh stats when screen is focused
     useFocusEffect(
-        useCallback(() => {
+        useCallback(() =>{
             fetchStats();
         }, [])
     );
@@ -226,66 +226,25 @@ const FarmerDashboard = ({ navigation }) => {
         { code: 'gu', label: 'ગુજરાતી (Gujarati)', flag: '🇮🇳' }
     ];
 
-    const handleLanguageChange = (langCode) => {
+    const handleLanguageChange = (langCode) =>{
         changeLanguage(langCode);
         setModalVisible(false);
     };
 
     return (
-        <View style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor={theme.colors.surface} />
-
-            {/* Professional Header */}
-            <View style={styles.header}>
-                <View style={styles.headerLeft}>
-                    <Text style={styles.greetingSubtitle}>{t('welcome_greeting')},</Text>
-                    <Text style={styles.greetingTitle}>{user?.name?.split(' ')[0] || 'Farmer'}!</Text>
-                </View>
-
-                <View style={styles.headerRight}>
-                    <TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>
-                        {/* STEP 4: i18n.language can be undefined during reload */}
-                        <Text style={styles.languageButtonText}>{safeStr(i18n?.language || 'en').toUpperCase()}</Text>
-                        <Ionicons name="chevron-down" size={16} color={theme.colors.primary} style={{ marginLeft: 4 }} />
-                    </TouchableOpacity>
-
-                    <View style={{ alignItems: 'flex-end', marginRight: 10, justifyContent: 'center' }}>
-                        <Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.text.primary }}>⭐ {stats.rating > 0 ? stats.rating : 'New'}</Text>
-                        <Text style={{ fontSize: 10, color: theme.colors.text.secondary }}>({stats.rating_count} {t('ratings') || 'ratings'})</Text>
-                    </View>
-
-                    <TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}>
-                        <LinearGradient
+        <View style={styles.container}><StatusBar barStyle="dark-content" backgroundColor={theme.colors.surface} />{/* Professional Header */}<View style={styles.header}><View style={styles.headerLeft}><Text style={styles.greetingSubtitle}>{t('welcome_greeting')},</Text><Text style={styles.greetingTitle}>{user?.name?.split(' ')[0] || 'Farmer'}!</Text></View><View style={styles.headerRight}><TouchableOpacity style={styles.languageButton} onPress={() => setModalVisible(true)}>{/* STEP 4: i18n.language can be undefined during reload */}<Text style={styles.languageButtonText}>{safeStr(i18n?.language || 'en').toUpperCase()}</Text><Ionicons name="chevron-down" size={16} color={theme.colors.primary} style={{ marginLeft: 4 }} /></TouchableOpacity><View style={{ alignItems: 'flex-end', marginRight: 10, justifyContent: 'center' }}><Text style={{ fontSize: 13, fontWeight: 'bold', color: theme.colors.text.primary }}>⭐ {stats.rating > 0 ? stats.rating : 'New'}</Text><Text style={{ fontSize: 10, color: theme.colors.text.secondary }}>({stats.rating_count} {t('ratings') || 'ratings'})</Text></View><TouchableOpacity style={styles.profileButton} onPress={() => navigation.navigate('Profile')}><LinearGradient
                             colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
                             style={styles.avatar}
-                        >
-                            <Text style={styles.avatarText}>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</Text>
-                        </LinearGradient>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            {/* Language Selection Modal */}
-            <Modal
+                        ><Text style={styles.avatarText}>{user?.name ? user.name.charAt(0).toUpperCase() : 'U'}</Text></LinearGradient></TouchableOpacity></View></View>{/* Language Selection Modal */}<Modal
                 animationType="fade"
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => setModalVisible(false)}
-            >
-                <TouchableOpacity
+            ><TouchableOpacity
                     style={styles.modalOverlay}
                     activeOpacity={1}
                     onPress={() => setModalVisible(false)}
-                >
-                    <View style={[styles.modalContent, isDesktop && styles.modalContentDesktop]}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>Select Language</Text>
-                            <TouchableOpacity onPress={() => setModalVisible(false)}>
-                                <Ionicons name="close" size={24} color={theme.colors.text.secondary} />
-                            </TouchableOpacity>
-                        </View>
-
-                        {languages.map((lang) => (
+                ><View style={[styles.modalContent, isDesktop && styles.modalContentDesktop]}><View style={styles.modalHeader}><Text style={styles.modalTitle}>Select Language</Text><TouchableOpacity onPress={() => setModalVisible(false)}><Ionicons name="close" size={24} color={theme.colors.text.secondary} /></TouchableOpacity></View>{languages.map((lang) => (
                             <TouchableOpacity
                                 key={lang.code}
                                 style={[
@@ -293,99 +252,22 @@ const FarmerDashboard = ({ navigation }) => {
                                     i18n.language === lang.code && styles.languageOptionActive
                                 ]}
                                 onPress={() => handleLanguageChange(lang.code)}
-                            >
-                                <Text style={styles.languageFlag}>{lang.flag}</Text>
-                                <Text style={[
+                            ><Text style={styles.languageFlag}>{lang.flag}</Text><Text style={[
                                     styles.languageLabel,
                                     i18n.language === lang.code && styles.languageLabelActive
-                                ]}>
-                                    {lang.label}
-                                </Text>
-                                {i18n.language === lang.code && (
+                                ]}>{lang.label}</Text>{i18n.language === lang.code && (
                                     <Ionicons name="checkmark-circle" size={24} color={theme.colors.primary} />
-                                )}
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-                </TouchableOpacity>
-            </Modal>
-
-            <ScrollView
+                                )}</TouchableOpacity>
+                        ))}</View></TouchableOpacity></Modal><ScrollView
                 style={styles.content}
                 refreshControl={
                     <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[theme.colors.primary]} />
                 }
                 contentContainerStyle={isDesktop ? styles.contentContainerDesktop : null}
-            >
-                {/* Weather/Status Card */}
-                <LinearGradient
+            >{/* Weather/Status Card */}<LinearGradient
                     colors={[theme.colors.gradientStart, theme.colors.gradientEnd]}
                     style={styles.weatherCard}
-                >
-                    <View>
-                        <Text style={styles.weatherTemp}>{weather.temp}</Text>
-                        <Text style={styles.weatherCondition}>{t(weather.conditionKey)}</Text>
-                        <Text style={styles.weatherLocation}>
-                            <Ionicons name="location" size={14} color="#fff" /> {weather.location}
-                        </Text>
-                    </View>
-                    <Ionicons name={weather.icon} size={48} color={weather.color} />
-                </LinearGradient>
-
-                {/* Stats Grid */}
-                <View style={styles.statsGrid}>
-                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]} onPress={() => navigation.navigate('MyCrops')}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#e8f5e9' }]}>
-                            <Ionicons name="leaf" size={24} color={theme.colors.primary} />
-                        </View>
-                        <Text style={styles.statValue}>{stats.activeListings}</Text>
-                        <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('active_listings') || 'Active Listings'}</Text>
-                            <Tooltip text={safeStr(t('active_listings_tooltip')) || 'Number of crops you currently have listed for sale.'} iconSize={14} />
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#fff3e0' }]}>
-                            <Ionicons name="cash" size={24} color={theme.colors.secondary} />
-                        </View>
-                        <Text style={styles.statValue}>₹{stats.earnings}</Text>
-                        <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('total_earnings') || 'Total Earnings'}</Text>
-                            <Tooltip text={safeStr(t('total_earnings_tooltip')) || 'Total amount you have earned from all completed crop sales.'} iconSize={14} />
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]} onPress={() => navigation.navigate('PendingBids')}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}>
-                            <Ionicons name="time" size={24} color="#1565c0" />
-                        </View>
-                        <Text style={styles.statValue}>{stats.pendingBids}</Text>
-                        <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('pending_bids') || 'Pending Bids'}</Text>
-                            <Tooltip text={safeStr(t('pending_bids_tooltip')) || 'Bids from buyers waiting for your review.'} iconSize={14} />
-                        </View>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#f3e5f5' }]}>
-                            <Ionicons name="checkmark-circle" size={24} color="#7b1fa2" />
-                        </View>
-                        <Text style={styles.statValue}>{stats.totalSales}</Text>
-                        <View style={styles.statLabelRow}>
-                            <Text style={styles.statLabel}>{t('completed_sales') || 'Completed Sales'}</Text>
-                            <Tooltip text={safeStr(t('completed_sales_tooltip')) || 'Total number of successful crop sales you have completed.'} iconSize={14} />
-                        </View>
-                    </TouchableOpacity>
-                </View>
-
-                {/* Market Trends Chart (NEW) */}
-                <View style={[styles.sectionHeader, { paddingHorizontal: 20, marginTop: 10 }]}>
-                    <Text style={styles.sectionTitle}>{t('market_trends') || 'Market Trends'} (Wheat)</Text>
-                </View>
-
-                <View style={[styles.chartContainer, isDesktop && styles.chartContainerDesktop]}>
-                    {priceLoading ? (
+                ><View><Text style={styles.weatherTemp}>{weather.temp}</Text><Text style={styles.weatherCondition}>{t(weather.conditionKey)}</Text><Text style={styles.weatherLocation}><Ionicons name="location" size={14} color="#fff" />{weather.location}</Text></View><Ionicons name={weather.icon} size={48} color={weather.color} /></LinearGradient>{/* Stats Grid */}<View style={styles.statsGrid}><TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]} onPress={() => navigation.navigate('MyCrops')}><View style={[styles.iconContainer, { backgroundColor: '#e8f5e9' }]}><Ionicons name="leaf" size={24} color={theme.colors.primary} /></View><Text style={styles.statValue}>{stats.activeListings}</Text><View style={styles.statLabelRow}><Text style={styles.statLabel}>{t('active_listings') || 'Active Listings'}</Text><Tooltip text={safeStr(t('active_listings_tooltip')) || 'Number of crops you currently have listed for sale.'} iconSize={14} /></View></TouchableOpacity><TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]}><View style={[styles.iconContainer, { backgroundColor: '#fff3e0' }]}><Ionicons name="cash" size={24} color={theme.colors.secondary} /></View><Text style={styles.statValue}>₹{stats.earnings}</Text><View style={styles.statLabelRow}><Text style={styles.statLabel}>{t('total_earnings') || 'Total Earnings'}</Text><Tooltip text={safeStr(t('total_earnings_tooltip')) || 'Total amount you have earned from all completed crop sales.'} iconSize={14} /></View></TouchableOpacity><TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]} onPress={() => navigation.navigate('PendingBids')}><View style={[styles.iconContainer, { backgroundColor: '#e3f2fd' }]}><Ionicons name="time" size={24} color="#1565c0" /></View><Text style={styles.statValue}>{stats.pendingBids}</Text><View style={styles.statLabelRow}><Text style={styles.statLabel}>{t('pending_bids') || 'Pending Bids'}</Text><Tooltip text={safeStr(t('pending_bids_tooltip')) || 'Bids from buyers waiting for your review.'} iconSize={14} /></View></TouchableOpacity><TouchableOpacity style={[styles.statCard, isDesktop && styles.statCardDesktop]}><View style={[styles.iconContainer, { backgroundColor: '#f3e5f5' }]}><Ionicons name="checkmark-circle" size={24} color="#7b1fa2" /></View><Text style={styles.statValue}>{stats.totalSales}</Text><View style={styles.statLabelRow}><Text style={styles.statLabel}>{t('completed_sales') || 'Completed Sales'}</Text><Tooltip text={safeStr(t('completed_sales_tooltip')) || 'Total number of successful crop sales you have completed.'} iconSize={14} /></View></TouchableOpacity></View>{/* Market Trends Chart (NEW) */}<View style={[styles.sectionHeader, { paddingHorizontal: 20, marginTop: 10 }]}><Text style={styles.sectionTitle}>{t('market_trends') || 'Market Trends'} (Wheat)</Text></View><View style={[styles.chartContainer, isDesktop && styles.chartContainerDesktop]}>{priceLoading ? (
                         <Text style={{ padding: 20 }}>Loading Chart...</Text>
                     ) : priceHistory ? (
                         <LineChart
@@ -421,62 +303,7 @@ const FarmerDashboard = ({ navigation }) => {
                         />
                     ) : (
                         <Text style={{ padding: 20, color: theme.colors.text.secondary }}>No price data available</Text>
-                    )}
-                </View>
-
-                {/* Quick Actions */}
-                <View style={styles.actionContainer}>
-                    <View style={styles.sectionHeader}>
-                        <Text style={styles.sectionTitle}>{t('quick_actions')}</Text>
-                    </View>
-
-                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('CropListing')}>
-                        <View style={[styles.actionIcon, { backgroundColor: theme.colors.primary }]}>
-                            <Ionicons name="add" size={24} color="#fff" />
-                        </View>
-                        <View style={styles.actionTextContainer}>
-                            <View style={styles.actionTitleRow}>
-                                <Text style={styles.actionTitle}>{t('list_new_crop') || 'List New Crop'}</Text>
-                                <Tooltip text={safeStr(t('list_new_crop_tooltip')) || 'Create a new listing to sell your crops.'} iconSize={14} />
-                            </View>
-                            <Text style={styles.actionDesc}>{t('list_crop_desc')}</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('Prices')}>
-                        <View style={[styles.actionIcon, { backgroundColor: '#1976d2' }]}>
-                            <Ionicons name="bar-chart" size={24} color="#fff" />
-                        </View>
-                        <View style={styles.actionTextContainer}>
-                            <View style={styles.actionTitleRow}>
-                                <Text style={styles.actionTitle}>{t('check_prices') || 'Check Prices'}</Text>
-                                <Tooltip text={safeStr(t('check_prices_tooltip')) || 'View current market prices and trends for different crops.'} iconSize={14} />
-                            </View>
-                            <Text style={styles.actionDesc}>{t('check_prices_desc')}</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('TransactionHistory')}>
-                        <View style={[styles.actionIcon, { backgroundColor: theme.colors.success }]}>
-                            <Ionicons name="wallet" size={24} color="#fff" />
-                        </View>
-                        <View style={styles.actionTextContainer}>
-                            <View style={styles.actionTitleRow}>
-                                <Text style={styles.actionTitle}>{t('earnings') || 'Earnings & History'}</Text>
-                                <Tooltip text={safeStr(t('earnings_history_tooltip')) || 'View all your completed sales and track earnings over time.'} iconSize={14} />
-                            </View>
-                            <Text style={styles.actionDesc}>{t('earnings_desc') || 'View historical transaction data'}</Text>
-                        </View>
-                        <Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} />
-                    </TouchableOpacity>
-
-                </View>
-
-                <View style={{ height: 20 }} />
-            </ScrollView>
-        </View>
+                    )}</View>{/* Quick Actions */}<View style={styles.actionContainer}><View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{t('quick_actions')}</Text></View><TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('CropListing')}><View style={[styles.actionIcon, { backgroundColor: theme.colors.primary }]}><Ionicons name="add" size={24} color="#fff" /></View><View style={styles.actionTextContainer}><View style={styles.actionTitleRow}><Text style={styles.actionTitle}>{t('list_new_crop') || 'List New Crop'}</Text><Tooltip text={safeStr(t('list_new_crop_tooltip')) || 'Create a new listing to sell your crops.'} iconSize={14} /></View><Text style={styles.actionDesc}>{t('list_crop_desc')}</Text></View><Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} /></TouchableOpacity><TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('Prices')}><View style={[styles.actionIcon, { backgroundColor: '#1976d2' }]}><Ionicons name="bar-chart" size={24} color="#fff" /></View><View style={styles.actionTextContainer}><View style={styles.actionTitleRow}><Text style={styles.actionTitle}>{t('check_prices') || 'Check Prices'}</Text><Tooltip text={safeStr(t('check_prices_tooltip')) || 'View current market prices and trends for different crops.'} iconSize={14} /></View><Text style={styles.actionDesc}>{t('check_prices_desc')}</Text></View><Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} /></TouchableOpacity><TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('TransactionHistory')}><View style={[styles.actionIcon, { backgroundColor: theme.colors.success }]}><Ionicons name="wallet" size={24} color="#fff" /></View><View style={styles.actionTextContainer}><View style={styles.actionTitleRow}><Text style={styles.actionTitle}>{t('earnings') || 'Earnings & History'}</Text><Tooltip text={safeStr(t('earnings_history_tooltip')) || 'View all your completed sales and track earnings over time.'} iconSize={14} /></View><Text style={styles.actionDesc}>{t('earnings_desc') || 'View historical transaction data'}</Text></View><Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} /></TouchableOpacity><TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('FertilizerAdvisor')}><View style={[styles.actionIcon, { backgroundColor: '#7b1fa2' }]}><Ionicons name="flask" size={24} color="#fff" /></View><View style={styles.actionTextContainer}><View style={styles.actionTitleRow}><Text style={styles.actionTitle}>Fertilizer Advisor</Text></View><Text style={styles.actionDesc}>AI-powered fertilizer recommendation</Text></View><Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} /></TouchableOpacity><TouchableOpacity style={[styles.actionButton, isDesktop && styles.actionButtonDesktop]} onPress={() => navigation.navigate('CropAdvisor')}><View style={[styles.actionIcon, { backgroundColor: '#0288D1' }]}><Ionicons name="leaf" size={24} color="#fff" /></View><View style={styles.actionTextContainer}><View style={styles.actionTitleRow}><Text style={styles.actionTitle}>Crop Advisor</Text></View><Text style={styles.actionDesc}>Live weather-based crop matching AI</Text></View><Ionicons name="chevron-forward" size={20} color={theme.colors.text.disabled} /></TouchableOpacity></View><View style={{ height: 20 }} /></ScrollView></View>
     );
 };
 

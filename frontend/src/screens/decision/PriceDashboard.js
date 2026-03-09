@@ -222,13 +222,7 @@ const PriceDashboard = ({ navigation }) => {
           name={isUp ? "trending-up" : "trending-down"}
           size={24}
           color={isUp ? theme.colors.success : theme.colors.error}
-        />{" "}
-        <Text style={styles.insightText}>
-          {" "}
-          {isUp ? t("upward_trend") : t("downward_trend")}{" "}
-          {t("trend_in_last_month")}{" "}
-        </Text>{" "}
-        <View
+        /><Text style={styles.insightText}>{isUp ? t("upward_trend") : t("downward_trend")}{t("trend_in_last_month")}</Text><View
           style={[
             styles.percentBadge,
             {
@@ -243,12 +237,8 @@ const PriceDashboard = ({ navigation }) => {
               fontWeight: "bold",
               color: isUp ? theme.colors.success : theme.colors.error,
             }}
-          >
-            {" "}
-            {isUp ? "+" : ""} {percent} %
-          </Text>{" "}
-        </View>{" "}
-      </View>
+          >{isUp ? "+" : ""} {percent} %
+          </Text></View></View>
     );
   };
 
@@ -296,37 +286,27 @@ const PriceDashboard = ({ navigation }) => {
             },
           ]}
         >
-          <Ionicons name={iconName} size={24} color={trendColor} />{" "}
-        </View>{" "}
-        <View
-          style={{
-            flex: 1,
-          }}
-        >
+          <Ionicons name={iconName} size={24} color={trendColor} /></View><View
+            style={{
+              flex: 1,
+            }}
+          >
           <View style={styles.insightTitleRow}>
-            <Text style={styles.insightTitle}> {t("six_month_analysis")} </Text>{" "}
-            <Tooltip
+            <Text style={styles.insightTitle}> {t("six_month_analysis")} </Text><Tooltip
               text={
                 t("six_month_tooltip") ||
                 "This shows the overall price movement over 6 months."
               }
               iconSize={14}
-            />{" "}
-          </View>{" "}
-          <Text style={styles.insightSubtitle}> {trendText} </Text>{" "}
-        </View>{" "}
-        <Text
-          style={[
-            styles.insightValue,
-            {
-              color: trendColor,
-            },
-          ]}
-        >
-          {" "}
-          {diff > 0 ? "+" : ""} {percentStr} %
-        </Text>{" "}
-      </View>
+            /></View><Text style={styles.insightSubtitle}> {trendText} </Text></View><Text
+              style={[
+                styles.insightValue,
+                {
+                  color: trendColor,
+                },
+              ]}
+            >{diff > 0 ? "+" : ""} {percentStr} %
+        </Text></View>
     );
   };
 
@@ -334,16 +314,9 @@ const PriceDashboard = ({ navigation }) => {
     return (
       <View style={styles.statsContainer}>
         <View style={styles.statBox}>
-          <Text style={styles.statLabel}> Current Price </Text>{" "}
-          <Text style={styles.statValue}> ₹{currentPrice} </Text>{" "}
-        </View>{" "}
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}> 30 - Day Avg </Text>{" "}
-          <Text style={styles.statValue}> ₹{thirtyDayAverage} </Text>{" "}
-        </View>{" "}
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}> Trend </Text>{" "}
-          <Text
+          <Text style={styles.statLabel}> Current Price </Text><Text style={styles.statValue}> ₹{currentPrice} </Text></View><View style={styles.statBox}>
+          <Text style={styles.statLabel}> 30 - Day Avg </Text><Text style={styles.statValue}> ₹{thirtyDayAverage} </Text></View><View style={styles.statBox}>
+          <Text style={styles.statLabel}> Trend </Text><Text
             style={[
               styles.statValue,
               {
@@ -355,25 +328,16 @@ const PriceDashboard = ({ navigation }) => {
                       : theme.colors.primary,
               },
             ]}
+          >{trend.charAt(0).toUpperCase() + trend.slice(1)}</Text></View><View style={styles.statBox}>
+          <Text style={styles.statLabel}> Confidence </Text><Text style={styles.statValue}> {confidence} % </Text></View><View
+            style={[
+              styles.statBox,
+              {
+                width: "65%",
+              },
+            ]}
           >
-            {" "}
-            {trend.charAt(0).toUpperCase() + trend.slice(1)}{" "}
-          </Text>{" "}
-        </View>{" "}
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}> Confidence </Text>{" "}
-          <Text style={styles.statValue}> {confidence} % </Text>{" "}
-        </View>{" "}
-        <View
-          style={[
-            styles.statBox,
-            {
-              width: "65%",
-            },
-          ]}
-        >
-          <Text style={styles.statLabel}> Volatility </Text>{" "}
-          <Text
+          <Text style={styles.statLabel}> Volatility </Text><Text
             style={[
               styles.statValue,
               {
@@ -382,20 +346,15 @@ const PriceDashboard = ({ navigation }) => {
                   : theme.colors.success,
               },
             ]}
+          ></Text></View><View
+            style={[
+              styles.statBox,
+              {
+                width: "100%",
+              },
+            ]}
           >
-            {" "}
-          </Text>{" "}
-        </View>{" "}
-        <View
-          style={[
-            styles.statBox,
-            {
-              width: "100%",
-            },
-          ]}
-        >
-          <Text style={styles.statLabel}> Momentum </Text>{" "}
-          <Text
+          <Text style={styles.statLabel}> Momentum </Text><Text
             style={[
               styles.statValue,
               {
@@ -406,13 +365,8 @@ const PriceDashboard = ({ navigation }) => {
                     : theme.colors.primary,
               },
             ]}
-          >
-            {" "}
-            {momentum.label}({momentum.value > 0 ? "+" : ""} {momentum.value} %
-            ){" "}
-          </Text>{" "}
-        </View>{" "}
-      </View>
+          >{momentum.label}({momentum.value > 0 ? "+" : ""} {momentum.value} %
+            )</Text></View></View>
     );
   };
 
@@ -457,26 +411,15 @@ const PriceDashboard = ({ navigation }) => {
             },
           ]}
         >
-          <Ionicons name={icon} size={28} color={color} />{" "}
-        </View>{" "}
-        <View style={styles.recTextContainer}>
-          <Text style={styles.recTitle}>
-            {" "}
-            {t("ai_recommendation") || "AI Smart Advice"}{" "}
-          </Text>{" "}
-          <Text
+          <Ionicons name={icon} size={28} color={color} /></View><View style={styles.recTextContainer}>
+          <Text style={styles.recTitle}>{t("ai_recommendation") || "AI Smart Advice"}</Text><Text
             style={[
               styles.recValue,
               {
                 color: color,
               },
             ]}
-          >
-            {" "}
-            {recommendation}{" "}
-          </Text>{" "}
-        </View>{" "}
-      </View>
+          >{recommendation}</Text></View></View>
     );
   };
 
@@ -504,11 +447,8 @@ const PriceDashboard = ({ navigation }) => {
             name="pricetag"
             size={28}
             color={theme.colors.secondary}
-          />{" "}
-        </View>{" "}
-        <View style={styles.recTextContainer}>
-          <Text style={styles.recTitle}> AI Suggested Selling Price </Text>{" "}
-          <Text
+          /></View><View style={styles.recTextContainer}>
+          <Text style={styles.recTitle}> AI Suggested Selling Price </Text><Text
             style={[
               styles.recValue,
               {
@@ -517,20 +457,14 @@ const PriceDashboard = ({ navigation }) => {
               },
             ]}
           >
-            {" "}
-            ₹ {suggestedPrice}{" "}
-          </Text>{" "}
-          <Text
-            style={{
-              fontSize: 12,
-              color: theme.colors.text.secondary,
-              marginTop: 4,
-            }}
-          >
-            Based on current market trend and volatility{" "}
-          </Text>{" "}
-        </View>{" "}
-      </View>
+            ₹ {suggestedPrice}</Text><Text
+              style={{
+                fontSize: 12,
+                color: theme.colors.text.secondary,
+                marginTop: 4,
+              }}
+            >
+            Based on current market trend and volatility</Text></View></View>
     );
   };
 
@@ -555,62 +489,43 @@ const PriceDashboard = ({ navigation }) => {
             style={styles.backButton}
           >
             <Ionicons name="arrow-back" size={24} color="#fff" />
-          </TouchableOpacity>{" "}
-          <Text style={styles.headerTitle}> {t("market_price_trends")} </Text>{" "}
-          <View
+          </TouchableOpacity><Text style={styles.headerTitle}> {t("market_price_trends")} </Text><View
             style={{
               width: 24,
             }}
-          />{" "}
-        </View>{" "}
-      </LinearGradient>{" "}
-      <ScrollView
-        style={styles.content}
-        onTouchStart={handleChartPress}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            colors={[theme.colors.primary]}
-          />
-        }
-      >
+          /></View></LinearGradient><ScrollView
+            style={styles.content}
+            onTouchStart={handleChartPress}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[theme.colors.primary]}
+              />
+            }
+          >
         <View style={styles.pickerContainer}>
           <View style={styles.labelRow}>
-            <Text style={styles.label}> {t("select_crop")} </Text>{" "}
-            <Tooltip
+            <Text style={styles.label}> {t("select_crop")} </Text><Tooltip
               text={
                 t("select_crop_tooltip") ||
                 "Choose a crop to view its price trends and market analysis over the past 6 months."
               }
               iconSize={16}
-            />{" "}
-          </View>{" "}
-          <View style={styles.pickerWrapper}>
+            /></View><View style={styles.pickerWrapper}>
             <Picker
               selectedValue={selectedCrop}
               onValueChange={(itemValue) => setSelectedCrop(itemValue)}
               style={styles.picker}
               dropdownIconColor={theme.colors.primary}
-            >
-              {" "}
-              {crops.map((crop) => (
-                <Picker.Item
-                  key={crop.id}
-                  label={crop.name}
-                  value={crop.name}
-                />
-              ))}{" "}
-            </Picker>{" "}
-          </View>{" "}
-        </View>{" "}
-        <View style={styles.chartContainer}>
-          <Text style={styles.chartTitle}>
-            {" "}
-            {selectedCrop} {t("price_analysis")}{" "}
-          </Text>{" "}
-          <Text style={styles.chartSubtitle}> {t("last_6_months")} </Text>{" "}
-          {loading ? (
+            >{crops.map((crop) => (
+              <Picker.Item
+                key={crop.id}
+                label={crop.name}
+                value={crop.name}
+              />
+            ))}</Picker></View></View><View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>{selectedCrop} {t("price_analysis")}</Text><Text style={styles.chartSubtitle}> {t("last_6_months")} </Text>{loading ? (
             <ActivityIndicator
               size="large"
               color={theme.colors.primary}
@@ -628,17 +543,14 @@ const PriceDashboard = ({ navigation }) => {
                 name="alert-circle-outline"
                 size={48}
                 color={theme.colors.text.secondary}
-              />{" "}
-              <Text
+              /><Text
                 style={{
                   marginTop: 12,
                   fontSize: 16,
                   color: theme.colors.text.secondary,
                 }}
               >
-                No price data available for this crop{" "}
-              </Text>{" "}
-            </View>
+                No price data available for this crop</Text></View>
           ) : priceData ? (
             <LineChart
               data={priceData}
@@ -701,69 +613,37 @@ const PriceDashboard = ({ navigation }) => {
                           fontWeight: "bold",
                         }}
                       >
-                        {" "}
-                        ₹ {parseFloat(tooltipPos.value).toFixed(2)}{" "}
-                      </Text>{" "}
-                    </View>{" "}
-                  </View>
+                        ₹ {parseFloat(tooltipPos.value).toFixed(2)}</Text></View></View>
                 ) : null;
               }}
             />
-          ) : null}{" "}
-          {renderTrendInsight()}{" "}
-        </View>{" "}
-        {renderSixMonthTrend()} {renderMarketStats()} {renderRecommendation()}{" "}
-        {renderSuggestedPrice()}{" "}
-        <View style={styles.updatesSection}>
+          ) : null}{renderTrendInsight()}</View>{renderSixMonthTrend()}{renderMarketStats()}{renderRecommendation()}{renderSuggestedPrice()}<View style={styles.updatesSection}>
           <View style={styles.updatesTitleRow}>
-            <Text style={styles.subHeader}> {t("recent_market_updates")} </Text>{" "}
-            <Tooltip
+            <Text style={styles.subHeader}> {t("recent_market_updates")} </Text><Tooltip
               text={
                 t("recent_updates_tooltip") ||
                 "Latest price updates from major mandis across India. These prices are updated daily and help you understand current market rates for different crops. Use this information to set competitive prices for your produce."
               }
               iconSize={16}
-            />{" "}
-          </View>{" "}
-          {recentPrices.map((item) => (
-            <View key={item.id} style={styles.priceItem}>
-              <View style={styles.priceIconPlaceholder}>
-                <Text style={styles.priceIconText}>
-                  {" "}
-                  {item.crop.charAt(0)}{" "}
-                </Text>{" "}
-              </View>{" "}
-              <View
-                style={{
-                  flex: 1,
-                }}
-              >
-                <Text style={styles.cropName}> {item.crop} </Text>{" "}
-                <Text style={styles.date}> {item.date} </Text>{" "}
-              </View>{" "}
-              <Text style={styles.price}>
-                {" "}
-                ₹ {parseFloat(item.price).toFixed(0)}
-                /q{" "}
-              </Text>{" "}
-            </View>
-          ))}{" "}
-          {Array.isArray(recentPrices) && recentPrices.length === 0 && (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                {" "}
-                {t("no_recent_updates")}{" "}
-              </Text>{" "}
-            </View>
-          )}{" "}
-        </View>{" "}
-        <View
+            /></View>{recentPrices.map((item, index) => (
+              <View key={item.id || item._id || index} style={styles.priceItem}>
+                <View style={styles.priceIconPlaceholder}>
+                  <Text style={styles.priceIconText}>{item.crop.charAt(0)}</Text></View><View
+                    style={{
+                      flex: 1,
+                    }}
+                  >
+                  <Text style={styles.cropName}> {item.crop} </Text><Text style={styles.date}> {item.date} </Text></View><Text style={styles.price}>
+                  ₹ {parseFloat(item.price).toFixed(0)}
+                  /q</Text></View>
+            ))}{Array.isArray(recentPrices) && recentPrices.length === 0 && (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>{t("no_recent_updates")}</Text></View>
+            )}</View><View
           style={{
             height: 40,
           }}
-        />{" "}
-      </ScrollView>{" "}
-    </View>
+        /></ScrollView></View>
   );
 };
 

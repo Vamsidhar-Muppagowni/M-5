@@ -238,67 +238,56 @@ class MLService {
         }
     }
 
+    /**
+     * Recommends top-3 crops based on soil, weather, and nutrient data.
+     * Calls the Python Flask ML service running on port 5001.
+     * Falls back to a rule-based recommendation if ML service is unavailable.
+     */
     async getCropRecommendation(params) {
+        const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5001';
         try {
-            const {
-                location,
-                soil_type,
-                water_source,
-                season
-            } = params;
-
-            const recommendations = [{
-                    crop: 'Rice',
-                    suitability: 'high',
-                    profit_margin: '15-20%',
-                    market_demand: 'high',
-                    water_requirement: 'high',
-                    duration: '120-150 days'
-                },
-                {
-                    crop: 'Wheat',
-                    suitability: 'high',
-                    profit_margin: '12-18%',
-                    market_demand: 'high',
-                    water_requirement: 'medium',
-                    duration: '100-120 days'
-                },
-                {
-                    crop: 'Cotton',
-                    suitability: 'medium',
-                    profit_margin: '20-25%',
-                    market_demand: 'medium',
-                    water_requirement: 'medium',
-                    duration: '150-180 days'
-                }
-            ];
-
-            // Filter based on parameters
-            let filtered = recommendations;
-
-            if (water_source === 'rain') {
-                filtered = filtered.filter(crop => crop.water_requirement !== 'high');
-            }
-
-            if (season === 'winter') {
-                filtered = filtered.filter(crop => crop.crop !== 'Rice');
-            }
-
-            // Add price predictions
-            for (const crop of filtered) {
-                const prediction = await this.predictPrice({
-                    crop: crop.crop,
-                    location,
-                    days: 30
-                });
-                crop.price_prediction = prediction;
-            }
-
-            return filtered;
+            const response = await axios.post(
+                `${ML_SERVICE_URL}/recommend-crop`,
+                params,
+                { timeout: 5000 }
+            );
+            return response.data;
         } catch (error) {
-            console.error('Get crop recommendation error:', error);
-            return this.getDefaultRecommendations();
+            console.warn('[MLService] Crop ML service unavailable, using fallback:', error.message);
+            return this._cropFallback(params);
         }
+    }
+
+    _cropFallback(params) {
+        const { temperature = 25, rainfall = 100 } = params;
+
+        let recommendations;
+        if (temperature > 30 && rainfall < 50) {
+            recommendations = [
+                { rank: 1, crop: 'Mothbeans', confidence: 60.0 },
+                { rank: 2, crop: 'Mungbean', confidence: 25.0 },
+                { rank: 3, crop: 'Mango', confidence: 15.0 },
+            ];
+        } else if (rainfall > 150) {
+            recommendations = [
+                { rank: 1, crop: 'Rice', confidence: 80.0 },
+                { rank: 2, crop: 'Jute', confidence: 10.0 },
+                { rank: 3, crop: 'Papaya', confidence: 10.0 },
+            ];
+        } else {
+            recommendations = [
+                { rank: 1, crop: 'Maize', confidence: 50.0 },
+                { rank: 2, crop: 'Cotton', confidence: 30.0 },
+                { rank: 3, crop: 'Wheat', confidence: 20.0 },
+            ];
+        }
+
+        return {
+            success: true,
+            fallback: true,
+            message: 'ML service unavailable - using rule-based crop estimate',
+            recommendations,
+        };
     }
 
     async getPriceHistory(params) {
@@ -405,17 +394,17 @@ class MLService {
     getUpcomingHolidays() {
         // Indian market holidays
         return [{
-                date: '2024-01-26',
-                name: 'Republic Day'
-            },
-            {
-                date: '2024-08-15',
-                name: 'Independence Day'
-            },
-            {
-                date: '2024-10-02',
-                name: 'Gandhi Jayanti'
-            }
+            date: '2024-01-26',
+            name: 'Republic Day'
+        },
+        {
+            date: '2024-08-15',
+            name: 'Independence Day'
+        },
+        {
+            date: '2024-10-02',
+            name: 'Gandhi Jayanti'
+        }
         ];
     }
 
@@ -491,19 +480,69 @@ class MLService {
 
     getDefaultRecommendations() {
         return [{
-                crop: 'Rice',
-                suitability: 'high',
-                profit_margin: '15-20%',
-                market_demand: 'high'
-            },
-            {
-                crop: 'Wheat',
-                suitability: 'high',
-                profit_margin: '12-18%',
-                market_demand: 'high'
-            }
+            crop: 'Rice',
+            suitability: 'high',
+            profit_margin: '15-20%',
+            market_demand: 'high'
+        },
+        {
+            crop: 'Wheat',
+            suitability: 'high',
+            profit_margin: '12-18%',
+            market_demand: 'high'
+        }
         ];
     }
+    /**
+     * Recommends top-3 fertilizers based on soil/crop/nutrient data.
+     * Calls the Python Flask ML service running on port 5001.
+     * Falls back to a rule-based recommendation if ML service is unavailable.
+     */
+    async getFertilizerRecommendation(params) {
+        const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://localhost:5001';
+        try {
+            const response = await axios.post(
+                `${ML_SERVICE_URL}/recommend-fertilizer`,
+                params,
+                { timeout: 5000 }
+            );
+            return response.data;
+        } catch (error) {
+            console.warn('[MLService] Fertilizer ML service unavailable, using fallback:', error.message);
+            return this._fertilizerFallback(params);
+        }
+    }
+
+    _fertilizerFallback(params) {
+        const { nitrogen = 20, phosphorous = 15, potassium = 10 } = params;
+        let recommendations;
+        if (nitrogen > 30) {
+            recommendations = [
+                { rank: 1, fertilizer: 'Urea', confidence: 75.0 },
+                { rank: 2, fertilizer: '28-28', confidence: 15.0 },
+                { rank: 3, fertilizer: '17-17-17', confidence: 10.0 },
+            ];
+        } else if (phosphorous > 25) {
+            recommendations = [
+                { rank: 1, fertilizer: 'DAP', confidence: 70.0 },
+                { rank: 2, fertilizer: '14-35-14', confidence: 20.0 },
+                { rank: 3, fertilizer: '10-26-26', confidence: 10.0 },
+            ];
+        } else {
+            recommendations = [
+                { rank: 1, fertilizer: '17-17-17', confidence: 45.0 },
+                { rank: 2, fertilizer: '20-20', confidence: 30.0 },
+                { rank: 3, fertilizer: 'DAP', confidence: 25.0 },
+            ];
+        }
+        return {
+            success: true,
+            fallback: true,
+            message: 'ML service unavailable - using rule-based estimate',
+            recommendations,
+        };
+    }
+
 }
 
 module.exports = new MLService();
